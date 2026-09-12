@@ -1,15 +1,30 @@
 import { Router } from 'express';
-import { protect, restrictTo } from '../middleware/auth.middleware';
+import { protect } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validate';
+import {
+  registerValidator,
+  loginValidator,
+  forgotPasswordValidator,
+  resetPasswordValidator,
+} from '../validators/auth.validator';
+import {
+  register,
+  login,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
+  getMe,
+  logout,
+} from '../controllers/auth.controller';
 
 const router = Router();
 
-// TODO: Implement auth controllers
-// router.post('/register', register);
-// router.post('/login', login);
-// router.post('/verify-email', verifyEmail);
-// router.post('/forgot-password', forgotPassword);
-// router.post('/reset-password', resetPassword);
-// router.get('/me', protect, getMe);
-// router.post('/logout', protect, logout);
+router.post('/register', registerValidator, validate, register);
+router.post('/login', loginValidator, validate, login);
+router.post('/verify-email', verifyEmail);
+router.post('/forgot-password', forgotPasswordValidator, validate, forgotPassword);
+router.post('/reset-password', resetPasswordValidator, validate, resetPassword);
+router.get('/me', protect, getMe);
+router.post('/logout', protect, logout);
 
 export default router;

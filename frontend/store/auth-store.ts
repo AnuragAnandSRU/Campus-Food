@@ -10,6 +10,7 @@ interface User {
   hostelBlock?: string;
   roomNumber?: string;
   canteenId?: string;
+  isVerified: boolean;
 }
 
 interface AuthState {
@@ -17,6 +18,7 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   setAuth: (user: User, token: string) => void;
+  setUser: (user: User) => void;
   logout: () => void;
 }
 
@@ -30,6 +32,10 @@ export const useAuthStore = create<AuthState>()(
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
         set({ user, token, isAuthenticated: true });
+      },
+      setUser: (user) => {
+        localStorage.setItem('user', JSON.stringify(user));
+        set({ user });
       },
       logout: () => {
         localStorage.removeItem('token');

@@ -10,7 +10,7 @@ export default function Home() {
             alt="Delicious food"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-charcoal/60 to-charcoal/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-ink/60 to-ink/80" />
         </div>
 
         {/* Content */}
@@ -20,7 +20,7 @@ export default function Home() {
           </div>
 
           <h1 className="text-6xl md:text-7xl mb-6 tracking-tight">
-            Order from your <em className="text-accent not-italic">favorite</em> canteens
+            Order from your <em className="text-highlight not-italic">favorite</em> canteens
           </h1>
 
           <p className="text-xl md:text-2xl text-white/80 mb-8 font-light max-w-2xl mx-auto">
@@ -90,10 +90,10 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6 bg-charcoal text-white">
+      <section className="py-24 px-6 bg-ink text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl mb-6 tracking-tight">
-            Ready to <em className="text-accent not-italic">skip the queue</em>?
+            Ready to <em className="text-highlight not-italic">skip the queue</em>?
           </h2>
           <p className="text-xl text-white/80 mb-8 font-light">
             Join thousands of students already ordering food the smart way.
@@ -105,7 +105,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-border">
+      <footer className="py-12 px-6 border-t border-line">
         <div className="max-w-6xl mx-auto text-center text-muted">
           <p className="font-light">
             © 2026 Campus Food. Made with care for students.

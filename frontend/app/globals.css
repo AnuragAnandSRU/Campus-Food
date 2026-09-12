@@ -1,14 +1,51 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ *
+ * Design tokens — Tailwind v4 CSS-first config.
+ *
+ * The v4 PostCSS plugin does NOT read `tailwind.config.ts`, so the
+ * palette and fonts live here. Each token generates real utilities:
+ *   --color-accent    -> bg-accent / text-accent / border-accent
+ *   --color-highlight -> bg-highlight / text-highlight
+ *   --font-display    -> font-display
+ *
+ * Identity: "Fresh emerald" — light & clean, deep-green primary with a
+ * sun-yellow pop. Outfit (geometric sans) for display, Inter for body.
+ * To re-skin the whole app, edit the values below — nothing else.
+ * ------------------------------------------------------------------ */
+@theme {
+  --color-background: #f6f9f6; /* soft green-tinted paper */
+  --color-surface: #ffffff;
+  --color-surface-white: #ffffff;
+  --color-line: #e2e7e1; /* soft green-grey hairline */
+  --color-ink: #10140e; /* near-black, faint green */
+  --color-muted: #5b6157; /* olive-grey secondary text */
+  --color-accent: #1b7a45; /* deep emerald — primary brand + actions */
+  --color-accent-hover: #155f36; /* darker emerald */
+  --color-accent-tint: #e4f1e9; /* pale emerald — soft fills & badges */
+  --color-highlight: #ffc93c; /* sun yellow — pops & hero CTAs */
+  --color-highlight-tint: #fff4d2; /* pale yellow */
+  --color-danger: #b91c1c;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+}
 
 @layer base {
   body {
-    @apply bg-[#F7F4EF] text-[#1F2421] font-light;
+    @apply bg-background text-ink font-light;
+    font-family: var(--font-sans);
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-normal;
+  /* Headings default to the geometric display face, semibold. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold;
+    font-family: var(--font-display);
   }
 }
 
@@ -18,19 +55,24 @@
   }
 
   .btn-primary {
-    @apply bg-[#C4612F] text-white hover:bg-[#A94E22] hover:-translate-y-0.5 shadow-sm hover:shadow-md;
+    @apply bg-accent text-white hover:bg-accent-hover hover:-translate-y-0.5 shadow-sm hover:shadow-md;
   }
 
   .btn-secondary {
-    @apply bg-[#FBF9F5] border border-[#E7E1D7] text-[#1F2421] hover:border-[#C4612F] hover:-translate-y-0.5;
+    @apply bg-surface border border-line text-ink hover:border-accent hover:-translate-y-0.5;
+  }
+
+  /* High-emphasis CTA — sun yellow with dark ink text. */
+  .btn-highlight {
+    @apply bg-highlight text-ink hover:brightness-95 hover:-translate-y-0.5 shadow-sm hover:shadow-md;
   }
 
   .card {
-    @apply bg-white rounded-2xl border border-[#E7E1D7] shadow-sm;
+    @apply bg-white rounded-2xl border border-line shadow-sm;
   }
 
   .input {
-    @apply w-full px-4 py-3 rounded-xl border border-[#E7E1D7] bg-white focus:outline-none focus:border-[#C4612F] transition-colors;
+    @apply w-full px-4 py-3 rounded-xl border border-line bg-white focus:outline-none focus:border-accent transition-colors;
   }
 
   .badge {
@@ -38,6 +80,11 @@
   }
 
   .badge-accent {
-    @apply bg-[#F2E3D6] text-[#C4612F];
+    @apply bg-accent-tint text-accent;
+  }
+
+  /* Explicit display-face helper (headings already default to it). */
+  .font-display {
+    font-family: var(--font-display);
   }
 }

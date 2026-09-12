@@ -100,8 +100,7 @@ userSchema.methods.comparePassword = async function (
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Index for faster queries
-userSchema.index({ email: 1 });
+// Indexes for faster queries (email already indexed via `unique: true`)
 userSchema.index({ role: 1 });
 userSchema.index({ canteenId: 1 });
 

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/backend/src/server.js",
+    "smoke": "ts-node --transpile-only scripts/smoke.ts",
     "lint": "eslint . --ext .ts",
     "test": "jest"
   },
