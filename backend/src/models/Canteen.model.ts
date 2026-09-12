@@ -76,8 +76,7 @@ const canteenSchema = new Schema<ICanteen>(
   }
 );
 
-// Indexes
-canteenSchema.index({ name: 1 });
+// Indexes (name already indexed via `unique: true`)
 canteenSchema.index({ ownerId: 1 });
 canteenSchema.index({ isActive: 1 });
 

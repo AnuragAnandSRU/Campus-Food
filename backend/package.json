@@ -8,6 +8,8 @@
     "build": "tsc",
     "start": "node dist/backend/src/server.js",
     "smoke": "ts-node --transpile-only scripts/smoke.ts",
+    "seed": "ts-node --transpile-only scripts/seed.ts",
+    "bootstrap:admin": "ts-node --transpile-only scripts/bootstrap-admin.ts",
     "lint": "eslint . --ext .ts",
     "test": "jest"
   },
