@@ -31,6 +31,24 @@ export function formatDateTime(date: Date | string): string {
   return `${formatDate(date)} at ${formatTime(date)}`;
 }
 
+/**
+ * Whether a canteen is open right now, from its "HH:MM" opening hours.
+ * Handles overnight windows (e.g. 20:00–02:00).
+ */
+export function isCanteenOpen(hours?: { open: string; close: string }): boolean {
+  if (!hours?.open || !hours?.close) return false;
+  const now = new Date();
+  const cur = now.getHours() * 60 + now.getMinutes();
+  const [oh, om] = hours.open.split(':').map(Number);
+  const [ch, cm] = hours.close.split(':').map(Number);
+  const openMin = oh * 60 + om;
+  const closeMin = ch * 60 + cm;
+  if (Number.isNaN(openMin) || Number.isNaN(closeMin)) return false;
+  return closeMin <= openMin
+    ? cur >= openMin || cur < closeMin // overnight
+    : cur >= openMin && cur < closeMin;
+}
+
 export function getOrderStatusColor(status: string): string {
   const colors: Record<string, string> = {
     pending: 'bg-yellow-100 text-yellow-800',

@@ -1,14 +1,16 @@
 import { Router } from 'express';
-import { protect, restrictTo } from '../middleware/auth.middleware';
+// import { protect, restrictTo } from '../middleware/auth.middleware';
+import { getMenuByCanteen, getMenuItemById } from '../controllers/menu.controller';
 
 const router = Router();
 
-// TODO: Implement menu controllers
-// Public routes
-// router.get('/:canteenId', getMenuByCanteen);
-// router.get('/item/:id', getMenuItemById);
+// Public routes — student browse.
+// NOTE: '/item/:id' must be declared before '/:canteenId' so it isn't
+// swallowed by the canteenId param route.
+router.get('/item/:id', getMenuItemById);
+router.get('/:canteenId', getMenuByCanteen);
 
-// Protected routes - Owner/Staff only
+// TODO (owner/staff step): protected create/update/delete + availability
 // router.use(protect);
 // router.post('/', restrictTo('owner', 'admin'), createMenuItem);
 // router.put('/:id', restrictTo('owner', 'admin'), updateMenuItem);

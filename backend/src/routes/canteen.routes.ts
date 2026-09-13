@@ -1,15 +1,14 @@
 import { Router } from 'express';
-import { protect, restrictTo } from '../middleware/auth.middleware';
+// import { protect, restrictTo } from '../middleware/auth.middleware';
+import { getAllCanteens, getCanteenById } from '../controllers/canteen.controller';
 
 const router = Router();
 
-// TODO: Implement canteen controllers
-// Public routes
-// router.get('/', getAllCanteens);
-// router.get('/:id', getCanteenById);
-// router.get('/:id/menu', getCanteenMenu);
+// Public routes — student browse
+router.get('/', getAllCanteens);
+router.get('/:id', getCanteenById);
 
-// Protected routes - Owner/Admin only
+// TODO (admin/owner step): protected create/update/delete
 // router.use(protect);
 // router.post('/', restrictTo('admin'), createCanteen);
 // router.put('/:id', restrictTo('owner', 'admin'), updateCanteen);
