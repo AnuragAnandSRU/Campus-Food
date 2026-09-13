@@ -1,12 +1,12 @@
 import type { MenuItem } from '../../../shared/src/types/menu.types';
 import { VegIndicator } from './veg-indicator';
+import { AddToCart } from './add-to-cart';
 import { formatCurrency } from '@/lib/utils';
 
 /**
- * A single dish row on a canteen's menu. Read-only for step 2 — the
- * add-to-cart control arrives with the cart work in step 3.
+ * A single dish row on a canteen's menu, with its add-to-cart control.
  */
-export function MenuItemCard({ item }: { item: MenuItem }) {
+export function MenuItemCard({ item, canteenName }: { item: MenuItem; canteenName: string }) {
   return (
     <div
       className={`card flex items-start justify-between gap-4 p-4 ${
@@ -29,10 +29,11 @@ export function MenuItemCard({ item }: { item: MenuItem }) {
         </div>
       </div>
 
-      <div className="shrink-0 text-right">
+      <div className="flex shrink-0 flex-col items-end gap-2">
         <span className="font-display text-lg font-semibold text-ink">
           {formatCurrency(item.price)}
         </span>
+        <AddToCart item={item} canteenName={canteenName} />
       </div>
     </div>
   );

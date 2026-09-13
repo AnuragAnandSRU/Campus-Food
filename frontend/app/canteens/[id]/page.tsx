@@ -116,7 +116,7 @@ export default function CanteenMenuPage() {
                   </h2>
                   <div className="space-y-3">
                     {group.items.map((item) => (
-                      <MenuItemCard key={item._id} item={item} />
+                      <MenuItemCard key={item._id} item={item} canteenName={canteen.name} />
                     ))}
                   </div>
                 </section>

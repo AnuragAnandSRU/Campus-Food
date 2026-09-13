@@ -57,24 +57,28 @@ export const sendEmail = async ({ to, subject, html }: SendEmailOptions): Promis
 
 // ---------- Templates ----------
 
-const ACCENT = '#C4612F';
-const INK = '#1F2421';
-const BG = '#F7F4EF';
+// Fresh-emerald palette (hardcoded hex — email clients can't read CSS vars).
+const ACCENT = '#1B7A45'; // deep emerald — brand + CTA
+const INK = '#10140E'; // near-black ink (faint green)
+const MUTED = '#5B6157'; // muted olive-grey — body copy
+const FAINT = '#9AA79D'; // pale green-grey — footer / paste link
+const BG = '#F6F9F6'; // soft green-tinted paper
+const LINE = '#E2E7E1'; // hairline border
 
 const wrap = (heading: string, body: string, cta?: { label: string; url: string }): string => `
   <div style="background:${BG};padding:32px 0;font-family:Inter,Arial,sans-serif;color:${INK};">
-    <div style="max-width:480px;margin:0 auto;background:#ffffff;border:1px solid #E7E1D7;border-radius:16px;padding:32px;">
-      <div style="font-size:20px;font-weight:600;color:${ACCENT};margin-bottom:16px;">🍽️ Campus Food</div>
+    <div style="max-width:480px;margin:0 auto;background:#ffffff;border:1px solid ${LINE};border-radius:16px;padding:32px;">
+      <div style="font-size:20px;font-weight:700;letter-spacing:-0.01em;margin-bottom:16px;"><span style="color:${ACCENT};">Campus</span><span style="color:${INK};">Food</span></div>
       <h1 style="font-size:22px;margin:0 0 12px;color:${INK};">${heading}</h1>
-      <div style="font-size:15px;line-height:1.6;color:#5C635D;">${body}</div>
+      <div style="font-size:15px;line-height:1.6;color:${MUTED};">${body}</div>
       ${
         cta
           ? `<a href="${cta.url}" style="display:inline-block;margin-top:24px;background:${ACCENT};color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:500;">${cta.label}</a>
-             <p style="font-size:12px;color:#9A9E98;margin-top:20px;word-break:break-all;">Or paste this link into your browser:<br>${cta.url}</p>`
+             <p style="font-size:12px;color:${FAINT};margin-top:20px;word-break:break-all;">Or paste this link into your browser:<br>${cta.url}</p>`
           : ''
       }
     </div>
-    <p style="text-align:center;font-size:12px;color:#9A9E98;margin-top:16px;">© ${new Date().getFullYear()} Campus Food</p>
+    <p style="text-align:center;font-size:12px;color:${FAINT};margin-top:16px;">© ${new Date().getFullYear()} CampusFood</p>
   </div>
 `;
 

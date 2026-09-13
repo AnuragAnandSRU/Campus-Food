@@ -127,9 +127,11 @@ const orderSchema = new Schema<IOrder>(
   }
 );
 
-// Generate unique order ID before saving
-orderSchema.pre('save', async function (next) {
-  if (this.isNew) {
+// Generate the human-readable order ID before validation. This must run on
+// `validate` (not `save`): Mongoose validates *before* save hooks fire, and
+// orderId is `required`, so generating it in a pre-save hook is too late.
+orderSchema.pre('validate', async function (next) {
+  if (this.isNew && !this.orderId) {
     const date = new Date();
     const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
     const random = Math.floor(Math.random() * 10000)

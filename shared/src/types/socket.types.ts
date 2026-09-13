@@ -1,4 +1,4 @@
-import { Order, OrderStatus } from './order.types';
+import { Order } from './order.types';
 
 // Socket event names
 export const SOCKET_EVENTS = {
@@ -18,20 +18,21 @@ export const SOCKET_EVENTS = {
   LEAVE_ROOM: 'leave_room',
 } as const;
 
-// Socket event payloads
+/** Union of every socket event name on the wire (e.g. 'new_order'). */
+export type SocketEventName = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS];
+
+// Socket event payloads. Every order event carries the full order so any open
+// screen can update its cache directly, without a follow-up fetch.
 export interface OrderPlacedPayload {
   order: Order;
 }
 
 export interface OrderStatusUpdatedPayload {
-  orderId: string;
-  status: OrderStatus;
-  estimatedDeliveryTime?: Date;
+  order: Order;
 }
 
 export interface NewOrderPayload {
   order: Order;
-  canteenId: string;
 }
 
 export interface JoinRoomPayload {

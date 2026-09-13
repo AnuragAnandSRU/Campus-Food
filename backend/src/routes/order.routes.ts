@@ -1,20 +1,51 @@
 import { Router } from 'express';
 import { protect, restrictTo } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validate';
+import {
+  createOrderValidator,
+  updateOrderStatusValidator,
+  cancelOrderValidator,
+} from '../validators/order.validator';
+import {
+  createOrder,
+  getMyOrders,
+  getOrderById,
+  getCanteenOrders,
+  updateOrderStatus,
+  cancelOrder,
+} from '../controllers/order.controller';
 
 const router = Router();
 
-// All routes require authentication
+// All order routes require authentication.
 router.use(protect);
 
-// TODO: Implement order controllers
 // Student routes
-// router.post('/', restrictTo('student'), createOrder);
-// router.get('/my-orders', restrictTo('student'), getMyOrders);
-// router.get('/:id', getOrderById);
-// router.post('/:id/cancel', restrictTo('student'), cancelOrder);
+router.post('/', restrictTo('student'), createOrderValidator, validate, createOrder);
+router.get('/my-orders', restrictTo('student'), getMyOrders);
 
-// Staff routes
-// router.get('/canteen/:canteenId', restrictTo('staff', 'owner'), getCanteenOrders);
-// router.patch('/:id/status', restrictTo('staff', 'owner'), updateOrderStatus);
+// Canteen order book (staff/owner see their own; admin any). Kept above /:id so
+// the literal "canteen" segment isn't captured by the :id param.
+router.get('/canteen/:canteenId', restrictTo('staff', 'owner', 'admin'), getCanteenOrders);
+
+// Shared read (ownership enforced inside the controller). After /my-orders and
+// /canteen so those literal paths win.
+router.get('/:id', getOrderById);
+
+// Status changes and cancellation.
+router.patch(
+  '/:id/status',
+  restrictTo('staff', 'owner', 'admin'),
+  updateOrderStatusValidator,
+  validate,
+  updateOrderStatus
+);
+router.post(
+  '/:id/cancel',
+  restrictTo('student', 'staff', 'owner', 'admin'),
+  cancelOrderValidator,
+  validate,
+  cancelOrder
+);
 
 export default router;

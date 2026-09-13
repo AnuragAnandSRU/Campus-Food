@@ -42,7 +42,9 @@ export default function LoginPage() {
       setAuth(user, token);
       toast.success(`Welcome back, ${user.name.split(' ')[0]}!`);
       const redirect = new URLSearchParams(window.location.search).get('redirect');
-      router.push(redirect || '/');
+      // Staff/owner land on their canteen dashboard; everyone else on home.
+      const home = user.role === 'staff' || user.role === 'owner' ? '/dashboard' : '/';
+      router.push(redirect || home);
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Could not sign you in. Check your details.'));
     } finally {

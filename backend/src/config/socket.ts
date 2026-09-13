@@ -1,68 +1,84 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import { SOCKET_EVENTS } from '../../../shared/src/types/socket.types';
+import User from '../models/User.model';
+import type { IOrder } from '../models/Order.model';
 
 interface SocketUser {
   userId: string;
   role: string;
 }
 
-export const initializeSocket = (io: SocketIOServer): void => {
-  // Authentication middleware
-  io.use((socket: Socket, next) => {
-    const token = socket.handshake.auth.token;
+// Held at module scope so controllers can emit via the helpers below without
+// importing the server (which would create a circular dependency).
+let ioInstance: SocketIOServer | null = null;
 
+const userRoom = (userId: string): string => `user:${userId}`;
+const canteenRoom = (canteenId: string): string => `canteen:${canteenId}`;
+
+export const initializeSocket = (io: SocketIOServer): void => {
+  ioInstance = io;
+
+  // Authenticate every socket from its JWT before any events flow.
+  io.use((socket: Socket, next) => {
+    const token = socket.handshake.auth?.token as string | undefined;
     if (!token) {
       return next(new Error('Authentication error'));
     }
-
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as SocketUser;
       socket.data.user = decoded;
       next();
-    } catch (error) {
+    } catch {
       next(new Error('Invalid token'));
     }
   });
 
-  io.on(SOCKET_EVENTS.CONNECT, (socket: Socket) => {
+  io.on('connection', async (socket: Socket) => {
     const user = socket.data.user as SocketUser;
-    console.log(`✅ User connected: ${user.userId} (${user.role})`);
 
-    // Join user-specific room
-    socket.join(`user:${user.userId}`);
+    // Everyone listens on their own room for updates to their orders.
+    socket.join(userRoom(user.userId));
 
-    // Handle room joining (for canteen staff)
-    socket.on(SOCKET_EVENTS.JOIN_ROOM, ({ room }: { room: string }) => {
-      socket.join(room);
-      console.log(`👤 User ${user.userId} joined room: ${room}`);
-    });
+    // Staff/owner additionally listen on their canteen's live feed. The room is
+    // resolved from the DB server-side — never from client input — so a user
+    // can only ever subscribe to the canteen they actually belong to.
+    if (user.role === 'staff' || user.role === 'owner') {
+      try {
+        const me = await User.findById(user.userId).select('canteenId');
+        if (me?.canteenId) {
+          socket.join(canteenRoom(me.canteenId.toString()));
+        }
+      } catch {
+        // A failed lookup just means no canteen feed; personal room still works.
+      }
+    }
 
-    // Handle leaving room
-    socket.on(SOCKET_EVENTS.LEAVE_ROOM, ({ room }: { room: string }) => {
-      socket.leave(room);
-      console.log(`👋 User ${user.userId} left room: ${room}`);
-    });
-
-    // Handle disconnect
     socket.on(SOCKET_EVENTS.DISCONNECT, () => {
-      console.log(`❌ User disconnected: ${user.userId}`);
+      /* no cleanup needed — socket.io leaves rooms automatically */
     });
   });
 
   console.log('✅ Socket.io initialized');
 };
 
-// Export io instance for use in other files
-let ioInstance: SocketIOServer;
-
-export const setSocketInstance = (io: SocketIOServer): void => {
-  ioInstance = io;
+/**
+ * Push a freshly-placed order to its canteen's staff/owner in real time.
+ */
+export const emitNewOrder = (order: IOrder): void => {
+  if (!ioInstance) return;
+  ioInstance.to(canteenRoom(order.canteenId.toString())).emit(SOCKET_EVENTS.NEW_ORDER, { order });
 };
 
-export const getSocketInstance = (): SocketIOServer => {
-  if (!ioInstance) {
-    throw new Error('Socket.io not initialized');
-  }
-  return ioInstance;
+/**
+ * Push an order status change to both the student who placed it and the
+ * canteen working it, so every open screen updates without a refresh.
+ */
+export const emitOrderStatusUpdate = (order: IOrder): void => {
+  if (!ioInstance) return;
+  const event =
+    order.status === 'cancelled' ? SOCKET_EVENTS.ORDER_CANCELLED : SOCKET_EVENTS.ORDER_STATUS_UPDATED;
+  const payload = { order };
+  ioInstance.to(userRoom(order.studentId.toString())).emit(event, payload);
+  ioInstance.to(canteenRoom(order.canteenId.toString())).emit(event, payload);
 };
