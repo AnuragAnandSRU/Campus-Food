@@ -1,5 +1,10 @@
 # 🎯 Project Foundation Complete!
 
+> ⚠️ **Historical document.** This was written at project kickoff and describes
+> the state at the first commit. For current status see
+> **[PROJECT_STATUS.md](PROJECT_STATUS.md)** and **[ROADMAP.md](ROADMAP.md)** —
+> Phases 1–4 are now built (auth, canteens/menu, ordering, order tracking).
+
 ## What We've Built Today
 
 ### ✅ Complete Backend Infrastructure

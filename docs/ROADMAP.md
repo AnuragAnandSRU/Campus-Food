@@ -1,127 +1,161 @@
 # Development Roadmap
 
-## Phase 1: Foundation & Authentication (Week 1-2)
+> ## 📊 Progress snapshot — updated 2026-10-13
+>
+> **Phases 1–4 are built and working; Phases 5–8 are not started** — roughly
+> half the roadmap. The whole order path (browse → cart → checkout → live
+> tracking → hostel-room delivery) works end to end on cash-on-delivery.
+>
+> | Phase | Status |
+> |---|---|
+> | 1. Foundation & Authentication | ✅ Done (upgraded — see note) |
+> | 2. Canteen & Menu Management | ✅ Done (except S3 image upload) |
+> | 3. Cart & Order Placement | ✅ Done |
+> | 4. Order Tracking & Management | ✅ Done |
+> | 5. Analytics & Owner Dashboard | ⬜ Not started |
+> | 6. Polish & Optimization | ⬜ Not started |
+> | 7. Payment Integration | ⬜ Not started (deliberately last) |
+> | 8. Deployment | ⬜ Not started |
+>
+> **Auth was upgraded beyond this plan.** The original Phase 1 assumed simple
+> "register and pick a role." Real deployment needed controlled access, so it
+> became: **three sign-in doors** (student / partner / admin), **admin-issued
+> invite provisioning**, an **owner-vs-staff split**, and **per-staff powers**
+> (duties: kitchen/delivery; permissions: e.g. `manage_menu`). These aren't in
+> the checklists below — they replaced the naive auth.
+>
+> *The checklists below are now ticked to match what's actually built. A note in
+> italics means an item is partial or changed from the original plan.*
+
+## Phase 1: Foundation & Authentication (Week 1-2) — ✅ COMPLETE
 
 ### Backend
 - [x] Project structure setup
 - [x] Database models (User, Canteen, MenuItem, Order)
 - [x] Middleware (auth, error handling)
-- [ ] Auth controllers
-  - [ ] Register with email verification
-  - [ ] Login with JWT
-  - [ ] Password reset flow
-  - [ ] Get current user
-- [ ] User profile management
-- [ ] Email service setup (Nodemailer)
-- [ ] Input validation (express-validator)
+- [x] Auth controllers
+  - [x] Register with email verification
+  - [x] Login with JWT
+  - [x] Password reset flow
+  - [x] Get current user
+- [ ] User profile management *(not built — users can't edit their own profile yet)*
+- [x] Email service setup (Nodemailer)
+- [x] Input validation (express-validator)
 
 ### Frontend
-- [ ] Next.js project setup
-- [ ] Authentication pages
-  - [ ] Login
-  - [ ] Register (with role selection)
-  - [ ] Email verification
-  - [ ] Forgot/Reset password
-- [ ] Auth context/store (Zustand)
-- [ ] Protected route wrapper
-- [ ] API client setup (axios/fetch)
+- [x] Next.js project setup
+- [x] Authentication pages
+  - [x] Login
+  - [x] Register (with role selection) *(students self-register; owners/staff are invited instead)*
+  - [x] Email verification
+  - [x] Forgot/Reset password
+- [x] Auth context/store (Zustand)
+- [x] Protected route wrapper
+- [x] API client setup (axios/fetch)
+
+### Added beyond the original plan ✅
+- [x] Three sign-in doors (student / partner / admin)
+- [x] Invite-based provisioning (admin issues single-use invite links)
+- [x] Owner vs staff split
+- [x] Per-staff powers — duties (kitchen/delivery) + permissions (e.g. `manage_menu`)
 
 ### Testing
-- [ ] Test user registration flow
+- [ ] Test user registration flow *(no automated tests yet — verified manually)*
 - [ ] Test login and JWT handling
 - [ ] Test protected routes
 
 ---
 
-## Phase 2: Canteen & Menu Management (Week 3-4)
+## Phase 2: Canteen & Menu Management (Week 3-4) — ✅ MOSTLY COMPLETE
 
 ### Backend
-- [ ] Canteen controllers (CRUD)
-- [ ] Menu controllers (CRUD)
-- [ ] Image upload to S3
-- [ ] Menu search and filtering
-- [ ] Availability management
+- [x] Canteen controllers (CRUD)
+- [x] Menu controllers (CRUD)
+- [ ] Image upload to S3 *(items take an image URL for now)*
+- [ ] Menu search and filtering *(not built)*
+- [x] Availability management
 
 ### Frontend
-- [ ] Home page (canteen listing)
-- [ ] Canteen detail page
-- [ ] Menu browsing with filters
+- [x] Home page (canteen listing)
+- [x] Canteen detail page
+- [ ] Menu browsing with filters *(browsing works — menu grouped by category with veg indicators; interactive filters + search not built)*
   - [ ] Category filter
   - [ ] Veg/Non-veg filter
   - [ ] Search functionality
-- [ ] Admin dashboard
-  - [ ] Canteen management
-  - [ ] Menu item CRUD
+- [x] Admin / management dashboard *(split into the admin console + an owner/staff menu screen)*
+  - [x] Canteen management
+  - [x] Menu item CRUD
   - [ ] Image upload component
+- [x] Availability toggle (in / out of stock)
 
 ### Testing
-- [ ] Test canteen CRUD operations
+- [ ] Test canteen CRUD operations *(no automated tests yet — verified manually)*
 - [ ] Test menu filtering
 - [ ] Test image upload to S3
 
 ---
 
-## Phase 3: Cart & Order Placement (Week 5-6)
+## Phase 3: Cart & Order Placement (Week 5-6) — ✅ COMPLETE
 
 ### Backend
-- [ ] Order creation endpoint
-- [ ] Order validation
-  - [ ] Check item availability
-  - [ ] Calculate total amount
-  - [ ] Verify delivery address
-- [ ] Order retrieval (student's orders)
-- [ ] Real-time order notifications (Socket.io)
+- [x] Order creation endpoint
+- [x] Order validation
+  - [x] Check item availability
+  - [x] Calculate total amount
+  - [x] Verify delivery address
+- [x] Order retrieval (student's orders)
+- [x] Real-time order notifications (Socket.io)
 
 ### Frontend
-- [ ] Cart functionality
-  - [ ] Add to cart
-  - [ ] Update quantity
-  - [ ] Remove from cart
-  - [ ] Cart persistence (localStorage)
-- [ ] Checkout page
-  - [ ] Review order
-  - [ ] Delivery address form
-  - [ ] Special instructions
-  - [ ] Place order
-- [ ] Order confirmation page
-- [ ] Socket.io integration
+- [x] Cart functionality
+  - [x] Add to cart
+  - [x] Update quantity
+  - [x] Remove from cart
+  - [x] Cart persistence (localStorage)
+- [x] Checkout page
+  - [x] Review order
+  - [x] Delivery address form *(hostel block + room number)*
+  - [x] Special instructions
+  - [x] Place order
+- [x] Order confirmation page
+- [x] Socket.io integration
 
 ### Testing
-- [ ] Test cart operations
+- [ ] Test cart operations *(no automated tests yet — verified manually)*
 - [ ] Test order placement flow
 - [ ] Test real-time notifications
 
 ---
 
-## Phase 4: Order Tracking & Management (Week 7-8)
+## Phase 4: Order Tracking & Management (Week 7-8) — ✅ COMPLETE
 
 ### Backend
-- [ ] Order status update endpoint
-- [ ] Get canteen orders (for staff)
-- [ ] Order cancellation
-- [ ] Real-time status broadcast
+- [x] Order status update endpoint
+- [x] Get canteen orders (for staff)
+- [x] Order cancellation *(endpoint open to student / staff / owner / admin)*
+- [x] Real-time status broadcast
 
 ### Frontend (Student)
-- [ ] My Orders page
-- [ ] Order detail/tracking page
-- [ ] Real-time status updates
-- [ ] Order cancellation
+- [x] My Orders page
+- [x] Order detail/tracking page
+- [x] Real-time status updates
+- [ ] Order cancellation *(backend ready; cancel button not wired into the student UI yet)*
 
 ### Frontend (Staff Dashboard)
-- [ ] Incoming orders view
-- [ ] Order status management
-- [ ] Order details modal
-- [ ] Real-time new order alerts
-- [ ] Menu availability toggle
+- [x] Incoming orders view
+- [x] Order status management
+- [x] Order details modal *(shown inline on the order card)*
+- [x] Real-time new order alerts
+- [x] Menu availability toggle
 
 ### Testing
-- [ ] Test order status flow
+- [ ] Test order status flow *(no automated tests yet — verified manually)*
 - [ ] Test staff dashboard
 - [ ] Test real-time updates
 
 ---
 
-## Phase 5: Analytics & Admin Panel (Week 9-10)
+## Phase 5: Analytics & Admin Panel (Week 9-10) — ⬜ NOT STARTED
 
 ### Backend
 - [ ] Sales analytics endpoint
@@ -142,7 +176,7 @@
 
 ---
 
-## Phase 6: Polish & Optimization (Week 11-12)
+## Phase 6: Polish & Optimization (Week 11-12) — ⬜ NOT STARTED
 
 ### Features
 - [ ] Push notifications setup (Firebase)
@@ -174,7 +208,7 @@
 
 ---
 
-## Phase 7: Payment Integration (Week 13-14)
+## Phase 7: Payment Integration (Week 13-14) — ⬜ NOT STARTED (deliberately last)
 
 ### Backend
 - [ ] Razorpay/Stripe integration
@@ -194,7 +228,7 @@
 
 ---
 
-## Phase 8: Deployment (Week 15)
+## Phase 8: Deployment (Week 15) — ⬜ NOT STARTED
 
 ### Backend Deployment
 - [ ] AWS EC2 setup
