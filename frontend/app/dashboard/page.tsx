@@ -26,7 +26,7 @@ const FILTERS: { key: Filter; label: string }[] = [
  * as a safety net in case the socket drops.
  */
 export default function DashboardPage() {
-  const ready = useRequireRole(['staff', 'owner']);
+  const ready = useRequireRole(['staff', 'owner'], '/partner');
   const user = useAuthStore((s) => s.user);
   const canteenId = user?.canteenId;
   const queryClient = useQueryClient();
@@ -89,18 +89,23 @@ export default function DashboardPage() {
             <p className="mt-1 font-light text-muted">Live orders for your canteen.</p>
           </div>
 
-          <div className="flex gap-1 rounded-full bg-surface p-1 ring-1 ring-line">
-            {FILTERS.map((f) => (
-              <button
-                key={f.key}
-                onClick={() => setFilter(f.key)}
-                className={`rounded-full px-4 py-1.5 text-sm transition-colors ${
-                  filter === f.key ? 'bg-accent text-white' : 'text-muted hover:text-ink'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/dashboard/menu" className="btn btn-secondary">
+              Manage menu
+            </Link>
+            <div className="flex gap-1 rounded-full bg-surface p-1 ring-1 ring-line">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setFilter(f.key)}
+                  className={`rounded-full px-4 py-1.5 text-sm transition-colors ${
+                    filter === f.key ? 'bg-accent text-white' : 'text-muted hover:text-ink'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
