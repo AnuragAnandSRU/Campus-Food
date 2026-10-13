@@ -10,10 +10,15 @@ export interface IUser extends Document {
   hostelBlock?: string;
   roomNumber?: string;
   canteenId?: mongoose.Types.ObjectId;
+  staffDuties: ('kitchen' | 'delivery')[];
+  permissions: ('manage_menu' | 'view_analytics')[];
   isVerified: boolean;
+  isActive: boolean;
   verificationToken?: string;
   resetPasswordToken?: string;
   resetPasswordExpire?: Date;
+  invitationToken?: string;
+  invitationExpire?: Date;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -69,13 +74,36 @@ const userSchema = new Schema<IUser>(
         return this.role === 'staff' || this.role === 'owner';
       },
     },
+    // What a staff member does on the floor. Backfilled to BOTH for accounts
+    // that predate this field; new staff always get explicit duties at
+    // provisioning (see user.validator — at least one is required).
+    staffDuties: {
+      type: [String],
+      enum: ['kitchen', 'delivery'],
+      default: function (this: IUser) {
+        return this.role === 'staff' ? ['kitchen', 'delivery'] : [];
+      },
+    },
+    // Extra powers an owner grants a staff member. Owners implicitly have every
+    // power for their own canteen, so this only ever matters for staff.
+    permissions: {
+      type: [String],
+      enum: ['manage_menu', 'view_analytics'],
+      default: () => [],
+    },
     isVerified: {
       type: Boolean,
       default: false,
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
     verificationToken: String,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+    invitationToken: String,
+    invitationExpire: Date,
   },
   {
     timestamps: true,

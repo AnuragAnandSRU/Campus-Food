@@ -10,7 +10,10 @@ interface User {
   hostelBlock?: string;
   roomNumber?: string;
   canteenId?: string;
+  staffDuties?: ('kitchen' | 'delivery')[];
+  permissions?: ('manage_menu' | 'view_analytics')[];
   isVerified: boolean;
+  isActive?: boolean;
 }
 
 interface AuthState {

@@ -115,3 +115,27 @@ export const sendPasswordResetEmail = async (
     ),
   });
 };
+
+/** Builds the invitation link an admin can copy and share directly. */
+export const buildInviteLink = (rawToken: string): string =>
+  `${process.env.FRONTEND_URL || 'http://localhost:3000'}/accept-invite?token=${rawToken}`;
+
+export const sendInvitationEmail = async (
+  to: string,
+  name: string,
+  rawToken: string,
+  opts: { role: string; canteenName?: string }
+): Promise<void> => {
+  const url = buildInviteLink(rawToken);
+  const roleLabel = opts.role === 'owner' ? 'a canteen owner' : 'canteen staff';
+  const where = opts.canteenName ? ` for <strong>${opts.canteenName}</strong>` : '';
+  await sendEmail({
+    to,
+    subject: 'You have been invited to Campus Food',
+    html: wrap(
+      `Hi ${name},`,
+      `You've been added as ${roleLabel}${where} on Campus Food. Set a password to activate your account and access your dashboard. This invitation link expires in 7 days.`,
+      { label: 'Set your password', url }
+    ),
+  });
+};

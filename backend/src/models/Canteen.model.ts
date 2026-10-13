@@ -5,7 +5,7 @@ export interface ICanteen extends Document {
   description: string;
   location: string;
   image: string;
-  ownerId: mongoose.Types.ObjectId;
+  ownerId?: mongoose.Types.ObjectId;
   openingHours: {
     open: string;
     close: string;
@@ -42,7 +42,8 @@ const canteenSchema = new Schema<ICanteen>(
     ownerId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      // Optional: a canteen is created unassigned by admin, then an owner is
+      // provisioned and linked. See admin provisioning flow.
     },
     openingHours: {
       open: {

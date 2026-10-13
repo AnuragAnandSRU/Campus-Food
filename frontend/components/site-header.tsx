@@ -52,6 +52,12 @@ export function SiteHeader() {
             </Link>
           )}
 
+          {mounted && user && user.role === 'admin' && (
+            <Link href="/admin" className="font-medium text-accent transition-colors hover:text-accent-hover">
+              Admin
+            </Link>
+          )}
+
           {mounted && user && (
             <Link
               href="/orders"

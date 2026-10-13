@@ -44,9 +44,16 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('user');
       localStorage.removeItem('auth-storage');
 
+      // Send the user back to the door that matches the area they were in, so a
+      // partner/admin isn't dumped on the student sign-in (hard separation).
       const current = window.location.pathname;
-      if (current !== '/login') {
-        window.location.href = `/login?redirect=${encodeURIComponent(current)}`;
+      const loginPath = current.startsWith('/admin')
+        ? '/admin/login'
+        : current.startsWith('/partner') || current.startsWith('/dashboard')
+          ? '/partner'
+          : '/login';
+      if (current !== loginPath) {
+        window.location.href = `${loginPath}?redirect=${encodeURIComponent(current)}`;
       }
     }
 

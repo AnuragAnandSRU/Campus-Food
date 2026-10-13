@@ -9,13 +9,18 @@ export interface Canteen {
   description: string;
   location: string;
   image: string;
-  ownerId: string;
+  ownerId?: string;
   openingHours: OpeningHours;
   isActive: boolean;
   rating: number;
   totalOrders: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** Canteen as returned to admins, with the owner populated (or null). */
+export interface AdminCanteen extends Omit<Canteen, 'ownerId'> {
+  ownerId?: { _id: string; name: string; email: string } | null;
 }
 
 export interface CreateCanteenDto {

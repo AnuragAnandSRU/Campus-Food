@@ -4,12 +4,14 @@ import { validate } from '../middleware/validate';
 import {
   registerValidator,
   loginValidator,
+  acceptInviteValidator,
   forgotPasswordValidator,
   resetPasswordValidator,
 } from '../validators/auth.validator';
 import {
   register,
   login,
+  acceptInvite,
   verifyEmail,
   forgotPassword,
   resetPassword,
@@ -21,6 +23,7 @@ const router = Router();
 
 router.post('/register', registerValidator, validate, register);
 router.post('/login', loginValidator, validate, login);
+router.post('/accept-invite', acceptInviteValidator, validate, acceptInvite);
 router.post('/verify-email', verifyEmail);
 router.post('/forgot-password', forgotPasswordValidator, validate, forgotPassword);
 router.post('/reset-password', resetPasswordValidator, validate, resetPassword);
