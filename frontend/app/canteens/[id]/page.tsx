@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -37,10 +38,32 @@ export default function CanteenMenuPage() {
   const canteen = canteenQuery.data;
   const menu = menuQuery.data ?? [];
 
-  const groups = CATEGORY_ORDER.map((category) => ({
-    category,
-    items: menu.filter((item) => item.category === category),
+  const [search, setSearch] = useState('');
+  const [diet, setDiet] = useState<'all' | 'veg' | 'nonveg'>('all');
+  const [category, setCategory] = useState<string>('all');
+
+  // Categories that actually have items, in menu order — drives the filter pills.
+  const presentCategories = CATEGORY_ORDER.filter((c) => menu.some((i) => i.category === c));
+
+  const query = search.trim().toLowerCase();
+  const filtered = menu.filter((item) => {
+    if (diet === 'veg' && !item.isVeg) return false;
+    if (diet === 'nonveg' && item.isVeg) return false;
+    if (category !== 'all' && item.category !== category) return false;
+    if (query && !`${item.name} ${item.description}`.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  const groups = CATEGORY_ORDER.map((cat) => ({
+    category: cat,
+    items: filtered.filter((item) => item.category === cat),
   })).filter((group) => group.items.length > 0);
+
+  const clearFilters = () => {
+    setSearch('');
+    setDiet('all');
+    setCategory('all');
+  };
 
   const open = canteen ? isCanteenOpen(canteen.openingHours) : false;
 
@@ -101,10 +124,31 @@ export default function CanteenMenuPage() {
 
             {menuQuery.isLoading && <MenuSkeleton />}
 
-            {!menuQuery.isLoading && groups.length === 0 && (
+            {!menuQuery.isLoading && menu.length > 0 && (
+              <MenuFilters
+                search={search}
+                onSearch={setSearch}
+                diet={diet}
+                onDiet={setDiet}
+                category={category}
+                onCategory={setCategory}
+                categories={presentCategories}
+              />
+            )}
+
+            {!menuQuery.isLoading && menu.length === 0 && (
               <div className="card mt-6 p-10 text-center">
                 <p className="font-display text-lg text-ink">The menu is empty right now</p>
                 <p className="mt-1 font-light text-muted">Dishes will appear here once added.</p>
+              </div>
+            )}
+
+            {!menuQuery.isLoading && menu.length > 0 && groups.length === 0 && (
+              <div className="card mt-6 p-10 text-center">
+                <p className="font-display text-lg text-ink">No items match your filters</p>
+                <button onClick={clearFilters} className="btn btn-secondary mt-4">
+                  Clear filters
+                </button>
               </div>
             )}
 
@@ -126,6 +170,100 @@ export default function CanteenMenuPage() {
         )}
       </main>
     </div>
+  );
+}
+
+const DIET_OPTIONS: { key: 'all' | 'veg' | 'nonveg'; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'veg', label: 'Veg' },
+  { key: 'nonveg', label: 'Non-veg' },
+];
+
+function MenuFilters({
+  search,
+  onSearch,
+  diet,
+  onDiet,
+  category,
+  onCategory,
+  categories,
+}: {
+  search: string;
+  onSearch: (v: string) => void;
+  diet: 'all' | 'veg' | 'nonveg';
+  onDiet: (v: 'all' | 'veg' | 'nonveg') => void;
+  category: string;
+  onCategory: (v: string) => void;
+  categories: readonly string[];
+}) {
+  return (
+    <div className="mt-6 space-y-3">
+      <input
+        type="search"
+        value={search}
+        onChange={(e) => onSearch(e.target.value)}
+        placeholder="Search the menu"
+        className="input w-full"
+        aria-label="Search the menu"
+      />
+
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex gap-1 rounded-full bg-surface p-1 ring-1 ring-line">
+          {DIET_OPTIONS.map((o) => (
+            <button
+              key={o.key}
+              onClick={() => onDiet(o.key)}
+              className={`rounded-full px-4 py-1.5 text-sm transition-colors ${
+                diet === o.key ? 'bg-accent text-white' : 'text-muted hover:text-ink'
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+
+        {categories.length > 1 && (
+          <div className="flex flex-wrap gap-2">
+            <CategoryChip
+              label="All"
+              active={category === 'all'}
+              onClick={() => onCategory('all')}
+            />
+            {categories.map((c) => (
+              <CategoryChip
+                key={c}
+                label={c}
+                active={category === c}
+                onClick={() => onCategory(c)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CategoryChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-full px-3 py-1.5 text-sm ring-1 transition-colors ${
+        active
+          ? 'bg-accent-tint text-accent ring-accent/30'
+          : 'bg-surface text-muted ring-line hover:text-ink'
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 
