@@ -50,4 +50,8 @@ export const adminApi = {
     );
     return res.data.data!;
   },
+
+  removeUser: async (id: string): Promise<void> => {
+    await apiClient.delete(`/users/${id}`);
+  },
 };

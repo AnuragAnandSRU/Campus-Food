@@ -94,9 +94,14 @@ export default function DashboardPage() {
               Manage menu
             </Link>
             {user?.role === 'owner' && (
-              <Link href="/dashboard/canteen" className="btn btn-secondary">
-                Edit canteen
-              </Link>
+              <>
+                <Link href="/dashboard/canteen" className="btn btn-secondary">
+                  Edit canteen
+                </Link>
+                <Link href="/dashboard/team" className="btn btn-secondary">
+                  Team
+                </Link>
+              </>
             )}
             <div className="flex gap-1 rounded-full bg-surface p-1 ring-1 ring-line">
               {FILTERS.map((f) => (
