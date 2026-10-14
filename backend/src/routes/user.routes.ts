@@ -13,9 +13,10 @@ const router = Router();
 // All routes require authentication
 router.use(protect);
 
-// Admin: provision and manage staff/owner accounts (invite-link flow)
-router.get('/', restrictTo('admin'), listProvisionedUsers);
-router.post('/', restrictTo('admin'), provisionUserValidator, validate, provisionUser);
-router.post('/:id/resend-invite', restrictTo('admin'), resendInvite);
+// Admin: all staff/owner accounts. Owner: their own canteen's staff only
+// (scoping enforced in each controller).
+router.get('/', restrictTo('admin', 'owner'), listProvisionedUsers);
+router.post('/', restrictTo('admin', 'owner'), provisionUserValidator, validate, provisionUser);
+router.post('/:id/resend-invite', restrictTo('admin', 'owner'), resendInvite);
 
 export default router;

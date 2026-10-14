@@ -4,6 +4,7 @@ import User, { IUser } from '../models/User.model';
 import Canteen from '../models/Canteen.model';
 import { asyncHandler } from '../utils/asyncHandler';
 import { AppError } from '../middleware/errorHandler';
+import { AuthRequest } from '../middleware/auth.middleware';
 import { generateRawToken, hashToken } from '../utils/crypto';
 import { sendInvitationEmail, buildInviteLink } from '../services/email.service';
 
@@ -29,14 +30,36 @@ const sanitizeStaff = (user: IUser) => ({
 });
 
 /**
- * POST /api/users  (admin)
+ * POST /api/users  (admin / owner)
  * Provisions a staff or owner account. The account is created INACTIVE with an
  * unusable random password; the invitee activates it by setting their own
  * password via the emailed invitation link. The raw link is also returned so
- * the admin can copy and share it directly (fallback when email is unreliable).
+ * the inviter can copy and share it directly (fallback when email is unreliable).
+ *
+ * An admin may add staff or owners to any canteen. An owner may add only STAFF,
+ * and only to the canteen they run.
  */
 export const provisionUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, name, phone, role, canteenId, staffDuties, permissions } = req.body;
+  const requester = (req as AuthRequest).user!;
+
+  let targetRole: 'staff' | 'owner' = role;
+  let targetCanteenId: string = canteenId;
+
+  if (requester.role === 'owner') {
+    if (role !== 'staff') {
+      throw new AppError('Owners can only add staff members', 403);
+    }
+    const me = await User.findById(requester.userId).select('canteenId');
+    if (!me?.canteenId) {
+      throw new AppError('Your account is not linked to a canteen', 400);
+    }
+    if (canteenId && canteenId !== me.canteenId.toString()) {
+      throw new AppError('You can only add staff to your own canteen', 403);
+    }
+    targetRole = 'staff';
+    targetCanteenId = me.canteenId.toString();
+  }
 
   const normalizedEmail = String(email).toLowerCase().trim();
   const existing = await User.findOne({ email: normalizedEmail });
@@ -44,11 +67,11 @@ export const provisionUser = asyncHandler(async (req: Request, res: Response) =>
     throw new AppError('An account with this email already exists', 409);
   }
 
-  const canteen = await Canteen.findById(canteenId);
+  const canteen = await Canteen.findById(targetCanteenId);
   if (!canteen) {
     throw new AppError('Selected canteen not found', 404);
   }
-  if (role === 'owner' && canteen.ownerId) {
+  if (targetRole === 'owner' && canteen.ownerId) {
     throw new AppError('This canteen already has an owner assigned', 409);
   }
 
@@ -60,23 +83,23 @@ export const provisionUser = asyncHandler(async (req: Request, res: Response) =>
     password: generateRawToken(),
     name,
     phone,
-    role,
-    canteenId,
+    role: targetRole,
+    canteenId: targetCanteenId,
     staffDuties: uniq(staffDuties),
-    permissions: role === 'staff' ? uniq(permissions) : [],
+    permissions: targetRole === 'staff' ? uniq(permissions) : [],
     isActive: false,
     invitationToken: hashToken(rawToken),
     invitationExpire: new Date(Date.now() + INVITE_TTL_MS),
   });
 
   // An owner is linked to the canteen they run.
-  if (role === 'owner') {
+  if (targetRole === 'owner') {
     canteen.ownerId = user._id as mongoose.Types.ObjectId;
     await canteen.save();
   }
 
   await sendInvitationEmail(user.email, user.name, rawToken, {
-    role,
+    role: targetRole,
     canteenName: canteen.name,
   });
 
@@ -90,11 +113,24 @@ export const provisionUser = asyncHandler(async (req: Request, res: Response) =>
 });
 
 /**
- * GET /api/users  (admin)
- * Lists all staff/owner accounts with their canteen and activation status.
+ * GET /api/users  (admin / owner)
+ * Admin: all staff/owner accounts. Owner: only the staff of the canteen they run.
  */
-export const listProvisionedUsers = asyncHandler(async (_req: Request, res: Response) => {
-  const users = await User.find({ role: { $in: ['staff', 'owner'] } })
+export const listProvisionedUsers = asyncHandler(async (req: Request, res: Response) => {
+  const requester = (req as AuthRequest).user!;
+
+  const filter: Record<string, unknown> = { role: { $in: ['staff', 'owner'] } };
+  if (requester.role === 'owner') {
+    const me = await User.findById(requester.userId).select('canteenId');
+    if (!me?.canteenId) {
+      res.json({ success: true, data: [] });
+      return;
+    }
+    filter.role = 'staff';
+    filter.canteenId = me.canteenId;
+  }
+
+  const users = await User.find(filter)
     .sort({ createdAt: -1 })
     .populate('canteenId', 'name');
 
@@ -120,9 +156,10 @@ export const listProvisionedUsers = asyncHandler(async (_req: Request, res: Resp
 });
 
 /**
- * POST /api/users/:id/resend-invite  (admin)
+ * POST /api/users/:id/resend-invite  (admin / owner)
  * Regenerates an invitation for a not-yet-activated account and returns a fresh
- * link. Used when the original expired or the email never arrived.
+ * link. Used when the original expired or the email never arrived. An owner may
+ * only resend for staff of their own canteen.
  */
 export const resendInvite = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -130,10 +167,24 @@ export const resendInvite = asyncHandler(async (req: Request, res: Response) => 
     throw new AppError('User not found', 404);
   }
 
-  const user = await User.findById(id).populate('canteenId', 'name');
+  const user = await User.findById(id);
   if (!user || (user.role !== 'staff' && user.role !== 'owner')) {
     throw new AppError('User not found', 404);
   }
+
+  const requester = (req as AuthRequest).user!;
+  if (requester.role === 'owner') {
+    const me = await User.findById(requester.userId).select('canteenId');
+    if (
+      user.role !== 'staff' ||
+      !me?.canteenId ||
+      !user.canteenId ||
+      user.canteenId.toString() !== me.canteenId.toString()
+    ) {
+      throw new AppError('You can only manage your own staff', 403);
+    }
+  }
+
   if (user.isActive) {
     throw new AppError('This account is already active', 400);
   }
@@ -143,7 +194,7 @@ export const resendInvite = asyncHandler(async (req: Request, res: Response) => 
   user.invitationExpire = new Date(Date.now() + INVITE_TTL_MS);
   await user.save({ validateBeforeSave: false });
 
-  const canteen = user.canteenId as unknown as { name: string } | null;
+  const canteen = await Canteen.findById(user.canteenId).select('name');
   await sendInvitationEmail(user.email, user.name, rawToken, {
     role: user.role,
     canteenName: canteen?.name,
