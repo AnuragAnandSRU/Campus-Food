@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import Canteen from '../models/Canteen.model';
 import { asyncHandler } from '../utils/asyncHandler';
 import { AppError } from '../middleware/errorHandler';
+import { AuthRequest } from '../middleware/auth.middleware';
 
 /**
  * GET /api/canteens  (public)
@@ -67,8 +68,9 @@ export const createCanteen = asyncHandler(async (req: Request, res: Response) =>
 });
 
 /**
- * PATCH /api/canteens/:id  (admin)
- * Updates canteen details or toggles its active state.
+ * PATCH /api/canteens/:id  (admin / owner)
+ * Updates canteen details or toggles its active state. Admins may edit any
+ * canteen; an owner may edit only the canteen they run.
  */
 export const updateCanteen = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -79,6 +81,11 @@ export const updateCanteen = asyncHandler(async (req: Request, res: Response) =>
   const canteen = await Canteen.findById(id);
   if (!canteen) {
     throw new AppError('Canteen not found', 404);
+  }
+
+  const { userId, role } = (req as AuthRequest).user!;
+  if (role !== 'admin' && (!canteen.ownerId || canteen.ownerId.toString() !== userId)) {
+    throw new AppError('You can only edit your own canteen', 403);
   }
 
   const { name, description, location, image, openingHours, isActive } = req.body;

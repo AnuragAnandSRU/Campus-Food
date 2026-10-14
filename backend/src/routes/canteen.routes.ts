@@ -22,7 +22,7 @@ router.get('/', getAllCanteens);
 // captured by the id param route.
 router.get('/admin/all', protect, restrictTo('admin'), listCanteensForAdmin);
 router.post('/', protect, restrictTo('admin'), createCanteenValidator, validate, createCanteen);
-router.patch('/:id', protect, restrictTo('admin'), updateCanteenValidator, validate, updateCanteen);
+router.patch('/:id', protect, restrictTo('admin', 'owner'), updateCanteenValidator, validate, updateCanteen);
 
 router.get('/:id', getCanteenById);
 
