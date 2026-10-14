@@ -58,6 +58,7 @@
 - [x] Invite-based provisioning (admin issues single-use invite links)
 - [x] Owner vs staff split
 - [x] Per-staff powers — duties (kitchen/delivery) + permissions (e.g. `manage_menu`)
+- [x] Owner self-service — owners edit their own canteen and invite / remove their own staff
 
 ### Testing
 - [ ] Test user registration flow *(no automated tests yet — verified manually)*

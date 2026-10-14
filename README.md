@@ -93,6 +93,8 @@ Students, canteen staff/owners, and the platform admin each sign in through thei
 ### For Canteen Owners
 - Everything staff can do, for their own canteen
 - Full menu management (add / edit / delete items)
+- Edit canteen details & hours; mark the canteen open or closed
+- Invite, manage, and remove their own staff
 - *Sales analytics & reports — planned*
 
 ### For Platform Admin
