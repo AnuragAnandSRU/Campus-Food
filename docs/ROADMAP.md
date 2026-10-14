@@ -72,16 +72,16 @@
 - [x] Canteen controllers (CRUD)
 - [x] Menu controllers (CRUD)
 - [ ] Image upload to S3 *(items take an image URL for now)*
-- [ ] Menu search and filtering *(not built)*
+- [x] Menu search and filtering *(done client-side on the browse page; no separate backend endpoint)*
 - [x] Availability management
 
 ### Frontend
 - [x] Home page (canteen listing)
 - [x] Canteen detail page
-- [ ] Menu browsing with filters *(browsing works — menu grouped by category with veg indicators; interactive filters + search not built)*
-  - [ ] Category filter
-  - [ ] Veg/Non-veg filter
-  - [ ] Search functionality
+- [x] Menu browsing with filters *(menu grouped by category; filters are client-side)*
+  - [x] Category filter
+  - [x] Veg/Non-veg filter
+  - [x] Search functionality
 - [x] Admin / management dashboard *(split into the admin console + an owner/staff menu screen)*
   - [x] Canteen management
   - [x] Menu item CRUD
@@ -139,7 +139,7 @@
 - [x] My Orders page
 - [x] Order detail/tracking page
 - [x] Real-time status updates
-- [ ] Order cancellation *(backend ready; cancel button not wired into the student UI yet)*
+- [x] Order cancellation *(cancel button on the order detail page; only while pending/confirmed)*
 
 ### Frontend (Staff Dashboard)
 - [x] Incoming orders view
