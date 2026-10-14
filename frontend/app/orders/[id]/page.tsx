@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { orderApi } from '@/lib/api/order';
 import { canteenApi } from '@/lib/api/canteen';
+import { getApiErrorMessage } from '@/lib/api-client';
 import { useRequireAuth } from '@/lib/use-require-auth';
 import { useOrderSocket } from '@/lib/use-order-socket';
 import { SiteHeader } from '@/components/site-header';
@@ -39,6 +41,25 @@ export default function OrderDetailPage() {
     enabled: Boolean(order?.canteenId),
   });
 
+  // A student may cancel only while the kitchen hasn't started — this mirrors
+  // the backend's STUDENT_CANCELLABLE (pending / confirmed). We hide the button
+  // otherwise so a student never hits a 400.
+  const canCancel = order?.status === 'pending' || order?.status === 'confirmed';
+
+  const cancel = useMutation({
+    mutationFn: () => orderApi.cancel(id, { cancelReason: '' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['order', id] });
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      toast.success('Order cancelled');
+    },
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Could not cancel the order')),
+  });
+
+  const handleCancel = () => {
+    if (window.confirm('Cancel this order? This can’t be undone.')) cancel.mutate();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -66,19 +87,12 @@ export default function OrderDetailPage() {
 
         {order && (
           <>
-            {/* Confirmation banner */}
-            <div className="mt-4 flex flex-col items-center text-center">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-2xl text-white">
-                ✓
-              </span>
-              <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight text-ink">
-                Order placed
-              </h1>
-              <p className="mt-1 font-light text-muted">
-                We&apos;ve sent it to {canteenQuery.data?.name ?? 'the kitchen'}. Pay cash on
-                delivery.
-              </p>
-            </div>
+            {/* Status-aware banner */}
+            <OrderBanner
+              status={order.status}
+              canteenName={canteenQuery.data?.name}
+              cancelReason={order.cancelReason}
+            />
 
             {/* Order meta */}
             <div className="card mt-6 p-5">
@@ -135,17 +149,84 @@ export default function OrderDetailPage() {
               )}
             </div>
 
-            <div className="mt-6 flex gap-3">
-              <Link href="/orders" className="btn btn-secondary flex-1">
-                My orders
-              </Link>
-              <Link href="/canteens" className="btn btn-primary flex-1">
-                Order again
-              </Link>
+            <div className="mt-6 space-y-3">
+              <div className="flex gap-3">
+                <Link href="/orders" className="btn btn-secondary flex-1">
+                  My orders
+                </Link>
+                <Link href="/canteens" className="btn btn-primary flex-1">
+                  Order again
+                </Link>
+              </div>
+              {canCancel && (
+                <button
+                  onClick={handleCancel}
+                  disabled={cancel.isPending}
+                  className="w-full py-2 text-sm font-medium text-danger transition-colors hover:underline disabled:opacity-50"
+                >
+                  {cancel.isPending ? 'Cancelling…' : 'Cancel this order'}
+                </button>
+              )}
             </div>
           </>
         )}
       </main>
+    </div>
+  );
+}
+
+function OrderBanner({
+  status,
+  canteenName,
+  cancelReason,
+}: {
+  status: string;
+  canteenName?: string;
+  cancelReason?: string;
+}) {
+  if (status === 'cancelled') {
+    return (
+      <div className="mt-4 flex flex-col items-center text-center">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-danger text-2xl text-white">
+          ✕
+        </span>
+        <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight text-ink">
+          Order cancelled
+        </h1>
+        <p className="mt-1 font-light text-muted">
+          {cancelReason?.trim() ? cancelReason : 'This order was cancelled.'}
+        </p>
+      </div>
+    );
+  }
+
+  if (status === 'delivered') {
+    return (
+      <div className="mt-4 flex flex-col items-center text-center">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-2xl text-white">
+          ✓
+        </span>
+        <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight text-ink">
+          Delivered
+        </h1>
+        <p className="mt-1 font-light text-muted">
+          Thanks for ordering{canteenName ? ` from ${canteenName}` : ''}.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 flex flex-col items-center text-center">
+      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-2xl text-white">
+        ✓
+      </span>
+      <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight text-ink">
+        Order placed
+      </h1>
+      <p className="mt-1 font-light text-muted">
+        We&apos;ve sent it to {canteenName ?? 'the kitchen'}. Pay cash on delivery.
+      </p>
     </div>
   );
 }
