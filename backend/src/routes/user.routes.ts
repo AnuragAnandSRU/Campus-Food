@@ -6,6 +6,7 @@ import {
   provisionUser,
   listProvisionedUsers,
   resendInvite,
+  removeUser,
 } from '../controllers/user.controller';
 
 const router = Router();
@@ -18,5 +19,6 @@ router.use(protect);
 router.get('/', restrictTo('admin', 'owner'), listProvisionedUsers);
 router.post('/', restrictTo('admin', 'owner'), provisionUserValidator, validate, provisionUser);
 router.post('/:id/resend-invite', restrictTo('admin', 'owner'), resendInvite);
+router.delete('/:id', restrictTo('admin', 'owner'), removeUser);
 
 export default router;

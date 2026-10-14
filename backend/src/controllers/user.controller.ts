@@ -202,3 +202,47 @@ export const resendInvite = asyncHandler(async (req: Request, res: Response) => 
 
   res.json({ success: true, data: { inviteLink: buildInviteLink(rawToken) } });
 });
+
+/**
+ * DELETE /api/users/:id  (admin / owner)
+ * Removes a provisioned account. An owner may remove only STAFF of their own
+ * canteen; an admin may remove any staff or owner. Removing an owner also
+ * unlinks them from the canteen they ran. You cannot remove your own account.
+ */
+export const removeUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    throw new AppError('User not found', 404);
+  }
+
+  const user = await User.findById(id);
+  if (!user || (user.role !== 'staff' && user.role !== 'owner')) {
+    throw new AppError('User not found', 404);
+  }
+
+  const requester = (req as AuthRequest).user!;
+  if (String(user._id) === requester.userId) {
+    throw new AppError('You cannot remove your own account', 400);
+  }
+
+  if (requester.role === 'owner') {
+    const me = await User.findById(requester.userId).select('canteenId');
+    if (
+      user.role !== 'staff' ||
+      !me?.canteenId ||
+      !user.canteenId ||
+      user.canteenId.toString() !== me.canteenId.toString()
+    ) {
+      throw new AppError('You can only remove your own staff', 403);
+    }
+  }
+
+  // Removing an owner leaves their canteen owner-less (admin can reassign later).
+  if (user.role === 'owner' && user.canteenId) {
+    await Canteen.updateOne({ _id: user.canteenId, ownerId: user._id }, { $unset: { ownerId: '' } });
+  }
+
+  await user.deleteOne();
+
+  res.json({ success: true, data: { _id: String(user._id) } });
+});
