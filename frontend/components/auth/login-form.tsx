@@ -8,6 +8,7 @@ import type { LoginAudience } from '../../../shared/src/types/user.types';
 import { authApi } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { useAuthStore } from '@/store/auth-store';
+import { useRedirectIfAuthenticated } from '@/lib/use-redirect-if-authenticated';
 import { Field } from '@/components/auth/field';
 import { SubmitButton } from '@/components/auth/submit-button';
 
@@ -38,6 +39,7 @@ export function LoginForm({
 }: LoginFormProps) {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const { isAuthenticated } = useRedirectIfAuthenticated();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
@@ -67,12 +69,20 @@ export function LoginForm({
       setAuth(user, token);
       toast.success(`Welcome back, ${user.name.split(' ')[0]}!`);
       const redirect = new URLSearchParams(window.location.search).get('redirect');
-      router.push(redirect || defaultRedirect);
+      router.replace(redirect || defaultRedirect);
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Could not sign you in. Check your details.'));
     } finally {
       setPending(false);
     }
+  }
+
+  if (isAuthenticated) {
+    return (
+      <div className="flex justify-center py-12">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+      </div>
+    );
   }
 
   return (

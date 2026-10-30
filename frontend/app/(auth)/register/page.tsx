@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { authApi } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { useAuthStore } from '@/store/auth-store';
+import { useRedirectIfAuthenticated } from '@/lib/use-redirect-if-authenticated';
 import { Field } from '@/components/auth/field';
 import { SubmitButton } from '@/components/auth/submit-button';
 
@@ -25,6 +26,7 @@ type FormErrors = Partial<Record<keyof typeof INITIAL, string>>;
 export default function RegisterPage() {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const { isAuthenticated } = useRedirectIfAuthenticated();
 
   const [form, setForm] = useState(INITIAL);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -61,12 +63,20 @@ export default function RegisterPage() {
       const { user, token } = await authApi.register({ ...rest, role: 'student' });
       setAuth(user, token);
       toast.success('Account created! Check your email to verify.');
-      router.push('/verify-email');
+      router.replace('/verify-email');
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Could not create your account.'));
     } finally {
       setPending(false);
     }
+  }
+
+  if (isAuthenticated) {
+    return (
+      <div className="flex justify-center py-12">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+      </div>
+    );
   }
 
   return (
@@ -83,29 +93,29 @@ export default function RegisterPage() {
           label="Full name"
           name="name"
           autoComplete="name"
-          placeholder="Anurag Anand"
+          placeholder="Ananya Sharma"
           value={form.name}
           onChange={update}
           error={errors.name}
         />
+
         <Field
-          label="Email"
+          label="College email"
           name="email"
           type="email"
           autoComplete="email"
-          placeholder="you@college.edu"
+          placeholder="ananya@college.edu"
           value={form.email}
           onChange={update}
           error={errors.email}
         />
+
         <Field
           label="Phone number"
           name="phone"
           type="tel"
-          inputMode="numeric"
-          maxLength={10}
           autoComplete="tel"
-          placeholder="10-digit mobile number"
+          placeholder="9876543210"
           value={form.phone}
           onChange={update}
           error={errors.phone}
@@ -115,7 +125,7 @@ export default function RegisterPage() {
           <Field
             label="Hostel block"
             name="hostelBlock"
-            placeholder="e.g. A-Block"
+            placeholder="Block A"
             value={form.hostelBlock}
             onChange={update}
             error={errors.hostelBlock}
@@ -123,7 +133,7 @@ export default function RegisterPage() {
           <Field
             label="Room number"
             name="roomNumber"
-            placeholder="e.g. 214"
+            placeholder="204"
             value={form.roomNumber}
             onChange={update}
             error={errors.roomNumber}
@@ -140,12 +150,13 @@ export default function RegisterPage() {
           onChange={update}
           error={errors.password}
         />
+
         <Field
           label="Confirm password"
           name="confirmPassword"
           type="password"
           autoComplete="new-password"
-          placeholder="Re-enter your password"
+          placeholder="Repeat password"
           value={form.confirmPassword}
           onChange={update}
           error={errors.confirmPassword}
@@ -156,12 +167,14 @@ export default function RegisterPage() {
         </SubmitButton>
       </form>
 
-      <p className="mt-8 text-sm text-muted">
-        Already have an account?{' '}
-        <Link href="/login" className="font-medium text-accent hover:text-accent-hover">
-          Sign in
-        </Link>
-      </p>
+      <div className="mt-8 text-sm text-muted">
+        <p>
+          Already have an account?{' '}
+          <Link href="/login" className="font-medium text-accent hover:text-accent-hover">
+            Sign in
+          </Link>
+        </p>
+      </div>
     </>
   );
 }

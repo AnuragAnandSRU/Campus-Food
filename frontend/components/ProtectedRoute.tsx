@@ -11,21 +11,24 @@ export default function ProtectedRoute({
   children: React.ReactNode;
   allowedRoles?: string[];
 }) {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, isHydrated, user } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
+    if (!isHydrated) return;
+
     if (!isAuthenticated) {
-      router.push('/login');
+      const path = window.location.pathname + window.location.search;
+      router.replace(`/login?redirect=${encodeURIComponent(path)}`);
       return;
     }
 
     if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-      router.push('/unauthorized');
+      router.replace('/unauthorized');
     }
-  }, [isAuthenticated, user, allowedRoles, router]);
+  }, [isHydrated, isAuthenticated, user, allowedRoles, router]);
 
-  if (!isAuthenticated) {
+  if (!isHydrated || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>

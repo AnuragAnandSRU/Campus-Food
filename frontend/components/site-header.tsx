@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
 import { useCartStore } from '@/store/cart-store';
+import { useLogout } from '@/lib/use-logout';
 
 function CartIcon() {
   return (
@@ -27,10 +28,12 @@ function CartIcon() {
 export function SiteHeader() {
   const [mounted, setMounted] = useState(false);
   const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
+  const handleLogout = useLogout();
   const items = useCartStore((s) => s.items);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const itemCount = mounted ? items.reduce((n, i) => n + i.quantity, 0) : 0;
 
@@ -80,14 +83,16 @@ export function SiteHeader() {
             )}
           </Link>
 
-          {mounted && user ? (
+          {!mounted ? (
+            <div className="h-9 w-20" aria-hidden="true" />
+          ) : user ? (
             <div className="flex items-center gap-3">
               <span className="hidden text-ink sm:inline">
                 Hi, <span className="font-medium">{user.name.split(' ')[0]}</span>
               </span>
               <button
-                onClick={logout}
-                className="text-muted transition-colors hover:text-danger"
+                onClick={() => handleLogout()}
+                className="text-muted transition-colors hover:text-danger cursor-pointer"
               >
                 Log out
               </button>
