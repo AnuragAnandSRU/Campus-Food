@@ -48,7 +48,7 @@ controlled access, so this grew into:
 | 5. Analytics & owner dashboard | Sales / popular-items / revenue reports (route stub exists, no logic yet) |
 | 6. Polish & optimization | PWA, push notifications, ratings, caching, rate-limiting, security headers |
 | 7. Payment | Online payment — deliberately last; COD for now (schema already payment-ready) |
-| 8. Deployment | MongoDB Atlas, hosting, domain, SSL, monitoring |
+| 8. Deployment | 🟡 In progress — EC2 backend + SSL (campusfood.duckdns.org), Vercel frontend (campus-food-lime.vercel.app) |
 
 ---
 

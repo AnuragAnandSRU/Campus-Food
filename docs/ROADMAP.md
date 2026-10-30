@@ -15,7 +15,7 @@
 > | 5. Analytics & Owner Dashboard | ⬜ Not started |
 > | 6. Polish & Optimization | ⬜ Not started |
 > | 7. Payment Integration | ⬜ Not started (deliberately last) |
-> | 8. Deployment | ⬜ Not started |
+> | 8. Deployment | 🟡 In progress (EC2 + Vercel live) |
 >
 > **Auth was upgraded beyond this plan.** The original Phase 1 assumed simple
 > "register and pick a role." Real deployment needed controlled access, so it
@@ -229,20 +229,20 @@
 
 ---
 
-## Phase 8: Deployment (Week 15) — ⬜ NOT STARTED
+## Phase 8: Deployment (Week 15) — 🟡 IN PROGRESS
 
 ### Backend Deployment
-- [ ] AWS EC2 setup
-- [ ] Environment variables configuration
-- [ ] MongoDB Atlas setup
+- [x] AWS EC2 setup
+- [x] Environment variables configuration
+- [x] MongoDB Atlas setup
 - [ ] S3 bucket creation
-- [ ] SSL certificate
-- [ ] Domain configuration
+- [x] SSL certificate (Let's Encrypt / Certbot)
+- [x] Domain configuration (campusfood.duckdns.org)
 - [ ] Monitoring setup
 
 ### Frontend Deployment
-- [ ] Vercel deployment
-- [ ] Environment variables
+- [x] Vercel deployment (campus-food-lime.vercel.app)
+- [x] Environment variables
 - [ ] Custom domain setup
 - [ ] Performance monitoring
 
