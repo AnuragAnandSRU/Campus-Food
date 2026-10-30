@@ -5,29 +5,28 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
 
 /**
- * Client-side guard for pages that require a signed-in user (checkout, orders).
- * Waits for hydration from storage so page refreshes don't prematurely bounce.
- * Returns `ready` — true only once we've confirmed on the client that the
- * persisted auth store says the user is authenticated.
+ * Bulletproof client-side guard for pages that require a signed-in user (checkout, orders).
+ * 1. Checks Zustand auth state AND direct localStorage token.
+ * 2. Never gets stuck in an infinite loading state.
+ * 3. Immediately sets ready=true if authenticated.
+ * 4. Redirects cleanly to /login if unauthenticated.
  */
 export function useRequireAuth(): boolean {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrated = useAuthStore((s) => s.isHydrated);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Wait until Zustand has finished loading session from localStorage
-    if (!isHydrated) return;
+    const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token');
+    const isAuthed = isAuthenticated || hasToken;
 
-    if (isAuthenticated) {
+    if (isAuthed) {
       setReady(true);
-      return;
+    } else {
+      const path = window.location.pathname + window.location.search;
+      router.replace(`/login?redirect=${encodeURIComponent(path)}`);
     }
-
-    const path = window.location.pathname + window.location.search;
-    router.replace(`/login?redirect=${encodeURIComponent(path)}`);
-  }, [isHydrated, isAuthenticated, router]);
+  }, [isAuthenticated, router]);
 
   return ready;
 }

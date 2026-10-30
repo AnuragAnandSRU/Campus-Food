@@ -5,36 +5,46 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
 
 /**
- * Client-side guard for role-restricted areas (e.g. the canteen dashboard).
- * Waits for storage hydration to avoid premature redirects on page refresh.
- * Unauthenticated users are sent to `loginPath` (default /login) with a redirect back;
- * authenticated users who lack an allowed role are sent home.
+ * Bulletproof client-side guard for role-restricted areas (e.g. the canteen dashboard).
+ * 1. Checks Zustand state with localStorage fallback.
+ * 2. Unauthenticated users are sent to loginPath with a redirect param.
+ * 3. Authenticated users lacking the required role are bounced to home.
+ * 4. Never gets stuck in an infinite loading state.
  */
 export function useRequireRole(allowed: string[], loginPath = '/login'): boolean {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrated = useAuthStore((s) => s.isHydrated);
   const user = useAuthStore((s) => s.user);
   const [ready, setReady] = useState(false);
-  const key = allowed.join(','); // stable dep for the effect
+  const key = allowed.join(',');
 
   useEffect(() => {
-    // Wait until Zustand has finished loading session from localStorage
-    if (!isHydrated) return;
+    let currentUser = user;
+    if (!currentUser && typeof window !== 'undefined') {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        try {
+          currentUser = JSON.parse(savedUser);
+        } catch {}
+      }
+    }
 
-    if (!isAuthenticated || !user) {
+    const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token');
+    const isAuthed = isAuthenticated || hasToken;
+
+    if (!isAuthed || !currentUser) {
       const path = window.location.pathname + window.location.search;
       router.replace(`${loginPath}?redirect=${encodeURIComponent(path)}`);
       return;
     }
 
-    if (!key.split(',').includes(user.role)) {
+    if (!key.split(',').includes(currentUser.role)) {
       router.replace('/');
       return;
     }
 
     setReady(true);
-  }, [isHydrated, isAuthenticated, user, key, router, loginPath]);
+  }, [isAuthenticated, user, key, router, loginPath]);
 
   return ready;
 }

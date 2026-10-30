@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthState>()(
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
         }
-        set({ user, token, isAuthenticated: true });
+        set({ user, token, isAuthenticated: true, isHydrated: true });
       },
       setUser: (user) => {
         if (typeof window !== 'undefined') {
@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>()(
           localStorage.removeItem('user');
           localStorage.removeItem('auth-storage');
         }
-        set({ user: null, token: null, isAuthenticated: false });
+        set({ user: null, token: null, isAuthenticated: false, isHydrated: true });
       },
       setHydrated: (isHydrated) => set({ isHydrated }),
     }),
@@ -64,8 +64,10 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
-      onRehydrateStorage: () => () => {
-        useAuthStore.setState({ isHydrated: true });
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setHydrated(true);
+        }
       },
     }
   )

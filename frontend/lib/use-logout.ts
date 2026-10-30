@@ -40,3 +40,4 @@ export function useLogout() {
     router.replace(target);
   };
 }
+
