@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/auth-store';
 import { useRequireRole } from '@/lib/use-require-role';
 import { SiteHeader } from '@/components/site-header';
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { OwnerStaffManager } from '@/components/dashboard/owner-staff-manager';
 
 /**
@@ -34,9 +35,12 @@ export default function OwnerTeamPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-6 py-8">
-        <Link href="/dashboard" className="text-sm text-muted transition-colors hover:text-ink">
-          ← Back to orders
-        </Link>
+        <Breadcrumbs
+          items={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Team' },
+          ]}
+        />
         <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink">Your team</h1>
         <p className="mt-1 font-light text-muted">
           Invite staff to your canteen, set what they can do, and remove them when they leave.

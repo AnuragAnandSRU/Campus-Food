@@ -10,6 +10,7 @@ import { getApiErrorMessage } from '@/lib/api-client';
 import { useRequireAuth } from '@/lib/use-require-auth';
 import { useOrderSocket } from '@/lib/use-order-socket';
 import { SiteHeader } from '@/components/site-header';
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { StatusBadge } from '@/components/orders/status-badge';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
 
@@ -64,12 +65,13 @@ export default function OrderDetailPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-2xl px-6 py-8">
-        <Link
-          href="/orders"
-          className="text-sm font-medium text-muted transition-colors hover:text-ink"
-        >
-          ← My orders
-        </Link>
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'My Orders', href: '/orders' },
+            { label: order?.orderId ?? 'Order Details' },
+          ]}
+        />
 
         {(!ready || orderQuery.isLoading) && <DetailSkeleton />}
 

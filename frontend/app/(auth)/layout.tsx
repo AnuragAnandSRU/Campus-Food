@@ -5,20 +5,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen flex flex-col justify-between bg-background bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(27,122,69,0.14),transparent)]">
       {/* Top Header */}
       <header className="px-6 py-6 sm:px-10 flex items-center justify-between max-w-6xl w-full mx-auto">
-        <Link href="/" className="inline-flex items-center gap-2.5 font-display text-xl font-semibold tracking-tight text-accent">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent text-white shadow-sm">
-            🍽️
-          </span>
-          <span>
-            Campus<span className="text-ink">Food</span>
-          </span>
-        </Link>
-
-        <Link
-          href="/canteens"
-          className="text-sm font-medium text-muted hover:text-ink transition-colors hidden sm:inline"
-        >
-          Explore Canteens →
+        <Link href="/" className="font-display text-xl font-semibold tracking-tight text-accent">
+          Campus<span className="text-ink">Food</span>
         </Link>
       </header>
 

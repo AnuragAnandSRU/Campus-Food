@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { useRequireRole } from '@/lib/use-require-role';
 import { canteenApi } from '@/lib/api/canteen';
 import { SiteHeader } from '@/components/site-header';
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { OwnerCanteenForm } from '@/components/dashboard/owner-canteen-form';
 
 /**
@@ -41,9 +42,12 @@ export default function OwnerCanteenPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-2xl px-6 py-8">
-        <Link href="/dashboard" className="text-sm text-muted transition-colors hover:text-ink">
-          ← Back to orders
-        </Link>
+        <Breadcrumbs
+          items={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Your Canteen' },
+          ]}
+        />
         <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink">Your canteen</h1>
         <p className="mt-1 font-light text-muted">
           Update your canteen&apos;s details and opening hours.

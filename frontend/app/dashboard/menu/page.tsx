@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/auth-store';
 import { useRequireRole } from '@/lib/use-require-role';
 import { SiteHeader } from '@/components/site-header';
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { MenuManager } from '@/components/menu/menu-manager';
 
 /**
@@ -40,12 +41,12 @@ export default function MenuManagementPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-5xl px-6 py-8">
-        <Link
-          href="/dashboard"
-          className="text-sm text-muted transition-colors hover:text-ink"
-        >
-          ← Back to orders
-        </Link>
+        <Breadcrumbs
+          items={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Menu' },
+          ]}
+        />
 
         <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink">
           Menu

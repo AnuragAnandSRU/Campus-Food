@@ -9,6 +9,7 @@ import { menuApi } from '@/lib/api/menu';
 import { SiteHeader } from '@/components/site-header';
 import { MenuItemCard } from '@/components/browse/menu-item-card';
 import { isCanteenOpen } from '@/lib/utils';
+import { Breadcrumbs } from '@/components/breadcrumbs';
 
 const CATEGORY_ORDER = [
   'Breakfast',
@@ -72,12 +73,13 @@ export default function CanteenMenuPage() {
       <SiteHeader />
 
       <main className="mx-auto max-w-4xl px-6 py-8">
-        <Link
-          href="/canteens"
-          className="text-sm font-medium text-muted transition-colors hover:text-ink"
-        >
-          ← All canteens
-        </Link>
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Canteens', href: '/canteens' },
+            { label: canteen?.name ?? 'Menu' },
+          ]}
+        />
 
         {canteenQuery.isLoading && <HeaderSkeleton />}
 
