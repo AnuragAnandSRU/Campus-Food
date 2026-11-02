@@ -4,21 +4,28 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import type { MenuItem } from '../../../shared/src/types/menu.types';
 import { useCartStore } from '@/store/cart-store';
+import { useAuthStore } from '@/store/auth-store';
 
 /**
  * The add / quantity-stepper control for a menu item. Writes to the persisted
  * cart store. Guards against mixing canteens (the store enforces a single-
- * canteen cart) by offering to start a fresh cart. Mount-guarded so the
- * persisted quantity doesn't cause a hydration mismatch.
+ * canteen cart) by offering to start a fresh cart.
+ * Only rendered for students and guests — hidden for canteen owners/staff/admins.
  */
 export function AddToCart({ item, canteenName }: { item: MenuItem; canteenName: string }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  const user = useAuthStore((s) => s.user);
   const items = useCartStore((s) => s.items);
   const addItem = useCartStore((s) => s.addItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const clearCart = useCartStore((s) => s.clearCart);
+
+  // Canteen staff, owners, and admins do not place customer orders.
+  if (mounted && user && (user.role === 'staff' || user.role === 'owner' || user.role === 'admin')) {
+    return null;
+  }
 
   const qty = mounted ? items.find((i) => i.menuItemId === item._id)?.quantity ?? 0 : 0;
 
