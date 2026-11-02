@@ -1,74 +1,47 @@
 import Link from 'next/link';
 
-const FEATURES: Array<[string, string]> = [
-  ['🛵', 'Delivered to your hostel room'],
-  ['💵', 'Cash on delivery — no prepayment'],
-  ['🔔', 'Live updates from kitchen to door'],
-];
-
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-2">
-      {/* Brand panel — shown on large screens only */}
-      <aside className="relative hidden overflow-hidden bg-accent px-12 py-14 text-white lg:flex lg:flex-col lg:justify-between">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.12]"
-          style={{
-            backgroundImage: 'radial-gradient(#FFFFFF 1px, transparent 1px)',
-            backgroundSize: '22px 22px',
-          }}
-          aria-hidden
-        />
-
-        <Link
-          href="/"
-          className="relative z-10 inline-flex items-center gap-2 text-lg font-medium"
-        >
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-white text-accent">
+    <div className="min-h-screen flex flex-col justify-between bg-background bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(27,122,69,0.14),transparent)]">
+      {/* Top Header */}
+      <header className="px-6 py-6 sm:px-10 flex items-center justify-between max-w-6xl w-full mx-auto">
+        <Link href="/" className="inline-flex items-center gap-2.5 font-display text-xl font-semibold tracking-tight text-accent">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent text-white shadow-sm">
             🍽️
           </span>
-          Campus Food
+          <span>
+            Campus<span className="text-ink">Food</span>
+          </span>
         </Link>
 
-        <div className="relative z-10 max-w-md">
-          <h2 className="font-display text-4xl leading-tight xl:text-5xl">
-            Good food, <em className="not-italic text-highlight">no queue.</em>
-          </h2>
-          <p className="mt-4 font-light text-white/80">
-            Order from your campus canteens and have it brought straight to your
-            room — no more waiting in line between classes.
-          </p>
+        <Link
+          href="/canteens"
+          className="text-sm font-medium text-muted hover:text-ink transition-colors hidden sm:inline"
+        >
+          Explore Canteens →
+        </Link>
+      </header>
 
-          <ul className="mt-10 space-y-4 font-light text-white/90">
-            {FEATURES.map(([icon, label]) => (
-              <li key={label} className="flex items-center gap-3">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 text-lg">
-                  {icon}
-                </span>
-                {label}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <p className="relative z-10 text-sm text-white/60">Made for hostel life.</p>
-      </aside>
-
-      {/* Form column */}
-      <main className="flex min-h-screen flex-col justify-center px-6 py-12 sm:px-10">
-        <div className="mx-auto w-full max-w-md">
-          <Link
-            href="/"
-            className="mb-10 inline-flex items-center gap-2 text-lg font-medium text-ink lg:hidden"
-          >
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-accent-tint text-accent">
-              🍽️
-            </span>
-            Campus Food
-          </Link>
-          {children}
+      {/* Main Content Card Container */}
+      <main className="flex-1 flex items-center justify-center px-4 py-8 sm:px-6">
+        <div className="w-full max-w-lg">
+          <div className="card p-6 sm:p-10 shadow-xl shadow-ink/5 border border-line bg-surface/95 backdrop-blur-sm">
+            {children}
+          </div>
         </div>
       </main>
+
+      {/* Bottom Footer */}
+      <footer className="px-6 py-6 text-center text-xs text-muted border-t border-line/60">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p>© 2026 Campus Food. Made with care for campus life.</p>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="hover:text-ink transition-colors">Home</Link>
+            <Link href="/canteens" className="hover:text-ink transition-colors">Canteens</Link>
+            <Link href="/partner" className="hover:text-ink transition-colors">Partner Portal</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

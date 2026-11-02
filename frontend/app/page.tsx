@@ -106,10 +106,18 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-line">
-        <div className="max-w-6xl mx-auto text-center text-muted">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-muted">
           <p className="font-light">
             © 2026 Campus Food. Made with care for students.
           </p>
+          <div className="flex items-center gap-6 text-sm">
+            <a href="/canteens" className="hover:text-ink transition-colors">
+              Browse Canteens
+            </a>
+            <a href="/partner" className="text-accent hover:underline font-medium transition-colors">
+              Canteen Partner Portal →
+            </a>
+          </div>
         </div>
       </footer>
     </div>
