@@ -104,8 +104,9 @@ export function SiteHeader() {
               </Link>
 
               {isStudent && (
-                <Link href="/orders" className="hidden text-muted hover:text-ink transition-colors sm:inline">
-                  My orders
+                <Link href="/orders" className="text-muted hover:text-ink transition-colors">
+                  <span className="sm:hidden">Orders</span>
+                  <span className="hidden sm:inline">My orders</span>
                 </Link>
               )}
 

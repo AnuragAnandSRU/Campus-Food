@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { SiteHeader } from '@/components/site-header';
 import { HomeHeroActions } from '@/components/home-hero-actions';
 
@@ -97,9 +98,9 @@ export default function Home() {
             <p className="text-xl text-white/80 mb-8 font-light">
               Join thousands of students already ordering food the smart way.
             </p>
-            <a href="/register" className="btn btn-primary text-lg px-8">
+            <Link href="/register" className="btn btn-primary text-lg px-8">
               Get Started
-            </a>
+            </Link>
           </div>
         </section>
       </main>
@@ -111,12 +112,12 @@ export default function Home() {
             © 2026 Campus Food. Made with care for students.
           </p>
           <div className="flex items-center gap-6 text-sm">
-            <a href="/canteens" className="hover:text-ink transition-colors">
+            <Link href="/canteens" className="hover:text-ink transition-colors">
               Browse Canteens
-            </a>
-            <a href="/partner" className="text-accent hover:underline font-medium transition-colors">
+            </Link>
+            <Link href="/partner" className="text-accent hover:underline font-medium transition-colors">
               Canteen Partner Portal →
-            </a>
+            </Link>
           </div>
         </div>
       </footer>

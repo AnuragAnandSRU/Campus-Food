@@ -6,6 +6,7 @@ import { orderApi } from '@/lib/api/order';
 import { useRequireAuth } from '@/lib/use-require-auth';
 import { useOrderSocket } from '@/lib/use-order-socket';
 import { SiteHeader } from '@/components/site-header';
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { StatusBadge } from '@/components/orders/status-badge';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
 
@@ -30,7 +31,13 @@ export default function OrdersPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-2xl px-6 py-8">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">My orders</h1>
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'My Orders' },
+          ]}
+        />
+        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink">My orders</h1>
 
         {(!ready || ordersQuery.isLoading) && <ListSkeleton />}
 
