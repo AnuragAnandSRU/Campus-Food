@@ -12,7 +12,7 @@
 > | 2. Canteen & Menu Management | ✅ Done (except S3 image upload) |
 > | 3. Cart & Order Placement | ✅ Done |
 > | 4. Order Tracking & Management | ✅ Done |
-> | 5. Analytics & Owner Dashboard | ⬜ Not started |
+> | 5. Analytics & Owner Dashboard | ✅ Done |
 > | 6. Polish & Optimization | ⬜ Not started |
 > | 7. Payment Integration | ⬜ Not started (deliberately last) |
 > | 8. Deployment | 🟡 In progress (EC2 + Vercel live) |
@@ -156,20 +156,20 @@
 
 ---
 
-## Phase 5: Analytics & Admin Panel (Week 9-10) — ⬜ NOT STARTED
+## Phase 5: Analytics & Owner Dashboard (Week 9-10) — ✅ COMPLETE
 
 ### Backend
-- [ ] Sales analytics endpoint
-- [ ] Popular items endpoint
-- [ ] Orders timeline
-- [ ] Dashboard stats
+- [x] Sales analytics endpoint (`/api/analytics/sales`)
+- [x] Popular items endpoint (`/api/analytics/popular-items`)
+- [x] Orders timeline (`/api/analytics/orders-timeline`)
+- [x] Dashboard stats (`/api/analytics/dashboard`)
 
 ### Frontend (Owner Dashboard)
-- [ ] Sales overview
-- [ ] Popular items chart
-- [ ] Order trends graph
-- [ ] Daily/weekly/monthly views
-- [ ] Revenue reports
+- [x] Sales overview & area chart
+- [x] Popular items leaderboard
+- [x] 24-hour kitchen demand graph
+- [x] 7/14/30-day window switcher
+- [x] CSV revenue report export
 
 ### Testing
 - [ ] Test analytics calculations

@@ -93,6 +93,11 @@ export default function DashboardPage() {
             <Link href="/dashboard/menu" className="btn btn-secondary">
               Manage menu
             </Link>
+            {(user?.role === 'owner' || user?.permissions?.includes('view_analytics')) && (
+              <Link href="/dashboard/analytics" className="btn btn-secondary">
+                Analytics
+              </Link>
+            )}
             {user?.role === 'owner' && (
               <>
                 <Link href="/dashboard/canteen" className="btn btn-secondary">

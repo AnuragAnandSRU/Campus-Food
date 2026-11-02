@@ -73,6 +73,9 @@ export function SiteHeader() {
               <Link href="/dashboard/menu" className="text-muted hover:text-ink transition-colors">
                 Menu
               </Link>
+              <Link href="/dashboard/analytics" className="text-muted hover:text-ink transition-colors">
+                Analytics
+              </Link>
               <Link href="/dashboard/canteen" className="text-muted hover:text-ink transition-colors">
                 Canteen
               </Link>
