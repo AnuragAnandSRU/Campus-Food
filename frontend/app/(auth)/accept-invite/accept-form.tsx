@@ -51,7 +51,7 @@ export function AcceptInviteForm({ token }: { token: string }) {
           : user.role === 'staff' || user.role === 'owner'
             ? '/dashboard'
             : '/';
-      router.push(home);
+      router.replace(home);
     } catch (err) {
       toast.error(
         getApiErrorMessage(err, 'This invitation may have expired. Ask your admin to resend it.')

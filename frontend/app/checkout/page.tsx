@@ -10,6 +10,7 @@ import { useRequireAuth } from '@/lib/use-require-auth';
 import { orderApi } from '@/lib/api/order';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { SiteHeader } from '@/components/site-header';
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { formatCurrency } from '@/lib/utils';
 
 export default function CheckoutPage() {
@@ -25,6 +26,7 @@ export default function CheckoutPage() {
   const [hostelBlock, setHostelBlock] = useState('');
   const [roomNumber, setRoomNumber] = useState('');
   const [notes, setNotes] = useState('');
+  const [errors, setErrors] = useState<{ hostelBlock?: string; roomNumber?: string }>({});
   const [placing, setPlacing] = useState(false);
 
   // Prefill the delivery address from the student's saved profile.
@@ -35,9 +37,17 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
+  function validate() {
+    const next: typeof errors = {};
+    if (!hostelBlock.trim()) next.hostelBlock = 'Hostel block is required.';
+    if (!roomNumber.trim()) next.roomNumber = 'Room number is required.';
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
   async function placeOrder(e: React.FormEvent) {
     e.preventDefault();
-    if (!hostelBlock.trim() || !roomNumber.trim()) {
+    if (!validate()) {
       toast.error('Please add your hostel block and room number.');
       return;
     }
@@ -54,7 +64,7 @@ export default function CheckoutPage() {
       });
       clearCart();
       toast.success('Order placed! 🎉');
-      router.push(`/orders/${order._id}`);
+      router.replace(`/orders/${order._id}`);
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Could not place your order. Please try again.'));
     } finally {
@@ -66,6 +76,14 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-2xl px-6 py-8">
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Cart', href: '/cart' },
+            { label: 'Checkout' },
+          ]}
+        />
+
         <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Checkout</h1>
 
         {!ready ? (
@@ -74,7 +92,7 @@ export default function CheckoutPage() {
           <div className="card mt-6 p-10 text-center">
             <p className="font-display text-lg text-ink">Nothing to check out</p>
             <p className="mt-1 font-light text-muted">Your cart is empty.</p>
-            <Link href="/canteens" className="btn btn-primary mt-5">
+            <Link href="/canteens" className="btn btn-primary mt-5 inline-flex">
               Browse canteens
             </Link>
           </div>
@@ -110,20 +128,32 @@ export default function CheckoutPage() {
                 <label className="block">
                   <span className="text-sm text-muted">Hostel block</span>
                   <input
-                    className="input mt-1"
+                    className={`input mt-1 ${errors.hostelBlock ? 'border-danger focus:border-danger' : ''}`}
                     value={hostelBlock}
-                    onChange={(e) => setHostelBlock(e.target.value)}
+                    onChange={(e) => {
+                      setHostelBlock(e.target.value);
+                      if (errors.hostelBlock) setErrors((prev) => ({ ...prev, hostelBlock: undefined }));
+                    }}
                     placeholder="e.g. Block C"
                   />
+                  {errors.hostelBlock && (
+                    <span className="mt-1 block text-xs text-danger">{errors.hostelBlock}</span>
+                  )}
                 </label>
                 <label className="block">
                   <span className="text-sm text-muted">Room number</span>
                   <input
-                    className="input mt-1"
+                    className={`input mt-1 ${errors.roomNumber ? 'border-danger focus:border-danger' : ''}`}
                     value={roomNumber}
-                    onChange={(e) => setRoomNumber(e.target.value)}
+                    onChange={(e) => {
+                      setRoomNumber(e.target.value);
+                      if (errors.roomNumber) setErrors((prev) => ({ ...prev, roomNumber: undefined }));
+                    }}
                     placeholder="e.g. C-214"
                   />
+                  {errors.roomNumber && (
+                    <span className="mt-1 block text-xs text-danger">{errors.roomNumber}</span>
+                  )}
                 </label>
               </div>
               <label className="mt-3 block">
@@ -157,7 +187,7 @@ export default function CheckoutPage() {
               </div>
             </section>
 
-            <button type="submit" disabled={placing} className="btn btn-primary w-full disabled:opacity-60">
+            <button type="submit" disabled={placing} className="btn btn-primary w-full disabled:opacity-60 cursor-pointer">
               {placing ? 'Placing order…' : `Place order · ${formatCurrency(total)}`}
             </button>
           </form>

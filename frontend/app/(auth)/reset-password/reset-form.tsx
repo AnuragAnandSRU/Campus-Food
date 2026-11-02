@@ -37,7 +37,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
     try {
       await authApi.resetPassword(token, form.password);
       toast.success('Password updated. Please sign in.');
-      router.push('/login');
+      router.replace('/login');
     } catch (err) {
       toast.error(
         getApiErrorMessage(err, 'This link may have expired. Request a new one.')

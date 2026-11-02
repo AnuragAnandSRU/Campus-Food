@@ -12,6 +12,7 @@ import { useOrderSocket } from '@/lib/use-order-socket';
 import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { StatusBadge } from '@/components/orders/status-badge';
+import { OrderStatusTracker } from '@/components/orders/order-status-tracker';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
 
 export default function OrderDetailPage() {
@@ -23,43 +24,51 @@ export default function OrderDetailPage() {
   const orderQuery = useQuery({
     queryKey: ['order', id],
     queryFn: () => orderApi.getById(id),
-    enabled: ready && Boolean(id),
-  });
-
-  // Live status: the student's socket auto-joins their own user room, so a
-  // status change (or cancellation) by the canteen refreshes this page.
-  useOrderSocket({
-    onStatusUpdate: (o) => {
-      if (o._id === id) queryClient.invalidateQueries({ queryKey: ['order', id] });
-    },
+    enabled: ready && !!id,
   });
 
   const order = orderQuery.data;
 
+  // Fetch canteen details to show its friendly name alongside the order.
   const canteenQuery = useQuery({
     queryKey: ['canteen', order?.canteenId],
     queryFn: () => canteenApi.getById(order!.canteenId),
-    enabled: Boolean(order?.canteenId),
+    enabled: !!order?.canteenId,
   });
 
-  // A student may cancel only while the kitchen hasn't started — this mirrors
-  // the backend's STUDENT_CANCELLABLE (pending / confirmed). We hide the button
-  // otherwise so a student never hits a 400.
-  const canCancel = order?.status === 'pending' || order?.status === 'confirmed';
+  // Re-fetch whenever the server broadcasts an update for this specific order.
+  useOrderSocket({
+    onStatusUpdate: (updated) => {
+      if (updated.orderId === order?.orderId) {
+        queryClient.invalidateQueries({ queryKey: ['order', id] });
+      }
+    },
+  });
 
   const cancel = useMutation({
-    mutationFn: () => orderApi.cancel(id, { cancelReason: '' }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['order', id] });
-      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+    mutationFn: () => orderApi.cancel(id, { cancelReason: 'Cancelled by student' }),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(['order', id], updated);
       toast.success('Order cancelled');
     },
-    onError: (err) => toast.error(getApiErrorMessage(err, 'Could not cancel the order')),
+    onError: (err) => {
+      toast.error(
+        getApiErrorMessage(
+          err,
+          'Could not cancel. It may have already moved to preparation.'
+        )
+      );
+    },
   });
 
-  const handleCancel = () => {
-    if (window.confirm('Cancel this order? This can’t be undone.')) cancel.mutate();
-  };
+  function handleCancel() {
+    if (confirm('Are you sure you want to cancel this order?')) {
+      cancel.mutate();
+    }
+  }
+
+  // Students can only cancel while the kitchen hasn't started prepping yet.
+  const canCancel = order && (order.status === 'pending' || order.status === 'confirmed');
 
   return (
     <div className="min-h-screen bg-background">
@@ -89,8 +98,8 @@ export default function OrderDetailPage() {
 
         {order && (
           <>
-            {/* Status-aware banner */}
-            <OrderBanner
+            {/* Live Visual Tracker */}
+            <OrderStatusTracker
               status={order.status}
               canteenName={canteenQuery.data?.name}
               cancelReason={order.cancelReason}
@@ -153,10 +162,10 @@ export default function OrderDetailPage() {
 
             <div className="mt-6 space-y-3">
               <div className="flex gap-3">
-                <Link href="/orders" className="btn btn-secondary flex-1">
+                <Link href="/orders" className="btn btn-secondary flex-1 text-center">
                   My orders
                 </Link>
-                <Link href="/canteens" className="btn btn-primary flex-1">
+                <Link href="/canteens" className="btn btn-primary flex-1 text-center">
                   Order again
                 </Link>
               </div>
@@ -164,7 +173,7 @@ export default function OrderDetailPage() {
                 <button
                   onClick={handleCancel}
                   disabled={cancel.isPending}
-                  className="w-full py-2 text-sm font-medium text-danger transition-colors hover:underline disabled:opacity-50"
+                  className="w-full py-2 text-sm font-medium text-danger transition-colors hover:underline disabled:opacity-50 cursor-pointer"
                 >
                   {cancel.isPending ? 'Cancelling…' : 'Cancel this order'}
                 </button>
@@ -173,62 +182,6 @@ export default function OrderDetailPage() {
           </>
         )}
       </main>
-    </div>
-  );
-}
-
-function OrderBanner({
-  status,
-  canteenName,
-  cancelReason,
-}: {
-  status: string;
-  canteenName?: string;
-  cancelReason?: string;
-}) {
-  if (status === 'cancelled') {
-    return (
-      <div className="mt-4 flex flex-col items-center text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-danger text-2xl text-white">
-          ✕
-        </span>
-        <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight text-ink">
-          Order cancelled
-        </h1>
-        <p className="mt-1 font-light text-muted">
-          {cancelReason?.trim() ? cancelReason : 'This order was cancelled.'}
-        </p>
-      </div>
-    );
-  }
-
-  if (status === 'delivered') {
-    return (
-      <div className="mt-4 flex flex-col items-center text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-2xl text-white">
-          ✓
-        </span>
-        <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight text-ink">
-          Delivered
-        </h1>
-        <p className="mt-1 font-light text-muted">
-          Thanks for ordering{canteenName ? ` from ${canteenName}` : ''}.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mt-4 flex flex-col items-center text-center">
-      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-2xl text-white">
-        ✓
-      </span>
-      <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight text-ink">
-        Order placed
-      </h1>
-      <p className="mt-1 font-light text-muted">
-        We&apos;ve sent it to {canteenName ?? 'the kitchen'}. Pay cash on delivery.
-      </p>
     </div>
   );
 }

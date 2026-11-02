@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { useCartStore } from '@/store/cart-store';
 import { SiteHeader } from '@/components/site-header';
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { formatCurrency } from '@/lib/utils';
 
 export default function CartPage() {
@@ -20,10 +22,23 @@ export default function CartPage() {
 
   const canteenName = items[0]?.canteenName;
 
+  function handleClearCart() {
+    clearCart();
+    toast.success('Cart cleared');
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-2xl px-6 py-8">
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Canteens', href: '/canteens' },
+            { label: 'Cart' },
+          ]}
+        />
+
         <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Your cart</h1>
 
         {!mounted ? (
@@ -32,7 +47,7 @@ export default function CartPage() {
           <div className="card mt-6 p-10 text-center">
             <p className="font-display text-lg text-ink">Your cart is empty</p>
             <p className="mt-1 font-light text-muted">Add some dishes to get started.</p>
-            <Link href="/canteens" className="btn btn-primary mt-5">
+            <Link href="/canteens" className="btn btn-primary mt-5 inline-flex">
               Browse canteens
             </Link>
           </div>
@@ -93,8 +108,8 @@ export default function CartPage() {
                 Proceed to checkout
               </button>
               <button
-                onClick={clearCart}
-                className="mt-3 w-full text-sm text-muted transition-colors hover:text-danger"
+                onClick={handleClearCart}
+                className="mt-3 w-full text-sm text-muted transition-colors hover:text-danger cursor-pointer"
               >
                 Clear cart
               </button>
