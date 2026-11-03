@@ -30,6 +30,11 @@ export const authApi = {
     return response.data;
   },
 
+  resendVerification: async (): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.post('/auth/resend-verification');
+    return response.data;
+  },
+
   getMe: async (): Promise<User> => {
     const response = await apiClient.get<User>('/auth/me');
     return response.data;

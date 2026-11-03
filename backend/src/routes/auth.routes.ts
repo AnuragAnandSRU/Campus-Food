@@ -13,6 +13,7 @@ import {
   login,
   acceptInvite,
   verifyEmail,
+  resendVerificationEmail,
   forgotPassword,
   resetPassword,
   getMe,
@@ -25,6 +26,7 @@ router.post('/register', registerValidator, validate, register);
 router.post('/login', loginValidator, validate, login);
 router.post('/accept-invite', acceptInviteValidator, validate, acceptInvite);
 router.post('/verify-email', verifyEmail);
+router.post('/resend-verification', protect, resendVerificationEmail);
 router.post('/forgot-password', forgotPasswordValidator, validate, forgotPassword);
 router.post('/reset-password', resetPasswordValidator, validate, resetPassword);
 router.get('/me', protect, getMe);

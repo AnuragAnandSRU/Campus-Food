@@ -43,6 +43,13 @@ const STUDENT_CANCELLABLE = ['pending', 'confirmed'];
  */
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   const { userId } = (req as AuthRequest).user!;
+
+  // Verify that student's email has been confirmed before accepting orders.
+  const student = await User.findById(userId).select('isVerified');
+  if (!student?.isVerified) {
+    throw new AppError('Please verify your email address before placing an order.', 403);
+  }
+
   const { canteenId, items, deliveryAddress, paymentMethod, specialInstructions } =
     req.body as {
       canteenId: string;

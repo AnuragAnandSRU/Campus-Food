@@ -172,6 +172,31 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/auth/resend-verification
+ * Resends a fresh email verification link to the logged-in user.
+ */
+export const resendVerificationEmail = asyncHandler(async (req: Request, res: Response) => {
+  const { userId } = (req as AuthRequest).user!;
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  if (user.isVerified) {
+    return res.json({ success: true, message: 'Your email is already verified.' });
+  }
+
+  const rawToken = generateRawToken();
+  user.verificationToken = hashToken(rawToken);
+  await user.save({ validateBeforeSave: false });
+
+  await sendVerificationEmail(user.email, user.name, rawToken);
+
+  res.json({ success: true, message: 'Verification email resent successfully. Please check your inbox.' });
+});
+
+/**
  * POST /api/auth/forgot-password
  * Always responds with success to avoid leaking which emails are registered.
  */

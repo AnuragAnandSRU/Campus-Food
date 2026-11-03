@@ -8,6 +8,7 @@ import { useCartStore } from '@/store/cart-store';
 import { useAuthStore } from '@/store/auth-store';
 import { useRequireAuth } from '@/lib/use-require-auth';
 import { orderApi } from '@/lib/api/order';
+import { authApi } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
@@ -28,6 +29,7 @@ export default function CheckoutPage() {
   const [notes, setNotes] = useState('');
   const [errors, setErrors] = useState<{ hostelBlock?: string; roomNumber?: string }>({});
   const [placing, setPlacing] = useState(false);
+  const [resending, setResending] = useState(false);
 
   // Prefill the delivery address from the student's saved profile.
   useEffect(() => {
@@ -36,6 +38,18 @@ export default function CheckoutPage() {
       setRoomNumber(user.roomNumber ?? '');
     }
   }, [user]);
+
+  async function handleResendVerification() {
+    setResending(true);
+    try {
+      await authApi.resendVerification();
+      toast.success('Verification email sent! Check your inbox.');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Could not resend email.'));
+    } finally {
+      setResending(false);
+    }
+  }
 
   function validate() {
     const next: typeof errors = {};
@@ -47,6 +61,10 @@ export default function CheckoutPage() {
 
   async function placeOrder(e: React.FormEvent) {
     e.preventDefault();
+    if (user && !user.isVerified) {
+      toast.error('Please verify your email address before placing an order.');
+      return;
+    }
     if (!validate()) {
       toast.error('Please add your hostel block and room number.');
       return;
@@ -85,6 +103,33 @@ export default function CheckoutPage() {
         />
 
         <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Checkout</h1>
+
+        {user && !user.isVerified && (
+          <div className="card mt-4 border-amber-300 bg-amber-50/70 p-4 sm:p-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl shrink-0">✉️</span>
+                <div>
+                  <h2 className="font-display text-sm font-semibold text-ink">
+                    Email verification required
+                  </h2>
+                  <p className="mt-0.5 text-xs text-muted">
+                    We sent a verification link to <strong className="text-ink">{user.email}</strong>. 
+                    Please confirm your email before placing an order.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={resending}
+                className="btn btn-secondary text-xs px-3.5 py-1.5 shrink-0 disabled:opacity-50"
+              >
+                {resending ? 'Sending…' : 'Resend link'}
+              </button>
+            </div>
+          </div>
+        )}
 
         {!ready ? (
           <p className="mt-6 text-muted">Loading…</p>
@@ -187,8 +232,16 @@ export default function CheckoutPage() {
               </div>
             </section>
 
-            <button type="submit" disabled={placing} className="btn btn-primary w-full disabled:opacity-60 cursor-pointer">
-              {placing ? 'Placing order…' : `Place order · ${formatCurrency(total)}`}
+            <button
+              type="submit"
+              disabled={placing || Boolean(user && !user.isVerified)}
+              className="btn btn-primary w-full disabled:opacity-60 cursor-pointer"
+            >
+              {placing
+                ? 'Placing order…'
+                : user && !user.isVerified
+                ? 'Verify your email to place order'
+                : `Place order · ${formatCurrency(total)}`}
             </button>
           </form>
         )}
