@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useCartStore } from './cart-store';
 
 interface User {
   _id: string;
@@ -39,6 +40,7 @@ export const useAuthStore = create<AuthState>()(
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
         }
+        useCartStore.getState().switchUser(user._id, user.role);
         set({ user, token, isAuthenticated: true, isHydrated: true });
       },
       setUser: (user) => {
@@ -52,8 +54,8 @@ export const useAuthStore = create<AuthState>()(
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           localStorage.removeItem('auth-storage');
-          localStorage.removeItem('cart-storage');
         }
+        useCartStore.getState().switchUser(null);
         set({ user: null, token: null, isAuthenticated: false, isHydrated: true });
       },
       setHydrated: (isHydrated) => set({ isHydrated }),
@@ -68,6 +70,11 @@ export const useAuthStore = create<AuthState>()(
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.setHydrated(true);
+          if (state.user) {
+            useCartStore.getState().switchUser(state.user._id, state.user.role);
+          } else {
+            useCartStore.getState().switchUser(null);
+          }
         }
       },
     }

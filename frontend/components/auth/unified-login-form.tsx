@@ -57,10 +57,6 @@ export function UnifiedLoginForm({ initialRole = 'student' }: UnifiedLoginFormPr
 
     try {
       const { user, token } = await authApi.login({ ...form, audience });
-      const prevUser = useAuthStore.getState().user;
-      if (user.role !== 'student' || (prevUser && prevUser._id !== user._id)) {
-        useCartStore.getState().clearCart();
-      }
       setAuth(user, token);
       toast.success(`Welcome back, ${user.name.split(' ')[0]}!`);
       const redirect = new URLSearchParams(window.location.search).get('redirect');

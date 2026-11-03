@@ -24,7 +24,7 @@ export function useLogout() {
   return function handleLogout(redirectPath?: string) {
     disconnectSocket();
     queryClient.clear();
-    useCartStore.getState().clearCart();
+    useCartStore.getState().switchUser(null);
     logout();
 
     let target = redirectPath;

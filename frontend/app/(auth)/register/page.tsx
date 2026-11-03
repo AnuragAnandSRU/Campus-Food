@@ -62,10 +62,6 @@ export default function RegisterPage() {
     try {
       const { confirmPassword: _confirm, ...rest } = form;
       const { user, token } = await authApi.register({ ...rest, role: 'student' });
-      const prevUser = useAuthStore.getState().user;
-      if (prevUser && prevUser._id !== user._id) {
-        useCartStore.getState().clearCart();
-      }
       setAuth(user, token);
       toast.success('Account created! Check your email to verify.');
       router.replace('/verify-email');
