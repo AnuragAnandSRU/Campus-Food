@@ -52,6 +52,7 @@ export const useAuthStore = create<AuthState>()(
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           localStorage.removeItem('auth-storage');
+          localStorage.removeItem('cart-storage');
         }
         set({ user: null, token: null, isAuthenticated: false, isHydrated: true });
       },

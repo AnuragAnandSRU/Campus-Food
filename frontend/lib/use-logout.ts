@@ -4,6 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/auth-store';
+import { useCartStore } from '@/store/cart-store';
 import { disconnectSocket } from '@/lib/socket';
 
 /**
@@ -23,6 +24,7 @@ export function useLogout() {
   return function handleLogout(redirectPath?: string) {
     disconnectSocket();
     queryClient.clear();
+    useCartStore.getState().clearCart();
     logout();
 
     let target = redirectPath;

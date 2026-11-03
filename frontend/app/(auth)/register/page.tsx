@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { authApi } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { useAuthStore } from '@/store/auth-store';
+import { useCartStore } from '@/store/cart-store';
 import { useRedirectIfAuthenticated } from '@/lib/use-redirect-if-authenticated';
 import { Field } from '@/components/auth/field';
 import { SubmitButton } from '@/components/auth/submit-button';
@@ -61,6 +62,10 @@ export default function RegisterPage() {
     try {
       const { confirmPassword: _confirm, ...rest } = form;
       const { user, token } = await authApi.register({ ...rest, role: 'student' });
+      const prevUser = useAuthStore.getState().user;
+      if (prevUser && prevUser._id !== user._id) {
+        useCartStore.getState().clearCart();
+      }
       setAuth(user, token);
       toast.success('Account created! Check your email to verify.');
       router.replace('/verify-email');

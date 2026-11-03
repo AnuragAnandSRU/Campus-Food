@@ -43,6 +43,7 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('auth-storage');
+      localStorage.removeItem('cart-storage');
 
       // Send the user back to the door that matches the area they were in, so a
       // partner/admin isn't dumped on the student sign-in (hard separation).
