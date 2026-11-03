@@ -5,6 +5,9 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
 import { useCartStore } from '@/store/cart-store';
 import { useLogout } from '@/lib/use-logout';
+import toast from 'react-hot-toast';
+import { authApi } from '@/lib/api/auth';
+import { getApiErrorMessage } from '@/lib/api-client';
 
 function CartIcon() {
   return (
@@ -28,6 +31,7 @@ function CartIcon() {
  */
 export function SiteHeader() {
   const [mounted, setMounted] = useState(false);
+  const [resending, setResending] = useState(false);
   const user = useAuthStore((s) => s.user);
   const handleLogout = useLogout();
   const items = useCartStore((s) => s.items);
@@ -35,6 +39,18 @@ export function SiteHeader() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  async function handleResendVerification() {
+    setResending(true);
+    try {
+      await authApi.resendVerification();
+      toast.success('Verification link sent! Check your inbox/spam folder.');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Could not resend email.'));
+    } finally {
+      setResending(false);
+    }
+  }
 
   const isPartner = user && (user.role === 'staff' || user.role === 'owner');
   const isAdmin = user && user.role === 'admin';
@@ -151,6 +167,27 @@ export function SiteHeader() {
           )}
         </nav>
       </div>
+
+      {/* Persistent Swiggy/Amazon style email verification banner for unverified students */}
+      {mounted && user && user.role === 'student' && !user.isVerified && (
+        <div className="border-t border-amber-300/40 bg-amber-50 px-4 py-2 text-xs text-amber-900">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm">✉️</span>
+              <span>
+                Please verify your email (<strong>{user.email}</strong>) to unlock food ordering.
+              </span>
+            </div>
+            <button
+              onClick={handleResendVerification}
+              disabled={resending}
+              className="rounded-full bg-amber-200/60 hover:bg-amber-200 px-3 py-1 text-[11px] font-semibold text-amber-950 transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {resending ? 'Sending…' : 'Resend link'}
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
