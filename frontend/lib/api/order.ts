@@ -4,6 +4,7 @@ import type {
   CreateOrderDto,
   UpdateOrderStatusDto,
   CancelOrderDto,
+  RateOrderDto,
 } from '../../../shared/src/types/order.types';
 import type { ApiResponse, OrderFilters } from '../../../shared/src/types/api.types';
 
@@ -37,6 +38,11 @@ export const orderApi = {
 
   cancel: async (id: string, data: CancelOrderDto): Promise<Order> => {
     const response = await apiClient.post<ApiResponse<Order>>(`/orders/${id}/cancel`, data);
+    return response.data.data!;
+  },
+
+  rate: async (id: string, data: RateOrderDto): Promise<Order> => {
+    const response = await apiClient.post<ApiResponse<Order>>(`/orders/${id}/rate`, data);
     return response.data.data!;
   },
 };

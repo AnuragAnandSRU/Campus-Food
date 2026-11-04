@@ -12,6 +12,7 @@ export interface ICanteen extends Document {
   };
   isActive: boolean;
   rating: number;
+  totalRatings: number;
   totalOrders: number;
   createdAt: Date;
   updatedAt: Date;
@@ -66,6 +67,10 @@ const canteenSchema = new Schema<ICanteen>(
       default: 0,
       min: 0,
       max: 5,
+    },
+    totalRatings: {
+      type: Number,
+      default: 0,
     },
     totalOrders: {
       type: Number,

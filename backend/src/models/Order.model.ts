@@ -31,6 +31,9 @@ export interface IOrder extends Document {
   deliveredAt?: Date;
   cancelledAt?: Date;
   cancelReason?: string;
+  rating?: number;
+  review?: string;
+  ratedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -121,6 +124,16 @@ const orderSchema = new Schema<IOrder>(
     deliveredAt: Date,
     cancelledAt: Date,
     cancelReason: String,
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+    },
+    review: {
+      type: String,
+      maxlength: 500,
+    },
+    ratedAt: Date,
   },
   {
     timestamps: true,

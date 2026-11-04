@@ -110,7 +110,10 @@ export default function CanteenMenuPage() {
                   {open ? 'Open now' : 'Closed'}
                 </span>
                 {canteen.rating > 0 && (
-                  <span className="badge badge-accent text-xs">★ {canteen.rating.toFixed(1)}</span>
+                  <span className="badge badge-accent text-xs">
+                    ★ {canteen.rating.toFixed(1)}
+                    {canteen.totalRatings ? ` (${canteen.totalRatings} reviews)` : ''}
+                  </span>
                 )}
               </div>
 

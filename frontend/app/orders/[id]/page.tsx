@@ -14,6 +14,7 @@ import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { StatusBadge } from '@/components/orders/status-badge';
 import { OrderStatusTracker } from '@/components/orders/order-status-tracker';
+import { OrderRatingCard } from '@/components/orders/order-rating-card';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
 
 export default function OrderDetailPage() {
@@ -106,6 +107,9 @@ export default function OrderDetailPage() {
               canteenName={canteenQuery.data?.name}
               cancelReason={order.cancelReason}
             />
+
+            {/* Post-Delivery Rating & Review */}
+            <OrderRatingCard order={order} canteenName={canteenQuery.data?.name} />
 
             {/* Order meta */}
             <div className="card mt-6 p-5">

@@ -47,7 +47,10 @@ export function CanteenCard({ canteen }: { canteen: Canteen }) {
         <div className="flex items-start justify-between gap-3">
           <h3 className="font-display text-xl font-semibold text-ink">{canteen.name}</h3>
           {canteen.rating > 0 ? (
-            <span className="badge badge-accent shrink-0 text-xs">★ {canteen.rating.toFixed(1)}</span>
+            <span className="badge badge-accent shrink-0 text-xs">
+              ★ {canteen.rating.toFixed(1)}
+              {canteen.totalRatings ? ` (${canteen.totalRatings})` : ''}
+            </span>
           ) : (
             <span className="badge shrink-0 bg-highlight-tint text-xs text-ink">New</span>
           )}

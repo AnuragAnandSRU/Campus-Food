@@ -59,3 +59,15 @@ export const cancelOrderValidator = [
     .isLength({ max: 300 })
     .withMessage('Cancellation reason must be under 300 characters'),
 ];
+
+export const rateOrderValidator = [
+  body('rating')
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Rating must be an integer between 1 and 5'),
+  body('review')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('Review must be under 500 characters'),
+];

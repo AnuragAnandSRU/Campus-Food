@@ -5,6 +5,7 @@ import {
   createOrderValidator,
   updateOrderStatusValidator,
   cancelOrderValidator,
+  rateOrderValidator,
 } from '../validators/order.validator';
 import {
   createOrder,
@@ -13,6 +14,7 @@ import {
   getCanteenOrders,
   updateOrderStatus,
   cancelOrder,
+  rateOrder,
 } from '../controllers/order.controller';
 
 const router = Router();
@@ -46,6 +48,14 @@ router.post(
   cancelOrderValidator,
   validate,
   cancelOrder
+);
+
+router.post(
+  '/:id/rate',
+  restrictTo('student'),
+  rateOrderValidator,
+  validate,
+  rateOrder
 );
 
 export default router;

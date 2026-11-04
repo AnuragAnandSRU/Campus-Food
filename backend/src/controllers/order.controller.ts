@@ -293,3 +293,74 @@ export const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
 
   res.json({ success: true, data: order });
 });
+
+/**
+ * POST /api/orders/:id/rate  (student)
+ * Submits a 1-5 star rating and optional review for a delivered order.
+ * Dynamically aggregates and updates the canteen's rating.
+ */
+export const rateOrder = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { rating, review } = req.body as { rating: number; review?: string };
+  const { userId } = (req as AuthRequest).user!;
+
+  if (!mongoose.isValidObjectId(id)) {
+    throw new AppError('Order not found', 404);
+  }
+
+  const order = await Order.findById(id);
+  if (!order) {
+    throw new AppError('Order not found', 404);
+  }
+
+  if (order.studentId.toString() !== userId) {
+    throw new AppError('You do not have access to this order', 403);
+  }
+
+  if (order.status !== 'delivered') {
+    throw new AppError('Only delivered orders can be rated', 400);
+  }
+
+  if (order.rating) {
+    throw new AppError('You have already rated this order', 400);
+  }
+
+  order.rating = rating;
+  if (review && review.trim()) {
+    order.review = review.trim();
+  }
+  order.ratedAt = new Date();
+  await order.save();
+
+  // Dynamically compute the canteen's new average rating & count
+  const stats = await Order.aggregate([
+    {
+      $match: {
+        canteenId: order.canteenId,
+        rating: { $exists: true, $ne: null },
+      },
+    },
+    {
+      $group: {
+        _id: '$canteenId',
+        avgRating: { $avg: '$rating' },
+        totalRatings: { $sum: 1 },
+      },
+    },
+  ]);
+
+  if (stats.length > 0) {
+    const avgRating = Math.round(stats[0].avgRating * 10) / 10;
+    const totalRatings = stats[0].totalRatings;
+    await Canteen.findByIdAndUpdate(order.canteenId, {
+      rating: avgRating,
+      totalRatings,
+    });
+  }
+
+  res.json({
+    success: true,
+    data: order,
+    message: 'Thank you for your rating!',
+  });
+});

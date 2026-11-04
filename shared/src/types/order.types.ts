@@ -39,8 +39,16 @@ export interface Order {
   deliveredAt?: Date;
   cancelledAt?: Date;
   cancelReason?: string;
+  rating?: number;
+  review?: string;
+  ratedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface RateOrderDto {
+  rating: number;
+  review?: string;
 }
 
 export interface CreateOrderDto {

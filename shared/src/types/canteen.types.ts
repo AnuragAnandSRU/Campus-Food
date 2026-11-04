@@ -13,6 +13,7 @@ export interface Canteen {
   openingHours: OpeningHours;
   isActive: boolean;
   rating: number;
+  totalRatings?: number;
   totalOrders: number;
   createdAt: Date;
   updatedAt: Date;
