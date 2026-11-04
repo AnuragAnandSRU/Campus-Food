@@ -38,7 +38,7 @@
   - [x] Login with JWT
   - [x] Password reset flow
   - [x] Get current user
-- [ ] User profile management *(not built — users can't edit their own profile yet)*
+- [x] User profile management *(personal details, default hostel room & password change)*
 - [x] Email service setup (Nodemailer)
 - [x] Input validation (express-validator)
 

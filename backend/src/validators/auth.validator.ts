@@ -43,3 +43,32 @@ export const resetPasswordValidator = [
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters'),
 ];
+
+export const updateProfileValidator = [
+  body('name')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Name must be between 2 and 50 characters'),
+  body('phone')
+    .optional()
+    .matches(/^\d{10}$/)
+    .withMessage('A valid 10-digit phone number is required'),
+  body('hostelBlock')
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage('Hostel block must be under 50 characters'),
+  body('roomNumber')
+    .optional()
+    .trim()
+    .isLength({ max: 20 })
+    .withMessage('Room number must be under 20 characters'),
+];
+
+export const changePasswordValidator = [
+  body('currentPassword').notEmpty().withMessage('Current password is required'),
+  body('newPassword')
+    .isLength({ min: 6 })
+    .withMessage('New password must be at least 6 characters'),
+];

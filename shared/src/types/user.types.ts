@@ -97,3 +97,15 @@ export interface ProvisionResult {
   };
   inviteLink: string;
 }
+
+export interface UpdateProfileDto {
+  name?: string;
+  phone?: string;
+  hostelBlock?: string;
+  roomNumber?: string;
+}
+
+export interface ChangePasswordDto {
+  currentPassword: string;
+  newPassword: string;
+}

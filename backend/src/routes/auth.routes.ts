@@ -7,6 +7,8 @@ import {
   acceptInviteValidator,
   forgotPasswordValidator,
   resetPasswordValidator,
+  updateProfileValidator,
+  changePasswordValidator,
 } from '../validators/auth.validator';
 import {
   register,
@@ -17,6 +19,8 @@ import {
   forgotPassword,
   resetPassword,
   getMe,
+  updateProfile,
+  changePassword,
   logout,
 } from '../controllers/auth.controller';
 
@@ -30,6 +34,8 @@ router.post('/resend-verification', protect, resendVerificationEmail);
 router.post('/forgot-password', forgotPasswordValidator, validate, forgotPassword);
 router.post('/reset-password', resetPasswordValidator, validate, resetPassword);
 router.get('/me', protect, getMe);
+router.patch('/profile', protect, updateProfileValidator, validate, updateProfile);
+router.post('/change-password', protect, changePasswordValidator, validate, changePassword);
 router.post('/logout', protect, logout);
 
 export default router;

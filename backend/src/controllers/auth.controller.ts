@@ -259,3 +259,55 @@ export const getMe = asyncHandler(async (req: AuthRequest, res: Response) => {
 export const logout = asyncHandler(async (_req: Request, res: Response) => {
   res.json({ success: true, message: 'Logged out successfully' });
 });
+
+/**
+ * PATCH /api/auth/profile
+ * Updates the user's name, phone, hostelBlock, and roomNumber.
+ */
+export const updateProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { name, phone, hostelBlock, roomNumber } = req.body;
+  const user = await User.findById(req.user!.userId);
+
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  if (name !== undefined) user.name = name.trim();
+  if (phone !== undefined) user.phone = phone.trim();
+  if (hostelBlock !== undefined) user.hostelBlock = hostelBlock.trim();
+  if (roomNumber !== undefined) user.roomNumber = roomNumber.trim();
+
+  await user.save();
+
+  res.json({
+    success: true,
+    data: sanitizeUser(user),
+    message: 'Profile updated successfully',
+  });
+});
+
+/**
+ * POST /api/auth/change-password
+ * Changes password for logged-in user with current password verification.
+ */
+export const changePassword = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { currentPassword, newPassword } = req.body;
+  const user = await User.findById(req.user!.userId).select('+password');
+
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  const isMatch = await user.comparePassword(currentPassword);
+  if (!isMatch) {
+    throw new AppError('Incorrect current password', 400);
+  }
+
+  user.password = newPassword; // hashed automatically by pre-save hook
+  await user.save();
+
+  res.json({
+    success: true,
+    message: 'Password changed successfully',
+  });
+});

@@ -150,9 +150,14 @@ export function SiteHeader() {
             <div className="h-9 w-20" aria-hidden="true" />
           ) : user ? (
             <div className="flex items-center gap-3">
-              <span className="hidden text-ink sm:inline">
-                Hi, <span className="font-medium">{user.name.split(' ')[0]}</span>
-              </span>
+              <Link
+                href="/profile"
+                className="text-ink hover:text-accent transition-colors font-medium flex items-center gap-1"
+                title="View and edit your profile"
+              >
+                <span className="hidden sm:inline">Hi, </span>
+                <span>{user.name.split(' ')[0]}</span>
+              </Link>
               <button
                 onClick={() => handleLogout()}
                 className="text-muted transition-colors hover:text-danger cursor-pointer"

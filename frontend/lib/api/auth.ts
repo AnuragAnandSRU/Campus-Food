@@ -4,6 +4,8 @@ import type {
   RegisterUserDto,
   LoginDto,
   AuthResponse,
+  UpdateProfileDto,
+  ChangePasswordDto,
 } from '../../../shared/src/types/user.types';
 
 export const authApi = {
@@ -40,6 +42,19 @@ export const authApi = {
     return response.data;
   },
 
+  updateProfile: async (data: UpdateProfileDto): Promise<User> => {
+    const response = await apiClient.patch<{ success: boolean; data: User }>('/auth/profile', data);
+    return response.data.data;
+  },
+
+  changePassword: async (data: ChangePasswordDto): Promise<{ success: boolean; message: string }> => {
+    const response = await apiClient.post<{ success: boolean; message: string }>(
+      '/auth/change-password',
+      data
+    );
+    return response.data;
+  },
+
   logout: async (): Promise<void> => {
     await apiClient.post('/auth/logout');
   },
@@ -49,7 +64,10 @@ export const authApi = {
     return response.data;
   },
 
-  resetPassword: async (token: string, password: string): Promise<{ success: boolean; message: string }> => {
+  resetPassword: async (
+    token: string,
+    password: string
+  ): Promise<{ success: boolean; message: string }> => {
     const response = await apiClient.post('/auth/reset-password', { token, password });
     return response.data;
   },

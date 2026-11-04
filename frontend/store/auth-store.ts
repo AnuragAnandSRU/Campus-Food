@@ -15,6 +15,7 @@ interface User {
   permissions?: ('manage_menu' | 'view_analytics')[];
   isVerified: boolean;
   isActive?: boolean;
+  createdAt?: Date | string;
 }
 
 interface AuthState {
