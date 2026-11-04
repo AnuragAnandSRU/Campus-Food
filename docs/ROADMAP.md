@@ -183,7 +183,7 @@
 - [x] Kitchen audio chime & background tab alert (Web Audio API)
 - [x] Order history filters (All, Active, Completed, Cancelled) & search
 - [x] 1-Click Reorder flow
-- [ ] Favorite items
+- [x] Favorite items (1-tap heart toggle on dishes + dedicated /favorites page)
 - [x] Rating system (5-star reviews + dynamic canteen score aggregation)
 - [x] PWA manifest and service worker (/sw.js)
 - [x] Mobile Add-to-Home-Screen install prompt

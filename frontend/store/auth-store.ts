@@ -16,6 +16,7 @@ interface User {
   isVerified: boolean;
   isActive?: boolean;
   createdAt?: Date | string;
+  favorites?: string[];
 }
 
 interface AuthState {
@@ -27,11 +28,14 @@ interface AuthState {
   setUser: (user: User) => void;
   logout: () => void;
   setHydrated: (isHydrated: boolean) => void;
+  isFavorite: (menuItemId: string) => boolean;
+  setFavorites: (favorites: string[]) => void;
+  toggleFavoriteLocal: (menuItemId: string) => boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       isAuthenticated: false,
@@ -60,6 +64,32 @@ export const useAuthStore = create<AuthState>()(
         set({ user: null, token: null, isAuthenticated: false, isHydrated: true });
       },
       setHydrated: (isHydrated) => set({ isHydrated }),
+      isFavorite: (menuItemId: string) => {
+        const { user } = get();
+        return Boolean(user?.favorites?.includes(menuItemId));
+      },
+      setFavorites: (favorites: string[]) => {
+        const { user } = get();
+        if (!user) return;
+        const updated = { ...user, favorites };
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(updated));
+        }
+        set({ user: updated });
+      },
+      toggleFavoriteLocal: (menuItemId: string) => {
+        const { user } = get();
+        if (!user) return false;
+        const current = user.favorites || [];
+        const exists = current.includes(menuItemId);
+        const next = exists ? current.filter((id) => id !== menuItemId) : [...current, menuItemId];
+        const updated = { ...user, favorites: next };
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(updated));
+        }
+        set({ user: updated });
+        return !exists;
+      },
     }),
     {
       name: 'auth-storage',

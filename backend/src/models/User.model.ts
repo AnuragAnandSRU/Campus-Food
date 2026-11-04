@@ -14,6 +14,7 @@ export interface IUser extends Document {
   permissions: ('manage_menu' | 'view_analytics')[];
   isVerified: boolean;
   isActive: boolean;
+  favorites: mongoose.Types.ObjectId[];
   verificationToken?: string;
   resetPasswordToken?: string;
   resetPasswordExpire?: Date;
@@ -104,6 +105,12 @@ const userSchema = new Schema<IUser>(
     resetPasswordExpire: Date,
     invitationToken: String,
     invitationExpire: Date,
+    favorites: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'MenuItem',
+      },
+    ],
   },
   {
     timestamps: true,

@@ -380,6 +380,9 @@ export default function ProfilePage() {
           <Link href="/orders" className="btn btn-secondary flex-1 text-center text-xs">
             📦 My Past Orders
           </Link>
+          <Link href="/favorites" className="btn btn-secondary flex-1 text-center text-xs">
+            ❤️ My Favorites
+          </Link>
           <Link href="/canteens" className="btn btn-secondary flex-1 text-center text-xs">
             🍽️ Browse Canteens
           </Link>

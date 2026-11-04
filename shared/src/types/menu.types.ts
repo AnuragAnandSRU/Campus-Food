@@ -29,3 +29,12 @@ export interface CreateMenuItemDto {
 export interface UpdateMenuItemDto extends Partial<CreateMenuItemDto> {
   isAvailable?: boolean;
 }
+
+export interface PopulatedFavoriteItem extends Omit<MenuItem, 'canteenId'> {
+  canteenId: {
+    _id: string;
+    name: string;
+    location?: string;
+    isActive?: boolean;
+  };
+}

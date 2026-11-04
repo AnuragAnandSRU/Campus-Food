@@ -123,10 +123,20 @@ export function SiteHeader() {
               </Link>
 
               {isStudent && (
-                <Link href="/orders" className="text-muted hover:text-ink transition-colors">
-                  <span className="sm:hidden">Orders</span>
-                  <span className="hidden sm:inline">My orders</span>
-                </Link>
+                <>
+                  <Link href="/orders" className="text-muted hover:text-ink transition-colors">
+                    <span className="sm:hidden">Orders</span>
+                    <span className="hidden sm:inline">My orders</span>
+                  </Link>
+                  <Link
+                    href="/favorites"
+                    className="text-muted hover:text-ink transition-colors flex items-center gap-1"
+                    title="View your favorite dishes"
+                  >
+                    <span>❤️</span>
+                    <span className="hidden sm:inline">Favorites</span>
+                  </Link>
+                </>
               )}
 
               {/* Cart Icon (Only shown to students and guests) */}

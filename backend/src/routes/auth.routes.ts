@@ -21,6 +21,8 @@ import {
   getMe,
   updateProfile,
   changePassword,
+  getFavorites,
+  toggleFavorite,
   logout,
 } from '../controllers/auth.controller';
 
@@ -36,6 +38,11 @@ router.post('/reset-password', resetPasswordValidator, validate, resetPassword);
 router.get('/me', protect, getMe);
 router.patch('/profile', protect, updateProfileValidator, validate, updateProfile);
 router.post('/change-password', protect, changePasswordValidator, validate, changePassword);
+
+// Favorites endpoints
+router.get('/favorites', protect, getFavorites);
+router.post('/favorites/:menuItemId', protect, toggleFavorite);
+
 router.post('/logout', protect, logout);
 
 export default router;

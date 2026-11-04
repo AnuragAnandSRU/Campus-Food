@@ -7,6 +7,7 @@ import type {
   UpdateProfileDto,
   ChangePasswordDto,
 } from '../../../shared/src/types/user.types';
+import type { PopulatedFavoriteItem } from '../../../shared/src/types/menu.types';
 
 export const authApi = {
   register: async (data: RegisterUserDto): Promise<AuthResponse> => {
@@ -52,6 +53,25 @@ export const authApi = {
       '/auth/change-password',
       data
     );
+    return response.data;
+  },
+
+  getFavorites: async (): Promise<PopulatedFavoriteItem[]> => {
+    const response = await apiClient.get<{ success: boolean; data: PopulatedFavoriteItem[] }>(
+      '/auth/favorites'
+    );
+    return response.data.data || [];
+  },
+
+  toggleFavorite: async (
+    menuItemId: string
+  ): Promise<{ success: boolean; isFavorite: boolean; favorites: string[] }> => {
+    const response = await apiClient.post<{
+      success: boolean;
+      isFavorite: boolean;
+      message: string;
+      favorites: string[];
+    }>(`/auth/favorites/${menuItemId}`);
     return response.data;
   },
 

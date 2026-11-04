@@ -19,6 +19,7 @@ export interface User {
   permissions?: StaffPermission[];
   isVerified: boolean;
   isActive: boolean;
+  favorites?: string[];
   createdAt: Date;
   updatedAt: Date;
 }

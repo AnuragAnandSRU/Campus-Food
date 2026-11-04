@@ -1,3 +1,6 @@
+import MenuItem from '../models/MenuItem.model';
+import Canteen from '../models/Canteen.model';
+import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import User, { IUser } from '../models/User.model';
 import { AppError } from '../middleware/errorHandler';
@@ -24,6 +27,7 @@ const sanitizeUser = (user: IUser) => ({
   permissions: user.permissions,
   isVerified: user.isVerified,
   isActive: user.isActive,
+  favorites: user.favorites ? user.favorites.map((f) => String(f)) : [],
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });
@@ -310,4 +314,77 @@ export const changePassword = asyncHandler(async (req: AuthRequest, res: Respons
     success: true,
     message: 'Password changed successfully',
   });
+});
+
+/**
+ * GET /api/auth/favorites
+ * Returns the student's favorited menu items with canteen information.
+ */
+export const getFavorites = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const user = await User.findById(req.user!.userId).populate({
+    path: 'favorites',
+    model: 'MenuItem',
+    populate: {
+      path: 'canteenId',
+      model: 'Canteen',
+      select: 'name location isActive',
+    },
+  });
+
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  const validFavorites = (user.favorites || []).filter(Boolean);
+
+  res.json({
+    success: true,
+    data: validFavorites,
+  });
+});
+
+/**
+ * POST /api/auth/favorites/:menuItemId
+ * Toggles a menu item in the student's favorites list.
+ */
+export const toggleFavorite = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { menuItemId } = req.params;
+  if (!mongoose.isValidObjectId(menuItemId)) {
+    throw new AppError('Invalid menu item ID', 400);
+  }
+
+  const user = await User.findById(req.user!.userId);
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  if (!user.favorites) {
+    user.favorites = [];
+  }
+
+  const exists = user.favorites.some((id) => id.toString() === menuItemId);
+
+  if (exists) {
+    user.favorites = user.favorites.filter((id) => id.toString() !== menuItemId);
+    await user.save();
+    return res.json({
+      success: true,
+      isFavorite: false,
+      message: 'Removed from favorites',
+      favorites: user.favorites.map((id) => id.toString()),
+    });
+  } else {
+    const item = await MenuItem.findById(menuItemId);
+    if (!item) {
+      throw new AppError('Menu item not found', 404);
+    }
+    user.favorites.push(new mongoose.Types.ObjectId(menuItemId));
+    await user.save();
+    return res.json({
+      success: true,
+      isFavorite: true,
+      message: 'Added to favorites',
+      favorites: user.favorites.map((id) => id.toString()),
+    });
+  }
 });
