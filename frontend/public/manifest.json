@@ -1,0 +1,35 @@
+{
+  "name": "Campus Food - Campus Canteen Ordering",
+  "short_name": "CampusFood",
+  "description": "Order food from campus canteens and get it delivered directly to your hostel room.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F6F9F6",
+  "theme_color": "#1B7A45",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "food",
+    "shopping",
+    "lifestyle"
+  ]
+}

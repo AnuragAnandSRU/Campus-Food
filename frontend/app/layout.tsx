@@ -3,6 +3,7 @@ import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import { Toaster } from 'react-hot-toast';
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className="antialiased">
         <Providers>
           {children}
+          <PwaInstallPrompt />
           <Toaster
             position="top-center"
             toastOptions={{
