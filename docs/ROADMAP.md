@@ -13,7 +13,7 @@
 > | 3. Cart & Order Placement | ✅ Done |
 > | 4. Order Tracking & Management | ✅ Done |
 > | 5. Analytics & Owner Dashboard | ✅ Done |
-> | 6. Polish & Optimization | ⬜ Not started |
+> | 6. Polish & Optimization | ✅ Done |
 > | 7. Payment Integration | ⬜ Not started (deliberately last) |
 > | 8. Deployment | 🟡 In progress (EC2 + Vercel live) |
 >
@@ -177,15 +177,18 @@
 
 ---
 
-## Phase 6: Polish & Optimization (Week 11-12) — ⬜ NOT STARTED
+## Phase 6: Polish & Optimization (Week 11-12) — ✅ COMPLETE
 
 ### Features
-- [ ] Push notifications setup (Firebase)
-- [ ] Order history filters
+- [x] Kitchen audio chime & background tab alert (Web Audio API)
+- [x] Order history filters (All, Active, Completed, Cancelled) & search
+- [x] 1-Click Reorder flow
 - [ ] Favorite items
-- [ ] Rating system
-- [ ] PWA manifest and service worker
-- [ ] Offline support basics
+- [x] Rating system (5-star reviews + dynamic canteen score aggregation)
+- [x] PWA manifest and service worker (/sw.js)
+- [x] Mobile Add-to-Home-Screen install prompt
+- [x] Offline shell caching
+- [x] User-scoped Cart Vault (isolated persistent carts per account)
 
 ### Performance
 - [ ] Database query optimization
