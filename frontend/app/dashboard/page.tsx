@@ -11,6 +11,7 @@ import { useRequireRole } from '@/lib/use-require-role';
 import { useOrderSocket } from '@/lib/use-order-socket';
 import { SiteHeader } from '@/components/site-header';
 import { StaffOrderCard } from '@/components/orders/staff-order-card';
+import { useAudioAlert } from '@/lib/use-audio-alert';
 
 type Filter = 'active' | 'all';
 
@@ -38,6 +39,10 @@ export default function DashboardPage() {
     enabled: ready && Boolean(canteenId),
   });
 
+  const { soundEnabled, toggleSound, notifyNewOrder } = useAudioAlert(
+    canteenQuery.data ? `${canteenQuery.data.name} Dashboard` : 'Live Orders'
+  );
+
   const ordersQuery = useQuery({
     queryKey: ['canteen-orders', canteenId, filter],
     queryFn: () => orderApi.getCanteenOrders(canteenId!, { status: filter }),
@@ -52,7 +57,8 @@ export default function DashboardPage() {
   useOrderSocket({
     onNewOrder: (order) => {
       if (order.canteenId !== canteenId) return;
-      toast.success('New order received');
+      notifyNewOrder(order.orderId);
+      toast.success(`🔔 New order received (${order.orderId})`);
       refresh();
     },
     onStatusUpdate: (order) => {
@@ -93,6 +99,18 @@ export default function DashboardPage() {
             <Link href="/dashboard/menu" className="btn btn-secondary">
               Manage menu
             </Link>
+            <button
+              onClick={toggleSound}
+              title={soundEnabled ? 'Kitchen chime is active' : 'Kitchen chime is muted'}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-medium border transition-colors flex items-center gap-1.5 cursor-pointer ${
+                soundEnabled
+                  ? 'bg-accent/10 border-accent/30 text-accent hover:bg-accent/20'
+                  : 'bg-ink/5 border-line text-muted hover:text-ink'
+              }`}
+            >
+              <span>{soundEnabled ? '🔔' : '🔕'}</span>
+              <span>{soundEnabled ? 'Chime On' : 'Chime Off'}</span>
+            </button>
             {(user?.role === 'owner' || user?.permissions?.includes('view_analytics')) && (
               <Link href="/dashboard/analytics" className="btn btn-secondary">
                 Analytics
