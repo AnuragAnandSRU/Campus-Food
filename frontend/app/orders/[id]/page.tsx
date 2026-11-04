@@ -9,6 +9,7 @@ import { canteenApi } from '@/lib/api/canteen';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { useRequireAuth } from '@/lib/use-require-auth';
 import { useOrderSocket } from '@/lib/use-order-socket';
+import { useReorder } from '@/lib/use-reorder';
 import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { StatusBadge } from '@/components/orders/status-badge';
@@ -20,6 +21,7 @@ export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
   const queryClient = useQueryClient();
+  const { reorder } = useReorder();
 
   const orderQuery = useQuery({
     queryKey: ['order', id],
@@ -163,11 +165,16 @@ export default function OrderDetailPage() {
             <div className="mt-6 space-y-3">
               <div className="flex gap-3">
                 <Link href="/orders" className="btn btn-secondary flex-1 text-center">
-                  My orders
+                  ← All Orders
                 </Link>
-                <Link href="/canteens" className="btn btn-primary flex-1 text-center">
-                  Order again
-                </Link>
+                <button
+                  type="button"
+                  onClick={() => reorder(order, canteenQuery.data?.name)}
+                  className="btn btn-primary flex-1 text-center flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>🔁</span>
+                  <span>Order Again</span>
+                </button>
               </div>
               {canCancel && (
                 <button
