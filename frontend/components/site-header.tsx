@@ -105,14 +105,9 @@ export function SiteHeader() {
 
           {/* Platform Admin Navigation */}
           {mounted && isAdmin && (
-            <>
-              <Link href="/admin" className="font-medium text-accent hover:text-accent-hover transition-colors">
-                Admin Console
-              </Link>
-              <Link href="/canteens" className="text-muted hover:text-ink transition-colors">
-                View Canteens
-              </Link>
-            </>
+            <Link href="/admin" className="font-medium text-accent hover:text-accent-hover transition-colors">
+              Admin Console
+            </Link>
           )}
 
           {/* Consumer Navigation (Students & Guests) */}

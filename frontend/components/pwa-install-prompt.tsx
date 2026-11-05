@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useAuthStore } from '@/store/auth-store';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -11,6 +13,17 @@ export function PwaInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
+
+  // Administrative & partner management portals should NEVER show consumer app install prompts
+  const isManagementRoute =
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/dashboard') ||
+    pathname === '/partner';
+
+  const isManagementUser =
+    user?.role === 'admin' || user?.role === 'owner' || user?.role === 'staff';
 
   useEffect(() => {
     // Register service worker if supported
@@ -78,7 +91,10 @@ export function PwaInstallPrompt() {
     } catch {}
   };
 
-  if (!isVisible || isInstalled) return null;
+  // Suppress completely for admins, owners, staff, or on management routes
+  if (isManagementRoute || isManagementUser || !isVisible || isInstalled) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md animate-fade-in">

@@ -32,13 +32,18 @@ const PERMISSION_OPTIONS: { value: StaffPermission; label: string }[] = [
  */
 export function ProvisionUserForm({
   canteens,
+  defaultCanteenId,
   onDone,
 }: {
   canteens: AdminCanteen[];
+  defaultCanteenId?: string;
   onDone: () => void;
 }) {
   const queryClient = useQueryClient();
-  const [form, setForm] = useState(INITIAL);
+  const [form, setForm] = useState({
+    ...INITIAL,
+    canteenId: defaultCanteenId || canteens[0]?._id || '',
+  });
   const [duties, setDuties] = useState<StaffDuty[]>([]);
   const [permissions, setPermissions] = useState<StaffPermission[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});

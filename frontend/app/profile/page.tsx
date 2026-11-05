@@ -18,7 +18,7 @@ export default function ProfilePage() {
   const setUser = useAuthStore((s) => s.setUser);
   const handleLogout = useLogout();
 
-  // Personal / Delivery details form
+  // Form states
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [hostelBlock, setHostelBlock] = useState('');
@@ -33,6 +33,10 @@ export default function ProfilePage() {
 
   // Email resend state
   const [resending, setResending] = useState(false);
+
+  const isStudent = user?.role === 'student';
+  const isAdmin = user?.role === 'admin';
+  const isPartner = user?.role === 'owner' || user?.role === 'staff';
 
   useEffect(() => {
     if (user) {
@@ -59,11 +63,12 @@ export default function ProfilePage() {
       const updated = await authApi.updateProfile({
         name: name.trim(),
         phone: phone.trim(),
-        hostelBlock: hostelBlock.trim(),
-        roomNumber: roomNumber.trim(),
+        // Only students update hostel info
+        hostelBlock: isStudent ? hostelBlock.trim() : undefined,
+        roomNumber: isStudent ? roomNumber.trim() : undefined,
       });
       setUser(updated);
-      toast.success('Profile and delivery address updated!');
+      toast.success('Account details updated!');
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Failed to update profile'));
     } finally {
@@ -88,16 +93,13 @@ export default function ProfilePage() {
 
     setSavingPassword(true);
     try {
-      await authApi.changePassword({
-        currentPassword,
-        newPassword,
-      });
+      await authApi.changePassword({ currentPassword, newPassword });
+      toast.success('Password changed successfully!');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      toast.success('Password updated successfully!');
     } catch (err) {
-      toast.error(getApiErrorMessage(err, 'Failed to change password'));
+      toast.error(getApiErrorMessage(err, 'Could not change password'));
     } finally {
       setSavingPassword(false);
     }
@@ -107,9 +109,9 @@ export default function ProfilePage() {
     setResending(true);
     try {
       await authApi.resendVerification();
-      toast.success('Verification link sent! Check your inbox.');
+      toast.success('Verification email sent! Check your inbox.');
     } catch (err) {
-      toast.error(getApiErrorMessage(err, 'Could not resend verification email'));
+      toast.error(getApiErrorMessage(err, 'Could not send verification email'));
     } finally {
       setResending(false);
     }
@@ -129,16 +131,27 @@ export default function ProfilePage() {
 
   const initial = user.name ? user.name.charAt(0).toUpperCase() : 'U';
 
+  const roleBadge = isAdmin
+    ? '🛡️ Verified Administrator'
+    : isPartner
+    ? user.role === 'owner'
+      ? '🏪 Canteen Partner (Owner)'
+      : '👨‍🍳 Canteen Staff'
+    : '🎓 Verified Student';
+
+  const memberType = isAdmin ? 'Campus Administrator' : isPartner ? 'Canteen Partner' : 'Campus Student';
+
+  const breadcrumbs = isAdmin
+    ? [{ label: 'Admin Console', href: '/admin' }, { label: 'My Profile' }]
+    : isPartner
+    ? [{ label: 'Dashboard', href: '/dashboard' }, { label: 'My Profile' }]
+    : [{ label: 'Home', href: '/' }, { label: 'My Profile' }];
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-2xl px-6 py-8">
-        <Breadcrumbs
-          items={[
-            { label: 'Home', href: '/' },
-            { label: 'My Profile' },
-          ]}
-        />
+        <Breadcrumbs items={breadcrumbs} />
 
         {/* Profile Header Card */}
         <div className="card mt-4 p-6">
@@ -160,7 +173,7 @@ export default function ProfilePage() {
                 <div className="mt-1 flex items-center gap-2 text-xs">
                   {user.isVerified ? (
                     <span className="text-accent font-medium flex items-center gap-1">
-                      <span>✓</span> Verified Student
+                      <span>✓</span> {roleBadge}
                     </span>
                   ) : (
                     <div className="flex items-center gap-2">
@@ -180,7 +193,7 @@ export default function ProfilePage() {
 
             <div className="flex flex-col items-end gap-2 text-right">
               <span className="text-xs text-muted">
-                Member since {user.createdAt ? formatDateTime(user.createdAt).split(',')[0] : 'Campus Student'}
+                Member since {user.createdAt ? formatDateTime(user.createdAt).split(',')[0] : memberType}
               </span>
               <button
                 onClick={() => handleLogout()}
@@ -192,14 +205,22 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Personal Details & Hostel Delivery Address Form */}
+        {/* Account Details Form */}
         <form onSubmit={handleUpdateProfile} className="card mt-6 p-6">
           <div className="border-b border-line pb-4">
             <h2 className="font-display text-lg font-semibold text-ink">
-              Personal & Delivery Details
+              {isAdmin
+                ? 'Administrator Details'
+                : isPartner
+                ? 'Partner Account Details'
+                : 'Personal & Delivery Details'}
             </h2>
             <p className="mt-0.5 text-xs text-muted">
-              Keep your contact and hostel room updated for seamless deliveries.
+              {isAdmin
+                ? 'Your primary superadmin contact information.'
+                : isPartner
+                ? 'Your business and contact details for canteen operations.'
+                : 'Keep your contact and hostel room updated for seamless deliveries.'}
             </p>
           </div>
 
@@ -250,45 +271,47 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Hostel Delivery Info */}
-            <div className="rounded-xl border border-accent/20 bg-accent-tint/10 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-accent">
-                Default Hostel Delivery Address
-              </p>
-              <p className="mt-0.5 text-xs text-muted">
-                These details automatically pre-fill your checkout room so you never retype them.
-              </p>
+            {/* Hostel Delivery Info (STUDENTS ONLY) */}
+            {isStudent && (
+              <div className="rounded-xl border border-accent/20 bg-accent-tint/10 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-accent">
+                  Default Hostel Delivery Address
+                </p>
+                <p className="mt-0.5 text-xs text-muted">
+                  These details automatically pre-fill your checkout room so you never retype them.
+                </p>
 
-              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="hostelBlock" className="block text-xs font-medium text-ink">
-                    Hostel Block / Name
-                  </label>
-                  <input
-                    id="hostelBlock"
-                    type="text"
-                    value={hostelBlock}
-                    onChange={(e) => setHostelBlock(e.target.value)}
-                    className="input mt-1 text-sm bg-white"
-                    placeholder="e.g. Block A, Aryabhatta"
-                  />
-                </div>
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="hostelBlock" className="block text-xs font-medium text-ink">
+                      Hostel Block / Name
+                    </label>
+                    <input
+                      id="hostelBlock"
+                      type="text"
+                      value={hostelBlock}
+                      onChange={(e) => setHostelBlock(e.target.value)}
+                      className="input mt-1 text-sm bg-white"
+                      placeholder="e.g. Block A, Aryabhatta"
+                    />
+                  </div>
 
-                <div>
-                  <label htmlFor="roomNumber" className="block text-xs font-medium text-ink">
-                    Room Number
-                  </label>
-                  <input
-                    id="roomNumber"
-                    type="text"
-                    value={roomNumber}
-                    onChange={(e) => setRoomNumber(e.target.value)}
-                    className="input mt-1 text-sm bg-white"
-                    placeholder="e.g. 304, 102-B"
-                  />
+                  <div>
+                    <label htmlFor="roomNumber" className="block text-xs font-medium text-ink">
+                      Room Number
+                    </label>
+                    <input
+                      id="roomNumber"
+                      type="text"
+                      value={roomNumber}
+                      onChange={(e) => setRoomNumber(e.target.value)}
+                      className="input mt-1 text-sm bg-white"
+                      placeholder="e.g. 304, 102-B"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div className="mt-6 flex justify-end">
@@ -297,7 +320,7 @@ export default function ProfilePage() {
               disabled={savingProfile}
               className="btn btn-primary px-5 py-2 text-sm disabled:opacity-50 cursor-pointer"
             >
-              {savingProfile ? 'Saving…' : 'Save Profile Changes'}
+              {savingProfile ? 'Saving…' : 'Save Changes'}
             </button>
           </div>
         </form>
@@ -306,10 +329,10 @@ export default function ProfilePage() {
         <form onSubmit={handleChangePassword} className="card mt-6 p-6">
           <div className="border-b border-line pb-4">
             <h2 className="font-display text-lg font-semibold text-ink">
-              Account Security & Password
+              Security & Password
             </h2>
             <p className="mt-0.5 text-xs text-muted">
-              Update your account password with your current credentials.
+              Ensure your account is protected with a secure password.
             </p>
           </div>
 
@@ -375,17 +398,50 @@ export default function ProfilePage() {
           </div>
         </form>
 
-        {/* Quick Shortcuts */}
+        {/* Role-Specific Shortcuts */}
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link href="/orders" className="btn btn-secondary flex-1 text-center text-xs">
-            📦 My Past Orders
-          </Link>
-          <Link href="/favorites" className="btn btn-secondary flex-1 text-center text-xs">
-            ❤️ My Favorites
-          </Link>
-          <Link href="/canteens" className="btn btn-secondary flex-1 text-center text-xs">
-            🍽️ Browse Canteens
-          </Link>
+          {isAdmin && (
+            <Link href="/admin" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
+              <span>🏢</span>
+              <span>Open Admin Console</span>
+            </Link>
+          )}
+
+          {isPartner && (
+            <>
+              <Link href="/dashboard" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
+                <span>🍳</span>
+                <span>Live Kitchen Orders</span>
+              </Link>
+              <Link href="/dashboard/menu" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
+                <span>📋</span>
+                <span>Manage Menu</span>
+              </Link>
+              {user.role === 'owner' && (
+                <Link href="/dashboard/team" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
+                  <span>👥</span>
+                  <span>Team & Staff</span>
+                </Link>
+              )}
+            </>
+          )}
+
+          {isStudent && (
+            <>
+              <Link href="/orders" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
+                <span>📦</span>
+                <span>My Past Orders</span>
+              </Link>
+              <Link href="/favorites" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
+                <span>❤️</span>
+                <span>My Favorites</span>
+              </Link>
+              <Link href="/canteens" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
+                <span>🍽️</span>
+                <span>Browse Canteens</span>
+              </Link>
+            </>
+          )}
         </div>
       </main>
     </div>
