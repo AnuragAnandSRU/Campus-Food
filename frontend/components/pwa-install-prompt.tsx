@@ -15,6 +15,7 @@ export function PwaInstallPrompt() {
   const [isInstalled, setIsInstalled] = useState(false);
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
+  const isHydrated = useAuthStore((s) => s.isHydrated);
 
   // Administrative & partner management portals should NEVER show consumer app install prompts
   const isManagementRoute =
@@ -91,8 +92,8 @@ export function PwaInstallPrompt() {
     } catch {}
   };
 
-  // Suppress completely for admins, owners, staff, or on management routes
-  if (isManagementRoute || isManagementUser || !isVisible || isInstalled) {
+  // Suppress completely for admins, owners, staff, on management routes, or while hydrating auth
+  if (!isHydrated || isManagementRoute || isManagementUser || !isVisible || isInstalled) {
     return null;
   }
 
