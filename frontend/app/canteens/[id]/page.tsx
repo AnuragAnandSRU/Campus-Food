@@ -97,6 +97,16 @@ export default function CanteenMenuPage() {
 
         {canteen && (
           <>
+            {canteen.image && (
+              <div className="relative mt-4 h-44 w-full overflow-hidden rounded-2xl border border-line bg-surface/50 sm:h-56">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={canteen.image}
+                  alt={canteen.name}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
             <header className="mt-4 border-b border-line pb-6">
               <div className="flex flex-wrap items-center gap-3">
                 <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">

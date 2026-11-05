@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { Field } from '@/components/auth/field';
 import { SubmitButton } from '@/components/auth/submit-button';
+import { ImageUploadField } from '@/components/ui/image-upload-field';
 import { menuApi } from '@/lib/api/menu';
 import { getApiErrorMessage } from '@/lib/api-client';
 import type { MenuCategory, MenuItem } from '../../../shared/src/types/menu.types';
@@ -196,13 +197,12 @@ export function MenuItemForm({ canteenId, item, onDone }: MenuItemFormProps) {
         </div>
       </div>
 
-      <Field
-        label="Image URL"
-        name="image"
+      <ImageUploadField
+        label="Dish Photo"
         value={form.image}
-        onChange={(e) => set('image')(e.target.value)}
-        hint="Optional — paste a link to a photo."
-        placeholder="https://…"
+        onChange={(url) => set('image')(url)}
+        folder="dishes"
+        hint="Upload a photo from your device or paste a link."
       />
 
       <div className="flex gap-3 pt-1">

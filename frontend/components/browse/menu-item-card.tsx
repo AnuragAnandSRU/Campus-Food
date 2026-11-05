@@ -44,11 +44,24 @@ export function MenuItemCard({ item, canteenName }: { item: MenuItem; canteenNam
         </div>
       </div>
 
-      <div className="flex shrink-0 flex-col items-end gap-2">
-        <span className="font-display text-lg font-semibold text-ink">
-          {formatCurrency(item.price)}
-        </span>
-        <AddToCart item={item} canteenName={canteenName} />
+      <div className="flex shrink-0 items-center gap-3">
+        {item.image && (
+          <div className="relative h-18 w-18 shrink-0 overflow-hidden rounded-xl border border-line bg-surface/40 shadow-xs sm:h-20 sm:w-20">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={item.image}
+              alt={item.name}
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        )}
+        <div className="flex flex-col items-end gap-2">
+          <span className="font-display text-lg font-semibold text-ink">
+            {formatCurrency(item.price)}
+          </span>
+          <AddToCart item={item} canteenName={canteenName} />
+        </div>
       </div>
     </div>
   );

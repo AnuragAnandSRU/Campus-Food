@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { adminApi } from '@/lib/api/admin';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { Field } from '@/components/auth/field';
+import { ImageUploadField } from '@/components/ui/image-upload-field';
 import type { Canteen } from '../../../shared/src/types/canteen.types';
 
 const TIME = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
@@ -79,13 +80,12 @@ export function OwnerCanteenForm({ canteen }: { canteen: Canteen }) {
         error={errors.description}
       />
       <Field label="Location" name="location" value={form.location} onChange={update} error={errors.location} />
-      <Field
-        label="Image URL"
-        name="image"
-        hint="Optional — leave blank to use a placeholder."
-        placeholder="https://…"
+      <ImageUploadField
+        label="Canteen Banner Photo"
         value={form.image}
-        onChange={update}
+        onChange={(url) => setForm((prev) => ({ ...prev, image: url }))}
+        folder="canteens"
+        hint="Upload a cover photo for your canteen storefront."
         error={errors.image}
       />
       <div className="grid grid-cols-2 gap-4">

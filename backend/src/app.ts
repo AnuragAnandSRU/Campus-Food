@@ -12,6 +12,7 @@ import canteenRoutes from './routes/canteen.routes';
 import menuRoutes from './routes/menu.routes';
 import orderRoutes from './routes/order.routes';
 import analyticsRoutes from './routes/analytics.routes';
+import uploadRoutes from './routes/upload.routes';
 
 /**
  * Builds the Express application (middleware + routes + error handling).
@@ -43,6 +44,7 @@ app.use('/api/canteens', canteenRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Error handling (must be last)
 app.use(notFound);
