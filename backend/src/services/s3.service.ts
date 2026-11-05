@@ -25,7 +25,7 @@ export async function uploadImageToS3(
   file: Express.Multer.File,
   folder = 'dishes'
 ): Promise<string> {
-  const bucket = process.env.AWS_S3_BUCKET;
+  const bucket = process.env.AWS_S3_BUCKET || process.env.S3_BUCKET_NAME;
   if (!bucket) {
     throw new AppError('AWS_S3_BUCKET is not configured', 500);
   }
