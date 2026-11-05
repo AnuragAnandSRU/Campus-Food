@@ -262,6 +262,14 @@ export default function OrdersPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
+                      {isActive && order.deliveryPin && (
+                        <span
+                          className="rounded-lg bg-emerald-50 px-2 py-1 text-xs font-mono font-semibold text-accent ring-1 ring-emerald-200/70"
+                          title="Share this PIN with the delivery person"
+                        >
+                          PIN: {order.deliveryPin}
+                        </span>
+                      )}
                       <Link
                         href={`/orders/${order._id}`}
                         className="btn btn-secondary px-3 py-1 text-xs"

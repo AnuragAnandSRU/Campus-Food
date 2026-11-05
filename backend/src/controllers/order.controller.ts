@@ -149,7 +149,12 @@ export const getOrderById = asyncHandler(async (req: Request, res: Response) => 
     throw new AppError('You do not have access to this order', 403);
   }
 
-  res.json({ success: true, data: order });
+  let data: any = order;
+  if (role === 'staff' && order.studentId.toString() !== userId) {
+    data = order.toObject();
+    delete data.deliveryPin;
+  }
+  res.json({ success: true, data });
 });
 
 /**
@@ -182,7 +187,14 @@ export const getCanteenOrders = asyncHandler(async (req: Request, res: Response)
   }
 
   const orders = await Order.find(filter).sort({ createdAt: -1 }).limit(200);
-  res.json({ success: true, data: orders });
+  const data = role === 'staff'
+    ? orders.map((o) => {
+        const obj = o.toObject();
+        delete (obj as any).deliveryPin;
+        return obj;
+      })
+    : orders;
+  res.json({ success: true, data });
 });
 
 /**
@@ -192,7 +204,9 @@ export const getCanteenOrders = asyncHandler(async (req: Request, res: Response)
  */
 export const updateOrderStatus = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { status, estimatedDeliveryTime } = req.body as {
+  const { status, estimatedDeliveryTime, deliveryPin, overridePin } = req.body as {
+    deliveryPin?: string;
+    overridePin?: boolean;
     status: string;
     estimatedDeliveryTime?: string;
   };
@@ -223,6 +237,20 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
     order.estimatedDeliveryTime = new Date(estimatedDeliveryTime);
   }
   if (status === 'delivered') {
+    const isOwnerOrAdmin = role === 'owner' || role === 'admin';
+    const enteredPin = (deliveryPin || '').toString().trim();
+    const override = Boolean(overridePin);
+
+    if (order.deliveryPin) {
+      if (override && isOwnerOrAdmin) {
+        // Owner/Admin emergency override
+      } else if (!enteredPin) {
+        throw new AppError('Delivery PIN is required to complete handover. Ask the student for their 4-digit code.', 400);
+      } else if (enteredPin !== order.deliveryPin) {
+        throw new AppError('Invalid delivery PIN. Please confirm the 4-digit code with the student.', 400);
+      }
+    }
+
     order.deliveredAt = new Date();
     // Cash is collected at the door.
     if (order.paymentMethod === 'cash_on_delivery') {
@@ -233,7 +261,12 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
 
   emitOrderStatusUpdate(order);
 
-  res.json({ success: true, data: order });
+  let data: any = order;
+  if (role === 'staff' && order.studentId.toString() !== userId) {
+    data = order.toObject();
+    delete data.deliveryPin;
+  }
+  res.json({ success: true, data });
 });
 
 /**
@@ -291,7 +324,12 @@ export const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
 
   emitOrderStatusUpdate(order);
 
-  res.json({ success: true, data: order });
+  let data: any = order;
+  if (role === 'staff' && order.studentId.toString() !== userId) {
+    data = order.toObject();
+    delete data.deliveryPin;
+  }
+  res.json({ success: true, data });
 });
 
 /**

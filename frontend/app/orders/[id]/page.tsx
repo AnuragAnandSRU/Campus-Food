@@ -108,6 +108,37 @@ export default function OrderDetailPage() {
               cancelReason={order.cancelReason}
             />
 
+            {/* Delivery Handover PIN Card */}
+            {order.deliveryPin && order.status !== 'delivered' && order.status !== 'cancelled' && (
+              <div className="card mt-6 border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-50/80 to-accent-tint/40 p-5 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-white text-xs font-bold">
+                        🔐
+                      </span>
+                      <h4 className="font-display font-semibold text-ink text-base">
+                        Delivery Handover PIN
+                      </h4>
+                    </div>
+                    <p className="text-xs text-muted max-w-sm">
+                      Share this 4-digit code with the delivery runner at your hostel door to confirm you received your food.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 self-start sm:self-center">
+                    {order.deliveryPin.split('').map((digit, idx) => (
+                      <span
+                        key={idx}
+                        className="flex h-12 w-10 items-center justify-center rounded-xl bg-surface font-mono text-2xl font-bold tracking-wider text-accent shadow-xs ring-1 ring-accent/30"
+                      >
+                        {digit}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Post-Delivery Rating & Review */}
             <OrderRatingCard order={order} canteenName={canteenQuery.data?.name} />
 

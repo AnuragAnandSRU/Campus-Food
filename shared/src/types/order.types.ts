@@ -34,6 +34,7 @@ export interface Order {
   status: OrderStatus;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
+  deliveryPin?: string;
   specialInstructions?: string;
   estimatedDeliveryTime?: Date;
   deliveredAt?: Date;
@@ -65,6 +66,8 @@ export interface CreateOrderDto {
 export interface UpdateOrderStatusDto {
   status: OrderStatus;
   estimatedDeliveryTime?: Date;
+  deliveryPin?: string;
+  overridePin?: boolean;
 }
 
 export interface CancelOrderDto {

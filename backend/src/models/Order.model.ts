@@ -26,6 +26,7 @@ export interface IOrder extends Document {
     | 'cancelled';
   paymentMethod: 'cash_on_delivery' | 'online';
   paymentStatus: 'pending' | 'paid' | 'refunded';
+  deliveryPin?: string;
   specialInstructions?: string;
   estimatedDeliveryTime?: Date;
   deliveredAt?: Date;
@@ -116,6 +117,10 @@ const orderSchema = new Schema<IOrder>(
       enum: ['pending', 'paid', 'refunded'],
       default: 'pending',
     },
+    deliveryPin: {
+      type: String,
+      maxlength: 6,
+    },
     specialInstructions: {
       type: String,
       maxlength: 500,
@@ -151,6 +156,9 @@ orderSchema.pre('validate', async function (next) {
       .toString()
       .padStart(4, '0');
     this.orderId = `ORD-${dateStr}-${random}`;
+  }
+  if (this.isNew && !this.deliveryPin) {
+    this.deliveryPin = Math.floor(1000 + Math.random() * 9000).toString();
   }
   next();
 });

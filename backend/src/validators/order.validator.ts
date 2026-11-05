@@ -50,6 +50,13 @@ export const updateOrderStatusValidator = [
     .optional()
     .isISO8601()
     .withMessage('Estimated delivery time must be a valid date'),
+  body('deliveryPin')
+    .optional()
+    .isString()
+    .trim(),
+  body('overridePin')
+    .optional()
+    .isBoolean(),
 ];
 
 export const cancelOrderValidator = [
