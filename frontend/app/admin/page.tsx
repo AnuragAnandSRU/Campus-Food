@@ -7,15 +7,15 @@ import { useRequireRole } from '@/lib/use-require-role';
 import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { CanteenManagementCard } from '@/components/admin/canteen-management-card';
-import { CreateCanteenForm } from '@/components/admin/create-canteen-form';
+import { OnboardCanteenForm } from '@/components/admin/onboard-canteen-form';
 import { ProvisionOwnerForm } from '@/components/admin/provision-owner-form';
 
 export default function AdminPage() {
   const ready = useRequireRole(['admin'], '/admin/login');
 
-  // Modal state
-  const [showCanteenModal, setShowCanteenModal] = useState(false);
-  const [inviteModalState, setInviteModalState] = useState<{ open: boolean; canteenId?: string }>({
+  // Modal states
+  const [showOnboardModal, setShowOnboardModal] = useState(false);
+  const [reassignModalState, setReassignModalState] = useState<{ open: boolean; canteenId?: string }>({
     open: false,
   });
 
@@ -71,28 +71,18 @@ export default function AdminPage() {
               Admin Console
             </h1>
             <p className="mt-1 text-sm font-light text-muted">
-              Campus Food infrastructure: provision canteens and assign canteen owners.
+              Campus Food infrastructure: provision canteens and partner accounts.
             </p>
           </div>
 
           <div className="flex items-center gap-2.5">
             <button
               type="button"
-              onClick={() => setShowCanteenModal(true)}
+              onClick={() => setShowOnboardModal(true)}
               className="btn btn-primary px-4 py-2 text-sm flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <span>+</span>
-              <span>Add Canteen</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setInviteModalState({ open: true })}
-              disabled={canteens.length === 0}
-              className="btn btn-secondary px-4 py-2 text-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-            >
-              <span>👤</span>
-              <span>Provision Canteen Owner</span>
+              <span>Onboard Canteen</span>
             </button>
           </div>
         </div>
@@ -178,13 +168,13 @@ export default function AdminPage() {
             </div>
             <h3 className="font-display text-xl font-bold text-ink">No Canteens Created Yet</h3>
             <p className="mt-1 text-sm text-muted max-w-sm mx-auto font-light">
-              Add your first university canteen or food stall to begin provisioning canteen owners.
+              Onboard your first university canteen and its partner to begin operations.
             </p>
             <button
-              onClick={() => setShowCanteenModal(true)}
+              onClick={() => setShowOnboardModal(true)}
               className="btn btn-primary mt-5 text-sm"
             >
-              + Create First Canteen
+              + Onboard First Canteen
             </button>
           </div>
         )}
@@ -201,7 +191,7 @@ export default function AdminPage() {
                   key={canteen._id}
                   canteen={canteen}
                   team={canteenTeam}
-                  onAssignOwner={(id) => setInviteModalState({ open: true, canteenId: id })}
+                  onAssignOwner={(id) => setReassignModalState({ open: true, canteenId: id })}
                 />
               );
             })}
@@ -228,36 +218,40 @@ export default function AdminPage() {
             </div>
           )}
 
-        {/* Modal: Add Canteen */}
-        {showCanteenModal && (
+        {/* Modal: Onboard Canteen & Partner */}
+        {showOnboardModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-xs animate-fade-in">
             <div className="card w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
               <div className="flex items-center justify-between border-b border-line pb-4 mb-4">
-                <h3 className="font-display text-lg font-bold text-ink">Add New Canteen</h3>
+                <div>
+                  <h3 className="font-display text-lg font-bold text-ink">Onboard University Canteen</h3>
+                  <p className="text-xs text-muted font-light">Set up canteen stall and provision its primary owner account.</p>
+                </div>
                 <button
                   type="button"
-                  onClick={() => setShowCanteenModal(false)}
+                  onClick={() => setShowOnboardModal(false)}
                   className="rounded-lg p-1 text-muted hover:text-ink cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
-              <CreateCanteenForm onDone={() => setShowCanteenModal(false)} />
+              <OnboardCanteenForm onDone={() => setShowOnboardModal(false)} />
             </div>
           </div>
         )}
 
-        {/* Modal: Provision Canteen Owner */}
-        {inviteModalState.open && (
+        {/* Modal: Assign / Reassign Owner */}
+        {reassignModalState.open && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-xs animate-fade-in">
             <div className="card w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
               <div className="flex items-center justify-between border-b border-line pb-4 mb-4">
-                <h3 className="font-display text-lg font-bold text-ink">
-                  Provision Canteen Owner
-                </h3>
+                <div>
+                  <h3 className="font-display text-lg font-bold text-ink">Assign / Reassign Owner</h3>
+                  <p className="text-xs text-muted font-light">Provision a new owner for an existing canteen.</p>
+                </div>
                 <button
                   type="button"
-                  onClick={() => setInviteModalState({ open: false })}
+                  onClick={() => setReassignModalState({ open: false })}
                   className="rounded-lg p-1 text-muted hover:text-ink cursor-pointer"
                 >
                   ✕
@@ -265,8 +259,8 @@ export default function AdminPage() {
               </div>
               <ProvisionOwnerForm
                 canteens={canteens}
-                defaultCanteenId={inviteModalState.canteenId}
-                onDone={() => setInviteModalState({ open: false })}
+                defaultCanteenId={reassignModalState.canteenId}
+                onDone={() => setReassignModalState({ open: false })}
               />
             </div>
           </div>

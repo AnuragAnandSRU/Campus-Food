@@ -116,13 +116,23 @@ export function CanteenManagementCard({
                 </p>
               )}
 
-              {/* Owner Info */}
+              {/* Owner Info & Reassignment */}
               <div className="pt-1.5 text-xs">
                 {canteen.ownerId ? (
-                  <span className="text-ink/80 font-medium">
-                    👤 Owner: <span className="text-ink">{canteen.ownerId.name}</span>{' '}
-                    <span className="text-muted font-normal">({canteen.ownerId.email})</span>
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-ink/80 font-medium">
+                      👤 Owner: <span className="text-ink">{canteen.ownerId.name}</span>{' '}
+                      <span className="text-muted font-normal">({canteen.ownerId.email})</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onAssignOwner(canteen._id)}
+                      className="text-muted hover:text-accent underline cursor-pointer text-[11px]"
+                      title="Reassign or replace canteen owner"
+                    >
+                      Reassign
+                    </button>
+                  </div>
                 ) : (
                   <span className="text-danger font-medium flex items-center gap-1">
                     <span>⚠️</span>
