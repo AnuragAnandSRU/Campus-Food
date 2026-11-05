@@ -8,13 +8,12 @@ import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { CanteenManagementCard } from '@/components/admin/canteen-management-card';
 import { CreateCanteenForm } from '@/components/admin/create-canteen-form';
-import { ProvisionUserForm } from '@/components/admin/provision-user-form';
-import { InviteLinkCard } from '@/components/admin/invite-link-card';
+import { ProvisionOwnerForm } from '@/components/admin/provision-owner-form';
 
 export default function AdminPage() {
   const ready = useRequireRole(['admin'], '/admin/login');
 
-  // Modal / Drawer state
+  // Modal state
   const [showCanteenModal, setShowCanteenModal] = useState(false);
   const [inviteModalState, setInviteModalState] = useState<{ open: boolean; canteenId?: string }>({
     open: false,
@@ -56,13 +55,6 @@ export default function AdminPage() {
     });
   }, [canteens, filter, search]);
 
-  // Unassigned or legacy team members not bound to any existing canteen
-  const unassignedTeam = useMemo(() => {
-    return users.filter(
-      (u) => u.role !== 'admin' && (!u.canteen || !canteens.some((c) => c._id === u.canteen?._id))
-    );
-  }, [users, canteens]);
-
   const liveCount = canteens.filter((c) => c.isActive).length;
   const hiddenCount = canteens.length - liveCount;
 
@@ -79,7 +71,7 @@ export default function AdminPage() {
               Admin Console
             </h1>
             <p className="mt-1 text-sm font-light text-muted">
-              Campus Food infrastructure: provision canteens and manage staff teams.
+              Campus Food infrastructure: provision canteens and assign canteen owners.
             </p>
           </div>
 
@@ -99,8 +91,8 @@ export default function AdminPage() {
               disabled={canteens.length === 0}
               className="btn btn-secondary px-4 py-2 text-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
-              <span>👥</span>
-              <span>Invite Staff / Owner</span>
+              <span>👤</span>
+              <span>Provision Canteen Owner</span>
             </button>
           </div>
         </div>
@@ -186,7 +178,7 @@ export default function AdminPage() {
             </div>
             <h3 className="font-display text-xl font-bold text-ink">No Canteens Created Yet</h3>
             <p className="mt-1 text-sm text-muted max-w-sm mx-auto font-light">
-              Add your first university canteen or food stall to begin onboarding managers and menu items.
+              Add your first university canteen or food stall to begin provisioning canteen owners.
             </p>
             <button
               onClick={() => setShowCanteenModal(true)}
@@ -201,15 +193,15 @@ export default function AdminPage() {
         {ready && !canteensQuery.isLoading && filteredCanteens.length > 0 && (
           <div className="mt-6 space-y-4">
             {filteredCanteens.map((canteen) => {
-              // Group staff specifically for this canteen
-              const canteenStaff = users.filter((u) => u.canteen?._id === canteen._id);
+              // Group team members specifically for this canteen
+              const canteenTeam = users.filter((u) => u.canteen?._id === canteen._id);
 
               return (
                 <CanteenManagementCard
                   key={canteen._id}
                   canteen={canteen}
-                  team={canteenStaff}
-                  onInviteToCanteen={(id) => setInviteModalState({ open: true, canteenId: id })}
+                  team={canteenTeam}
+                  onAssignOwner={(id) => setInviteModalState({ open: true, canteenId: id })}
                 />
               );
             })}
@@ -236,41 +228,6 @@ export default function AdminPage() {
             </div>
           )}
 
-        {/* Unassigned / Pending Invites Section (only if unassigned users exist) */}
-        {unassignedTeam.length > 0 && (
-          <div className="mt-12 rounded-2xl border border-line bg-surface/50 p-6">
-            <div className="flex items-center justify-between gap-3 mb-4">
-              <div>
-                <h3 className="font-display text-base font-bold text-ink">
-                  Unassigned Team Members ({unassignedTeam.length})
-                </h3>
-                <p className="text-xs text-muted font-light">
-                  Invited staff or owners without an active canteen assigned.
-                </p>
-              </div>
-            </div>
-
-            <div className="divide-y divide-line rounded-xl border border-line bg-surface overflow-hidden">
-              {unassignedTeam.map((member) => (
-                <div key={member._id} className="p-4 flex items-center justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-ink">{member.name}</span>
-                      <span className="badge text-[10px] uppercase font-bold bg-line/60">
-                        {member.role}
-                      </span>
-                      <span className="badge text-[10px] bg-highlight-tint text-ink">
-                        {member.isActive ? 'Active' : 'Invited'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted">{member.email}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Modal: Add Canteen */}
         {showCanteenModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-xs animate-fade-in">
@@ -290,13 +247,13 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Modal: Invite Staff / Owner */}
+        {/* Modal: Provision Canteen Owner */}
         {inviteModalState.open && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-xs animate-fade-in">
             <div className="card w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
               <div className="flex items-center justify-between border-b border-line pb-4 mb-4">
                 <h3 className="font-display text-lg font-bold text-ink">
-                  Invite Canteen Staff / Owner
+                  Provision Canteen Owner
                 </h3>
                 <button
                   type="button"
@@ -306,7 +263,7 @@ export default function AdminPage() {
                   ✕
                 </button>
               </div>
-              <ProvisionUserForm
+              <ProvisionOwnerForm
                 canteens={canteens}
                 defaultCanteenId={inviteModalState.canteenId}
                 onDone={() => setInviteModalState({ open: false })}

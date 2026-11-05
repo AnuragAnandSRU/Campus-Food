@@ -12,13 +12,13 @@ import type { ProvisionedUser } from '../../../shared/src/types/user.types';
 interface CanteenManagementCardProps {
   canteen: AdminCanteen;
   team: ProvisionedUser[];
-  onInviteToCanteen: (canteenId: string) => void;
+  onAssignOwner: (canteenId: string) => void;
 }
 
 export function CanteenManagementCard({
   canteen,
   team,
-  onInviteToCanteen,
+  onAssignOwner,
 }: CanteenManagementCardProps) {
   const queryClient = useQueryClient();
   const [showTeam, setShowTeam] = useState(false);
@@ -129,7 +129,7 @@ export function CanteenManagementCard({
                     <span>No Owner Assigned</span>
                     <button
                       type="button"
-                      onClick={() => onInviteToCanteen(canteen._id)}
+                      onClick={() => onAssignOwner(canteen._id)}
                       className="ml-2 text-accent underline hover:opacity-80 cursor-pointer font-semibold"
                     >
                       + Assign Owner
@@ -180,41 +180,29 @@ export function CanteenManagementCard({
         </div>
       </div>
 
-      {/* Expandable Per-Canteen Team Panel */}
+      {/* Expandable Per-Canteen Team Panel (Read-only summary for Admin) */}
       {showTeam && (
         <div className="border-t border-line bg-surface/30 p-5 animate-fade-in">
           <div className="flex items-center justify-between gap-3 mb-3">
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-muted">
-                {canteen.name} Staff & Management
+                {canteen.name} Staff & Team Overview
               </h4>
               <p className="text-xs text-muted font-light">
                 {activeCount} active · {team.length - activeCount} pending invite
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => onInviteToCanteen(canteen._id)}
-              className="btn btn-secondary py-1 px-3 text-xs flex items-center gap-1 cursor-pointer"
-            >
-              <span>+</span>
-              <span>Invite Staff to {canteen.name}</span>
-            </button>
+            <span className="text-[11px] font-medium text-muted rounded-md bg-line/30 px-2 py-1">
+              Staff hired & managed by Owner
+            </span>
           </div>
 
           {team.length === 0 ? (
             <div className="rounded-xl border border-dashed border-line p-6 text-center">
               <p className="text-xs text-muted">
-                No staff or managers assigned to this canteen yet.
+                No staff members onboarded by the canteen owner yet.
               </p>
-              <button
-                type="button"
-                onClick={() => onInviteToCanteen(canteen._id)}
-                className="mt-2 text-xs font-semibold text-accent hover:underline cursor-pointer"
-              >
-                + Invite First Member
-              </button>
             </div>
           ) : (
             <div className="divide-y divide-line/60 rounded-xl border border-line bg-surface overflow-hidden">
@@ -265,7 +253,7 @@ export function CanteenManagementCard({
                         )}
                       </div>
 
-                      {isPending && (
+                      {isPending && member.role === 'owner' && (
                         <div className="shrink-0">
                           <button
                             type="button"
