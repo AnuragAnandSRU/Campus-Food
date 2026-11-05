@@ -9,7 +9,7 @@
 > | Phase | Status |
 > |---|---|
 > | 1. Foundation & Authentication | ✅ Done (upgraded — see note) |
-> | 2. Canteen & Menu Management | ✅ Done (except S3 image upload) |
+> | 2. Canteen & Menu Management | ✅ Done |
 > | 3. Cart & Order Placement | ✅ Done |
 > | 4. Order Tracking & Management | ✅ Done |
 > | 5. Analytics & Owner Dashboard | ✅ Done |
@@ -67,12 +67,12 @@
 
 ---
 
-## Phase 2: Canteen & Menu Management (Week 3-4) — ✅ MOSTLY COMPLETE
+## Phase 2: Canteen & Menu Management (Week 3-4) — ✅ COMPLETE
 
 ### Backend
 - [x] Canteen controllers (CRUD)
 - [x] Menu controllers (CRUD)
-- [ ] Image upload to S3 *(items take an image URL for now)*
+- [x] Image upload to S3 *(AWS S3 Hyderabad ap-south-2 with Multer streaming & UUID keys)*
 - [x] Menu search and filtering *(done client-side on the browse page; no separate backend endpoint)*
 - [x] Availability management
 
@@ -86,13 +86,13 @@
 - [x] Admin / management dashboard *(split into the admin console + an owner/staff menu screen)*
   - [x] Canteen management
   - [x] Menu item CRUD
-  - [ ] Image upload component
+  - [x] Image upload component *(ImageUploadField with drag & drop, preview, cloud upload)*
 - [x] Availability toggle (in / out of stock)
 
 ### Testing
 - [ ] Test canteen CRUD operations *(no automated tests yet — verified manually)*
 - [ ] Test menu filtering
-- [ ] Test image upload to S3
+- [x] Test image upload to S3 *(verified live upload to ap-south-2 & HTTP 200 public CDN fetch)*
 
 ---
 

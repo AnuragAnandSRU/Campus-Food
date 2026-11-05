@@ -23,3 +23,4 @@ export const uploadImage = asyncHandler(async (req: Request, res: Response) => {
     message: 'Image uploaded successfully to AWS S3',
   });
 });
+
