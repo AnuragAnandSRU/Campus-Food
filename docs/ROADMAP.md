@@ -135,12 +135,14 @@
 - [x] Get canteen orders (for staff)
 - [x] Order cancellation *(endpoint open to student / staff / owner / admin)*
 - [x] Real-time status broadcast
+- [x] 4-Digit Delivery Handover PIN generation & verification *(prevents wrong pickup at hostel desk)*
 
 ### Frontend (Student)
 - [x] My Orders page
 - [x] Order detail/tracking page
 - [x] Real-time status updates
 - [x] Order cancellation *(cancel button on the order detail page; only while pending/confirmed)*
+- [x] 4-Digit Handover PIN Card on tracking screen & PIN badge in order history
 
 ### Frontend (Staff Dashboard)
 - [x] Incoming orders view
@@ -148,6 +150,7 @@
 - [x] Order details modal *(shown inline on the order card)*
 - [x] Real-time new order alerts
 - [x] Menu availability toggle
+- [x] Delivery handover verification prompt *(numeric PIN check + Owner Emergency Override)*
 
 ### Testing
 - [ ] Test order status flow *(no automated tests yet — verified manually)*
