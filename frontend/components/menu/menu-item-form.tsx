@@ -61,7 +61,7 @@ export function MenuItemForm({ canteenId, item, onDone }: MenuItemFormProps) {
         category: form.category,
         isVeg: form.isVeg === 'veg',
         preparationTime: Number(form.preparationTime),
-        image: form.image.trim() || undefined,
+        image: form.image.trim(),
       };
       return item
         ? menuApi.update(item._id, payload)

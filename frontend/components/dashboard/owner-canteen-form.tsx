@@ -36,7 +36,7 @@ export function OwnerCanteenForm({ canteen }: { canteen: Canteen }) {
         name: form.name.trim(),
         description: form.description.trim(),
         location: form.location.trim(),
-        image: form.image.trim() || undefined,
+        image: form.image.trim(),
         openingHours: { open: form.open, close: form.close },
         isActive,
       }),

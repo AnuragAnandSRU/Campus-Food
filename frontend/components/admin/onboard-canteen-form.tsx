@@ -38,17 +38,21 @@ export function OnboardCanteenForm({ onDone }: { onDone: () => void }) {
   const [form, setForm] = useState(INITIAL);
   const [errors, setErrors] = useState<FormErrors>({});
   const [successData, setSuccessData] = useState<OnboardSuccessData | null>(null);
+  const [createdCanteen, setCreatedCanteen] = useState<AdminCanteen | null>(null);
 
   const mutation = useMutation({
     mutationFn: async () => {
-      // 1. Create the Canteen
-      const canteen = await adminApi.createCanteen({
-        name: form.name.trim(),
-        description: form.description.trim(),
-        location: form.location.trim(),
-        image: form.image.trim() || undefined,
-        openingHours: { open: form.open, close: form.close },
-      });
+      // 1. Create the Canteen (or reuse if already created on a prior attempt)
+      const canteen =
+        createdCanteen ||
+        (await adminApi.createCanteen({
+          name: form.name.trim(),
+          description: form.description.trim(),
+          location: form.location.trim(),
+          image: form.image.trim(),
+          openingHours: { open: form.open, close: form.close },
+        }));
+      setCreatedCanteen(canteen);
 
       // 2. Provision and link the Owner to this new canteen
       const ownerResult = await adminApi.provisionUser({
