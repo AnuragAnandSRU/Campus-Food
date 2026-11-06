@@ -32,6 +32,7 @@ function CartIcon() {
 export function SiteHeader() {
   const [mounted, setMounted] = useState(false);
   const [resending, setResending] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const user = useAuthStore((s) => s.user);
   const handleLogout = useLogout();
   const items = useCartStore((s) => s.items);
@@ -40,11 +41,19 @@ export function SiteHeader() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => setCooldown((prev) => prev - 1), 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
   async function handleResendVerification() {
+    if (cooldown > 0) return;
     setResending(true);
     try {
       await authApi.resendVerification();
       toast.success('Verification link sent! Check your inbox/spam folder.');
+      setCooldown(60);
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Could not resend email.'));
     } finally {
@@ -190,10 +199,10 @@ export function SiteHeader() {
             </div>
             <button
               onClick={handleResendVerification}
-              disabled={resending}
+              disabled={resending || cooldown > 0}
               className="rounded-full bg-amber-200/60 hover:bg-amber-200 px-3 py-1 text-[11px] font-semibold text-amber-950 transition-colors disabled:opacity-50 cursor-pointer"
             >
-              {resending ? 'Sending…' : 'Resend link'}
+              {resending ? 'Sending…' : cooldown > 0 ? `Resend link (${cooldown}s)` : 'Resend link'}
             </button>
           </div>
         </div>

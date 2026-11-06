@@ -11,6 +11,7 @@ type Status = 'verifying' | 'success' | 'error' | 'info';
 export function VerifyEmailClient({ token }: { token?: string }) {
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
+  const setAuth = useAuthStore((s) => s.setAuth);
 
   // No token → the user landed here right after registering. Show an
   // "check your inbox" prompt rather than trying to verify.
@@ -26,13 +27,17 @@ export function VerifyEmailClient({ token }: { token?: string }) {
 
     (async () => {
       try {
-        await authApi.verifyEmail(token);
-        // Refresh the stored user so `isVerified` is up to date everywhere.
-        try {
-          const fresh = await authApi.getMe();
-          setUser(fresh);
-        } catch {
-          // Not signed in on this device — verification still succeeded.
+        const res = await authApi.verifyEmail(token);
+        if (res.user && res.token) {
+          setAuth(res.user, res.token);
+        } else {
+          // Refresh the stored user so `isVerified` is up to date everywhere.
+          try {
+            const fresh = await authApi.getMe();
+            setUser(fresh);
+          } catch {
+            // Not signed in on this device — verification still succeeded.
+          }
         }
         setStatus('success');
       } catch (err) {

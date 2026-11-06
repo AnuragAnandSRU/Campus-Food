@@ -172,7 +172,13 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
   user.verificationToken = undefined;
   await user.save({ validateBeforeSave: false });
 
-  res.json({ success: true, message: 'Email verified successfully' });
+  const authToken = signToken({ userId: String(user._id), role: user.role });
+  res.json({
+    success: true,
+    message: 'Email verified successfully',
+    user: sanitizeUser(user),
+    token: authToken,
+  });
 });
 
 /**
