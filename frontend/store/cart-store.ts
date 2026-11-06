@@ -57,7 +57,9 @@ function readVault(userId: string | null): { items: CartItem[]; canteenId: strin
         }
       }
     }
-  } catch {}
+  } catch {
+    // Storage read or JSON parse failure fallback
+  }
   return { items: [], canteenId: null };
 }
 
@@ -65,7 +67,9 @@ function writeVault(userId: string | null, state: { items: CartItem[]; canteenId
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(getStorageKey(userId), JSON.stringify(state));
-  } catch {}
+  } catch {
+    // Storage quota exceeded or private browsing fallback
+  }
 }
 
 export const useCartStore = create<CartState>()((set, get) => ({
