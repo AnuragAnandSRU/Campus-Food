@@ -37,7 +37,16 @@ export const protect = async (
       throw new AppError('User no longer exists', 401);
     }
 
-    req.user = decoded;
+    // Instant lockout if user was deactivated or disabled
+    if (!user.isActive) {
+      throw new AppError('This account has been deactivated or disabled.', 401);
+    }
+
+    // Always enforce the live role from the database, not the stale token payload
+    req.user = {
+      userId: String(user._id),
+      role: user.role,
+    };
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {

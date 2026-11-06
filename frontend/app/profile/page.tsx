@@ -33,6 +33,13 @@ export default function ProfilePage() {
 
   // Email resend state
   const [resending, setResending] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => setCooldown((prev) => prev - 1), 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const isStudent = user?.role === 'student';
   const isAdmin = user?.role === 'admin';
@@ -110,6 +117,7 @@ export default function ProfilePage() {
     try {
       await authApi.resendVerification();
       toast.success('Verification email sent! Check your inbox.');
+      setCooldown(60);
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Could not send verification email'));
     } finally {
@@ -180,10 +188,10 @@ export default function ProfilePage() {
                       <span className="text-amber-700 font-medium">⚠️ Email Unverified</span>
                       <button
                         onClick={handleResendVerification}
-                        disabled={resending}
+                        disabled={resending || cooldown > 0}
                         className="text-accent underline hover:opacity-80 disabled:opacity-50 cursor-pointer"
                       >
-                        {resending ? 'Sending…' : 'Resend link'}
+                        {resending ? 'Sending…' : cooldown > 0 ? `Resend link (${cooldown}s)` : 'Resend link'}
                       </button>
                     </div>
                   )}

@@ -116,7 +116,7 @@ export function LoginForm({
           {showForgot && (
             <div className="mt-2 text-right">
               <Link
-                href="/forgot-password"
+                href={audience === 'admin' ? '/forgot-password?door=admin' : '/forgot-password'}
                 className="text-sm font-medium text-accent hover:text-accent-hover"
               >
                 Forgot password?

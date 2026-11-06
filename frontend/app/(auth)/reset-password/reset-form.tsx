@@ -35,9 +35,16 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
     setPending(true);
     try {
-      await authApi.resetPassword(token, form.password);
-      toast.success('Password updated. Please sign in.');
-      router.replace('/login');
+      const res = await authApi.resetPassword(token, form.password);
+      toast.success('Password updated. Please sign in with your new credentials.');
+
+      let targetDoor = '/login';
+      if (res.role === 'admin') {
+        targetDoor = '/admin/login';
+      } else if (res.role === 'owner' || res.role === 'staff') {
+        targetDoor = '/partner';
+      }
+      router.replace(targetDoor);
     } catch (err) {
       toast.error(
         getApiErrorMessage(err, 'This link may have expired. Request a new one.')

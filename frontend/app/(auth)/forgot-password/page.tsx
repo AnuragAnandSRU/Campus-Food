@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { authApi } from '@/lib/api/auth';
@@ -13,6 +13,16 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState<string>();
   const [pending, setPending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [isAdminDoor, setIsAdminDoor] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsAdminDoor(new URLSearchParams(window.location.search).get('door') === 'admin');
+    }
+  }, []);
+
+  const backLink = isAdminDoor ? '/admin/login' : '/login';
+  const backLabel = isAdminDoor ? 'Back to Admin sign in' : 'Back to sign in';
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -53,10 +63,10 @@ export default function ForgotPasswordPage() {
           we&apos;ve sent a link to reset your password. It may take a minute to arrive.
         </p>
         <Link
-          href="/login"
+          href={backLink}
           className="btn btn-secondary mt-8 inline-flex"
         >
-          Back to sign in
+          {backLabel}
         </Link>
       </>
     );
@@ -77,7 +87,7 @@ export default function ForgotPasswordPage() {
           name="email"
           type="email"
           autoComplete="email"
-          placeholder="you@college.edu"
+          placeholder={isAdminDoor ? 'admin@sru.edu.in' : 'you@college.edu'}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           error={error}
@@ -89,8 +99,8 @@ export default function ForgotPasswordPage() {
 
       <p className="mt-8 text-sm text-muted">
         Remembered it?{' '}
-        <Link href="/login" className="font-medium text-accent hover:text-accent-hover">
-          Back to sign in
+        <Link href={backLink} className="font-medium text-accent hover:text-accent-hover">
+          {backLabel}
         </Link>
       </p>
     </>

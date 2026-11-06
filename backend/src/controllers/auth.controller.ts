@@ -191,6 +191,17 @@ export const resendVerificationEmail = asyncHandler(async (req: Request, res: Re
     return res.json({ success: true, message: 'Your email is already verified.' });
   }
 
+  // 60-second cooldown check to prevent SMTP spam
+  if (user.updatedAt && Date.now() - new Date(user.updatedAt).getTime() < 60 * 1000) {
+    const remainingSecs = Math.ceil(
+      (60 * 1000 - (Date.now() - new Date(user.updatedAt).getTime())) / 1000
+    );
+    throw new AppError(
+      `Please wait ${remainingSecs} seconds before requesting another verification email.`,
+      429
+    );
+  }
+
   const rawToken = generateRawToken();
   user.verificationToken = hashToken(rawToken);
   await user.save({ validateBeforeSave: false });
@@ -241,7 +252,11 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
   user.resetPasswordExpire = undefined;
   await user.save();
 
-  res.json({ success: true, message: 'Password reset successfully' });
+  res.json({
+    success: true,
+    message: 'Password reset successfully',
+    role: user.role,
+  });
 });
 
 /**

@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
           }
           subtitle="Restricted access. Sign in with your administrator account."
           defaultRedirect="/admin"
-          showForgot={false}
+          showForgot={true}
         />
       </div>
     </div>
