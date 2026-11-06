@@ -241,7 +241,7 @@
 - [x] AWS EC2 setup
 - [x] Environment variables configuration
 - [x] MongoDB Atlas setup
-- [ ] S3 bucket creation
+- [x] S3 bucket creation (AWS S3 ap-south-2 Hyderabad with direct Multer streaming)
 - [x] SSL certificate (Let's Encrypt / Certbot)
 - [x] Domain configuration (campusfood.duckdns.org)
 - [ ] Monitoring setup
