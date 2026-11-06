@@ -95,9 +95,16 @@
   - [x] Image upload component *(ImageUploadField with drag & drop, preview, cloud upload)*
 - [x] Availability toggle (in / out of stock)
 
+### Added beyond the original plan ✅
+- [x] Operating hours order guard (IST timeZone calculation blocks orders placed outside canteen open hours)
+- [x] Temporarily offline store alert & ordering pause on `/canteens/[id]` when `isActive: false`
+- [x] Staff quick search bar in `/dashboard/menu` for instant 2-keystroke stock toggling during peak hours
+- [x] Explicit "Sold out" and "Closed" pills on dish cards in place of vanished Add button
+- [x] Graceful image fallback for broken/slow CDN images to clean initial badges
+
 ### Testing
-- [ ] Test canteen CRUD operations *(no automated tests yet — verified manually)*
-- [ ] Test menu filtering
+- [x] Manual end-to-end verification of menu CRUD, stock toggles, and S3 uploads *(Tested locally & on EC2/Vercel)*
+- [ ] Automated unit & integration tests *(Planned for post-launch stabilization)*
 - [x] Test image upload to S3 *(verified live upload to ap-south-2 & HTTP 200 public CDN fetch)*
 
 ---
