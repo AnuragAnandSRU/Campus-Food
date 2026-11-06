@@ -88,10 +88,12 @@ const orderSchema = new Schema<IOrder>(
       hostelBlock: {
         type: String,
         required: true,
+        maxlength: 50,
       },
       roomNumber: {
         type: String,
         required: true,
+        maxlength: 50,
       },
     },
     status: {

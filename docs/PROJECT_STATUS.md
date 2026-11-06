@@ -40,6 +40,8 @@ controlled access, so this grew into:
 - Cash-on-delivery
 - Real-time Socket.io events with delivery PIN stripped from canteen room broadcasts
 - 6-Digit Order ID generation space (`ORD-YYYYMMDD-XXXXXX`) eliminating MongoDB duplicate key collisions
+- Live menu validation on Cart review (auto-syncs prices, highlights sold-out dishes, blocks invalid checkouts)
+- Input boundary hardening (`max: 50` chars for block/room, phantom canteen lockout guard, guest cart adoption)
 
 ### Order tracking & staff dashboard — Phase 4
 - Full status lifecycle: pending → confirmed → preparing → ready → out for delivery → delivered (+ cancelled)

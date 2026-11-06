@@ -90,8 +90,10 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   }
 
   if (!isCanteenOpenNow(canteen.openingHours)) {
+    const open = canteen.openingHours?.open ?? 'N/A';
+    const close = canteen.openingHours?.close ?? 'N/A';
     throw new AppError(
-      `This canteen is currently closed. Operating hours: ${canteen.openingHours.open} to ${canteen.openingHours.close}`,
+      `This canteen is currently closed. Operating hours: ${open} to ${close}`,
       400
     );
   }
@@ -144,7 +146,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
     totalAmount,
     deliveryAddress,
     paymentMethod: paymentMethod === 'cash_on_delivery' ? paymentMethod : 'cash_on_delivery',
-    specialInstructions,
+    specialInstructions: specialInstructions?.trim() || undefined,
   });
 
   // Notify the canteen's staff/owner in real time.

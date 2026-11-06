@@ -19,11 +19,15 @@ export const createOrderValidator = [
   body('deliveryAddress.hostelBlock')
     .trim()
     .notEmpty()
-    .withMessage('Hostel block is required for delivery'),
+    .withMessage('Hostel block is required for delivery')
+    .isLength({ max: 50 })
+    .withMessage('Hostel block must be under 50 characters'),
   body('deliveryAddress.roomNumber')
     .trim()
     .notEmpty()
-    .withMessage('Room number is required for delivery'),
+    .withMessage('Room number is required for delivery')
+    .isLength({ max: 50 })
+    .withMessage('Room number must be under 50 characters'),
 
   // Cash on delivery is the only option for now; online payment comes later.
   body('paymentMethod')
@@ -34,6 +38,7 @@ export const createOrderValidator = [
   body('specialInstructions')
     .optional()
     .isString()
+    .trim()
     .isLength({ max: 500 })
     .withMessage('Special instructions must be under 500 characters'),
 ];

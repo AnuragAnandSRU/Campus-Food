@@ -144,6 +144,10 @@
 - [x] Delivery room auto-save to user profile (`[x] Save as default delivery address in profile`)
 - [x] Order item deduplication and line consolidation on backend
 - [x] 6-Digit Order ID space hardening (expands daily space to 900,000 to eliminate MongoDB duplicate key errors)
+- [x] Live menu price & availability validation on Cart page (auto-syncs updated prices and alerts/blocks sold-out dishes)
+- [x] Guest cart adoption priority upon student login (preserves active guest selections over stale vaults)
+- [x] Phantom canteen ID guard (strictly nullifies `canteenId` when cart items are empty)
+- [x] Delivery address & notes input boundary enforcement (`max: 50` chars for block/room, trimmed notes)
 
 ### Testing
 - [ ] Test cart operations *(no automated tests yet — verified manually)*

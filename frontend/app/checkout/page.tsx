@@ -195,6 +195,7 @@ export default function CheckoutPage() {
                   <input
                     className={`input mt-1 ${errors.hostelBlock ? 'border-danger focus:border-danger' : ''}`}
                     value={hostelBlock}
+                    maxLength={50}
                     onChange={(e) => {
                       setHostelBlock(e.target.value);
                       if (errors.hostelBlock) setErrors((prev) => ({ ...prev, hostelBlock: undefined }));
@@ -210,6 +211,7 @@ export default function CheckoutPage() {
                   <input
                     className={`input mt-1 ${errors.roomNumber ? 'border-danger focus:border-danger' : ''}`}
                     value={roomNumber}
+                    maxLength={50}
                     onChange={(e) => {
                       setRoomNumber(e.target.value);
                       if (errors.roomNumber) setErrors((prev) => ({ ...prev, roomNumber: undefined }));

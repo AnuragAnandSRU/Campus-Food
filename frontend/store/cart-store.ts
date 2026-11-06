@@ -17,6 +17,7 @@ interface CartState {
   addItem: (item: CartItem) => void;
   removeItem: (menuItemId: string) => void;
   updateQuantity: (menuItemId: string, quantity: number) => void;
+  syncPrice: (menuItemId: string, newPrice: number) => void;
   clearCart: () => void;
   getTotal: () => number;
   getItemCount: () => number;
@@ -36,7 +37,11 @@ function readVault(userId: string | null): { items: CartItem[]; canteenId: strin
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed.items)) {
-        return { items: parsed.items, canteenId: parsed.canteenId ?? null };
+        const hasItems = parsed.items.length > 0;
+        return {
+          items: parsed.items,
+          canteenId: hasItems ? (parsed.canteenId ?? null) : null,
+        };
       }
     }
 
@@ -80,8 +85,8 @@ export const useCartStore = create<CartState>()((set, get) => ({
       const userVault = readVault(newUserId);
       const guestVault = readVault(null);
 
-      // If student has no saved items, but was browsing as a guest, adopt the guest items!
-      if (userVault.items.length === 0 && guestVault.items.length > 0) {
+      // If student was browsing as a guest with active items, adopt them!
+      if (guestVault.items.length > 0) {
         userVault.items = guestVault.items;
         userVault.canteenId = guestVault.canteenId;
         writeVault(null, { items: [], canteenId: null }); // clear guest cart
@@ -146,6 +151,19 @@ export const useCartStore = create<CartState>()((set, get) => ({
     const { items, activeUserId, canteenId } = get();
     const nextItems = items.map((i) => (i.menuItemId === menuItemId ? { ...i, quantity } : i));
 
+    const nextState = { items: nextItems, canteenId };
+    writeVault(activeUserId, nextState);
+    set(nextState);
+  },
+
+  syncPrice: (menuItemId, newPrice) => {
+    const { items, activeUserId, canteenId } = get();
+    const existing = items.find((i) => i.menuItemId === menuItemId);
+    if (!existing || existing.price === newPrice) return;
+
+    const nextItems = items.map((i) =>
+      i.menuItemId === menuItemId ? { ...i, price: newPrice } : i
+    );
     const nextState = { items: nextItems, canteenId };
     writeVault(activeUserId, nextState);
     set(nextState);

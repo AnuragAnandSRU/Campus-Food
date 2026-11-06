@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useCartStore } from '@/store/cart-store';
+import { menuApi } from '@/lib/api/menu';
 import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { formatCurrency } from '@/lib/utils';
@@ -17,10 +19,51 @@ export default function CartPage() {
   const items = useCartStore((s) => s.items);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
+  const syncPrice = useCartStore((s) => s.syncPrice);
   const clearCart = useCartStore((s) => s.clearCart);
   const total = useCartStore((s) => s.getTotal());
 
+  const canteenId = items[0]?.canteenId;
   const canteenName = items[0]?.canteenName;
+
+  // Live menu validation to catch price updates or sold-out items
+  const menuQuery = useQuery({
+    queryKey: ['canteen-menu-cart', canteenId],
+    queryFn: () => menuApi.getByCanteen(canteenId!),
+    enabled: Boolean(canteenId),
+    staleTime: 10000,
+  });
+
+  const liveMenu = useMemo(() => menuQuery.data ?? [], [menuQuery.data]);
+  const liveMenuMap = useMemo(
+    () => new Map(liveMenu.map((m) => [m._id, m])),
+    [liveMenu]
+  );
+
+  // Silently sync any price updates from the database
+  useEffect(() => {
+    if (liveMenu.length === 0) return;
+    for (const item of items) {
+      const live = liveMenuMap.get(item.menuItemId);
+      if (live && live.price !== item.price) {
+        syncPrice(item.menuItemId, live.price);
+      }
+    }
+  }, [liveMenu, items, liveMenuMap, syncPrice]);
+
+  const unavailableItemIds = useMemo(() => {
+    if (!menuQuery.isSuccess) return new Set<string>();
+    return new Set(
+      items
+        .filter((item) => {
+          const live = liveMenuMap.get(item.menuItemId);
+          return !live || !live.isAvailable;
+        })
+        .map((i) => i.menuItemId)
+    );
+  }, [menuQuery.isSuccess, items, liveMenuMap]);
+
+  const hasUnavailableItems = unavailableItemIds.size > 0;
 
   function handleClearCart() {
     clearCart();
@@ -73,68 +116,93 @@ export default function CartPage() {
               )}
             </div>
 
+            {hasUnavailableItems && (
+              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs sm:text-sm text-red-900 flex items-center gap-2.5">
+                <span className="text-lg shrink-0">⚠️</span>
+                <span>
+                  Some items in your cart are currently sold out. Please remove them to proceed to checkout.
+                </span>
+              </div>
+            )}
+
             <div className="mt-6 space-y-3">
-              {items.map((item) => (
-                <div key={item.menuItemId} className="card flex items-center gap-3.5 p-3.5 sm:p-4">
-                  {item.image ? (
-                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-line bg-surface/50 sm:h-16 sm:w-16">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="h-full w-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = 'none';
+              {items.map((item) => {
+                const isSoldOut = unavailableItemIds.has(item.menuItemId);
+                return (
+                  <div
+                    key={item.menuItemId}
+                    className={`card flex items-center gap-3.5 p-3.5 sm:p-4 ${
+                      isSoldOut ? 'border-red-300 bg-red-50/40' : ''
+                    }`}
+                  >
+                    {item.image ? (
+                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-line bg-surface/50 sm:h-16 sm:w-16">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-line bg-accent-tint text-accent text-lg font-bold sm:h-16 sm:w-16">
+                        🍽️
+                      </div>
+                    )}
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="truncate font-medium text-ink">{item.name}</p>
+                        {isSoldOut && (
+                          <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
+                            Sold out
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted">{formatCurrency(item.price)}</p>
+                    </div>
+
+                    <div className="inline-flex items-center gap-2.5 rounded-full border border-line px-1">
+                      <button
+                        onClick={() => updateQuantity(item.menuItemId, item.quantity - 1)}
+                        className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${
+                          item.quantity === 1 || isSoldOut
+                            ? 'text-xs text-muted hover:text-danger hover:bg-red-50'
+                            : 'text-lg text-accent hover:bg-accent-tint'
+                        }`}
+                        aria-label={item.quantity === 1 ? `Remove ${item.name} from cart` : `Reduce ${item.name}`}
+                        title={item.quantity === 1 ? 'Remove from cart' : 'Reduce quantity'}
+                      >
+                        {item.quantity === 1 || isSoldOut ? '🗑️' : '−'}
+                      </button>
+                      <span className="min-w-4 text-center text-sm font-semibold text-ink">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => {
+                          if (item.quantity >= 50) {
+                            toast.error('Maximum 50 per dish allowed');
+                            return;
+                          }
+                          updateQuantity(item.menuItemId, item.quantity + 1);
                         }}
-                      />
+                        disabled={isSoldOut}
+                        className="flex h-7 w-7 items-center justify-center rounded-full text-lg text-accent hover:bg-accent-tint transition-colors disabled:opacity-40"
+                        aria-label={`Add another ${item.name}`}
+                      >
+                        +
+                      </button>
                     </div>
-                  ) : (
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-line bg-accent-tint text-accent text-lg font-bold sm:h-16 sm:w-16">
-                      🍽️
+
+                    <div className="w-16 sm:w-20 text-right font-medium text-ink text-sm sm:text-base">
+                      {formatCurrency(item.price * item.quantity)}
                     </div>
-                  )}
-
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-ink">{item.name}</p>
-                    <p className="text-sm text-muted">{formatCurrency(item.price)}</p>
                   </div>
-
-                  <div className="inline-flex items-center gap-2.5 rounded-full border border-line px-1">
-                    <button
-                      onClick={() => updateQuantity(item.menuItemId, item.quantity - 1)}
-                      className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${
-                        item.quantity === 1
-                          ? 'text-xs text-muted hover:text-danger hover:bg-red-50'
-                          : 'text-lg text-accent hover:bg-accent-tint'
-                      }`}
-                      aria-label={item.quantity === 1 ? `Remove ${item.name} from cart` : `Reduce ${item.name}`}
-                      title={item.quantity === 1 ? 'Remove from cart' : 'Reduce quantity'}
-                    >
-                      {item.quantity === 1 ? '🗑️' : '−'}
-                    </button>
-                    <span className="min-w-4 text-center text-sm font-semibold text-ink">
-                      {item.quantity}
-                    </span>
-                    <button
-                      onClick={() => {
-                        if (item.quantity >= 50) {
-                          toast.error('Maximum 50 per dish allowed');
-                          return;
-                        }
-                        updateQuantity(item.menuItemId, item.quantity + 1);
-                      }}
-                      className="flex h-7 w-7 items-center justify-center rounded-full text-lg text-accent hover:bg-accent-tint transition-colors"
-                      aria-label={`Add another ${item.name}`}
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  <div className="w-16 sm:w-20 text-right font-medium text-ink text-sm sm:text-base">
-                    {formatCurrency(item.price * item.quantity)}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="card mt-6 p-5">
@@ -148,9 +216,10 @@ export default function CartPage() {
 
               <button
                 onClick={() => router.push('/checkout')}
-                className="btn btn-primary mt-4 w-full"
+                disabled={hasUnavailableItems}
+                className="btn btn-primary mt-4 w-full disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                Proceed to checkout
+                {hasUnavailableItems ? 'Remove sold out items to proceed' : 'Proceed to checkout'}
               </button>
               <button
                 onClick={handleClearCart}
