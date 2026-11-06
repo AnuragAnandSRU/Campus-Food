@@ -33,10 +33,13 @@ controlled access, so this grew into:
 - **Image upload to S3** — AWS S3 (Hyderabad ap-south-2) direct upload with UUID keys for canteens and menu items.
 
 ### Cart & ordering — Phase 3
-- Cart with quantity management and persistence
-- Checkout with hostel block + room delivery address and special instructions
+- Cart with quantity management, boundary limits (max 50), trash cues, and localStorage persistence
+- Dish thumbnail previews in Cart review and seamless "+ Add more dishes" canteen return link
+- Sticky floating bottom cart bar on `/canteens/[id]` displaying item count, subtotal, and 1-tap checkout
+- Checkout with hostel block + room delivery address, rapid-submission race guard, and profile auto-sync
 - Cash-on-delivery
-- Order confirmation
+- Real-time Socket.io events with delivery PIN stripped from canteen room broadcasts
+- 6-Digit Order ID generation space (`ORD-YYYYMMDD-XXXXXX`) eliminating MongoDB duplicate key collisions
 
 ### Order tracking & staff dashboard — Phase 4
 - Full status lifecycle: pending → confirmed → preparing → ready → out for delivery → delivered (+ cancelled)

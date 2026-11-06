@@ -152,9 +152,8 @@ orderSchema.pre('validate', async function (next) {
   if (this.isNew && !this.orderId) {
     const date = new Date();
     const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
-    const random = Math.floor(Math.random() * 10000)
-      .toString()
-      .padStart(4, '0');
+    // 6-digit random number gives 900,000 distinct order IDs per day to avoid collisions
+    const random = Math.floor(100000 + Math.random() * 900000).toString();
     this.orderId = `ORD-${dateStr}-${random}`;
   }
   if (this.isNew && !this.deliveryPin) {

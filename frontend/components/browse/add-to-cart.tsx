@@ -94,14 +94,25 @@ export function AddToCart({ item, canteenName }: { item: MenuItem; canteenName: 
     <div className="inline-flex items-center gap-3 rounded-full border border-accent px-1">
       <button
         onClick={() => updateQuantity(item._id, qty - 1)}
-        className="flex h-7 w-7 items-center justify-center rounded-full text-lg text-accent hover:bg-accent-tint"
-        aria-label={`Reduce ${item.name}`}
+        className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${
+          qty === 1
+            ? 'text-xs text-muted hover:text-danger hover:bg-red-50'
+            : 'text-lg text-accent hover:bg-accent-tint'
+        }`}
+        aria-label={qty === 1 ? `Remove ${item.name} from cart` : `Reduce ${item.name}`}
+        title={qty === 1 ? 'Remove from cart' : 'Reduce quantity'}
       >
-        −
+        {qty === 1 ? '🗑️' : '−'}
       </button>
       <span className="min-w-4 text-center text-sm font-semibold text-ink">{qty}</span>
       <button
-        onClick={() => updateQuantity(item._id, qty + 1)}
+        onClick={() => {
+          if (qty >= 50) {
+            toast.error('Maximum 50 per dish allowed');
+            return;
+          }
+          updateQuantity(item._id, qty + 1);
+        }}
         className="flex h-7 w-7 items-center justify-center rounded-full text-lg text-accent hover:bg-accent-tint"
         aria-label={`Add another ${item.name}`}
       >

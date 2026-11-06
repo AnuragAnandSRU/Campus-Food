@@ -96,14 +96,28 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
     );
   }
 
-  // 2. Load the referenced items, scoped to THIS canteen (prevents ordering
+  // 2. Consolidate duplicate incoming lines for the same dish, summing quantities.
+  const consolidated = new Map<string, number>();
+  for (const item of items) {
+    consolidated.set(item.menuItemId, (consolidated.get(item.menuItemId) || 0) + item.quantity);
+  }
+
+  const consolidatedLines: OrderLineInput[] = [];
+  for (const [menuItemId, quantity] of consolidated.entries()) {
+    if (quantity > 50) {
+      throw new AppError('Each item quantity cannot exceed 50', 400);
+    }
+    consolidatedLines.push({ menuItemId, quantity });
+  }
+
+  // 3. Load the referenced items, scoped to THIS canteen (prevents ordering
   //    another canteen's items through this one).
-  const menuItemIds = items.map((i) => i.menuItemId);
+  const menuItemIds = consolidatedLines.map((i) => i.menuItemId);
   const menuItems = await MenuItem.find({ _id: { $in: menuItemIds }, canteenId });
   const byId = new Map(menuItems.map((m) => [String(m._id), m] as const));
 
-  // 3. Rebuild every line from trusted DB data and compute the total ourselves.
-  const orderItems = items.map((line) => {
+  // 4. Rebuild every line from trusted DB data and compute the total ourselves.
+  const orderItems = consolidatedLines.map((line) => {
     const menuItem = byId.get(line.menuItemId);
     if (!menuItem) {
       throw new AppError('One or more items are not on this canteen’s menu', 400);

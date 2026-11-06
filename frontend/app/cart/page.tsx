@@ -53,39 +53,84 @@ export default function CartPage() {
           </div>
         ) : (
           <>
-            <p className="mt-1 text-sm text-muted">
-              From <span className="font-medium text-ink">{canteenName}</span>
-            </p>
+            <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm text-muted">
+                From{' '}
+                <Link
+                  href={`/canteens/${items[0]?.canteenId}`}
+                  className="font-medium text-accent hover:underline"
+                >
+                  {canteenName}
+                </Link>
+              </p>
+              {items[0]?.canteenId && (
+                <Link
+                  href={`/canteens/${items[0]?.canteenId}`}
+                  className="text-xs font-semibold text-accent hover:underline flex items-center gap-1"
+                >
+                  <span>+</span> Add more dishes
+                </Link>
+              )}
+            </div>
 
             <div className="mt-6 space-y-3">
               {items.map((item) => (
-                <div key={item.menuItemId} className="card flex items-center gap-4 p-4">
+                <div key={item.menuItemId} className="card flex items-center gap-3.5 p-3.5 sm:p-4">
+                  {item.image ? (
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-line bg-surface/50 sm:h-16 sm:w-16">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-line bg-accent-tint text-accent text-lg font-bold sm:h-16 sm:w-16">
+                      🍽️
+                    </div>
+                  )}
+
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-ink">{item.name}</p>
                     <p className="text-sm text-muted">{formatCurrency(item.price)}</p>
                   </div>
 
-                  <div className="inline-flex items-center gap-3 rounded-full border border-line px-1">
+                  <div className="inline-flex items-center gap-2.5 rounded-full border border-line px-1">
                     <button
                       onClick={() => updateQuantity(item.menuItemId, item.quantity - 1)}
-                      className="flex h-7 w-7 items-center justify-center rounded-full text-lg text-accent hover:bg-accent-tint"
-                      aria-label={`Reduce ${item.name}`}
+                      className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${
+                        item.quantity === 1
+                          ? 'text-xs text-muted hover:text-danger hover:bg-red-50'
+                          : 'text-lg text-accent hover:bg-accent-tint'
+                      }`}
+                      aria-label={item.quantity === 1 ? `Remove ${item.name} from cart` : `Reduce ${item.name}`}
+                      title={item.quantity === 1 ? 'Remove from cart' : 'Reduce quantity'}
                     >
-                      −
+                      {item.quantity === 1 ? '🗑️' : '−'}
                     </button>
                     <span className="min-w-4 text-center text-sm font-semibold text-ink">
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() => updateQuantity(item.menuItemId, item.quantity + 1)}
-                      className="flex h-7 w-7 items-center justify-center rounded-full text-lg text-accent hover:bg-accent-tint"
+                      onClick={() => {
+                        if (item.quantity >= 50) {
+                          toast.error('Maximum 50 per dish allowed');
+                          return;
+                        }
+                        updateQuantity(item.menuItemId, item.quantity + 1);
+                      }}
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-lg text-accent hover:bg-accent-tint transition-colors"
                       aria-label={`Add another ${item.name}`}
                     >
                       +
                     </button>
                   </div>
 
-                  <div className="w-20 text-right font-medium text-ink">
+                  <div className="w-16 sm:w-20 text-right font-medium text-ink text-sm sm:text-base">
                     {formatCurrency(item.price * item.quantity)}
                   </div>
                 </div>

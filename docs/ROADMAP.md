@@ -134,6 +134,17 @@
 - [x] Order confirmation page
 - [x] Socket.io integration
 
+### Added beyond the original plan ✅
+- [x] Delivery handover PIN leak protection in Socket.io broadcasts (strips `deliveryPin` before broadcasting to canteen room)
+- [x] Floating bottom cart pill on `/canteens/[id]` displaying item count, live subtotal, and 1-tap "View Cart →"
+- [x] Dish thumbnail previews in Cart review page with fallback placeholder badges
+- [x] Seamless "+ Add more dishes" return link on Cart page directly routing to the active canteen
+- [x] Quantity stepper boundary guards (capped at 50 max per dish with toast warning; trash can `🗑️` delete icon at quantity 1)
+- [x] Double-click and rapid-submission race condition lock (`placingRef`) during checkout
+- [x] Delivery room auto-save to user profile (`[x] Save as default delivery address in profile`)
+- [x] Order item deduplication and line consolidation on backend
+- [x] 6-Digit Order ID space hardening (expands daily space to 900,000 to eliminate MongoDB duplicate key errors)
+
 ### Testing
 - [ ] Test cart operations *(no automated tests yet — verified manually)*
 - [ ] Test order placement flow

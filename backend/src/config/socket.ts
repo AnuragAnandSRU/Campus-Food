@@ -64,21 +64,36 @@ export const initializeSocket = (io: SocketIOServer): void => {
 
 /**
  * Push a freshly-placed order to its canteen's staff/owner in real time.
+ * Delivery PIN is stripped before emitting to the canteen room so staff
+ * runners cannot inspect socket frames to obtain the code early.
  */
 export const emitNewOrder = (order: IOrder): void => {
   if (!ioInstance) return;
-  ioInstance.to(canteenRoom(order.canteenId.toString())).emit(SOCKET_EVENTS.NEW_ORDER, { order });
+  const sanitized =
+    order && typeof (order as any).toObject === 'function'
+      ? (order as any).toObject()
+      : { ...order };
+  delete sanitized.deliveryPin;
+  ioInstance.to(canteenRoom(order.canteenId.toString())).emit(SOCKET_EVENTS.NEW_ORDER, { order: sanitized });
 };
 
 /**
  * Push an order status change to both the student who placed it and the
  * canteen working it, so every open screen updates without a refresh.
+ * The student receives their full order (with PIN), while the canteen receives
+ * the sanitized copy without deliveryPin.
  */
 export const emitOrderStatusUpdate = (order: IOrder): void => {
   if (!ioInstance) return;
   const event =
     order.status === 'cancelled' ? SOCKET_EVENTS.ORDER_CANCELLED : SOCKET_EVENTS.ORDER_STATUS_UPDATED;
-  const payload = { order };
-  ioInstance.to(userRoom(order.studentId.toString())).emit(event, payload);
-  ioInstance.to(canteenRoom(order.canteenId.toString())).emit(event, payload);
+  const studentOrder =
+    order && typeof (order as any).toObject === 'function'
+      ? (order as any).toObject()
+      : { ...order };
+  const canteenOrder = { ...studentOrder };
+  delete canteenOrder.deliveryPin;
+
+  ioInstance.to(userRoom(order.studentId.toString())).emit(event, { order: studentOrder });
+  ioInstance.to(canteenRoom(order.canteenId.toString())).emit(event, { order: canteenOrder });
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useCartStore } from '@/store/cart-store';
@@ -18,6 +18,7 @@ export default function CheckoutPage() {
   const ready = useRequireAuth();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
 
   const items = useCartStore((s) => s.items);
   const canteenId = useCartStore((s) => s.canteenId);
@@ -26,10 +27,12 @@ export default function CheckoutPage() {
 
   const [hostelBlock, setHostelBlock] = useState('');
   const [roomNumber, setRoomNumber] = useState('');
+  const [saveToProfile, setSaveToProfile] = useState(true);
   const [notes, setNotes] = useState('');
   const [errors, setErrors] = useState<{ hostelBlock?: string; roomNumber?: string }>({});
   const [placing, setPlacing] = useState(false);
   const [resending, setResending] = useState(false);
+  const placingRef = useRef(false);
 
   // Prefill the delivery address from the student's saved profile.
   useEffect(() => {
@@ -61,6 +64,7 @@ export default function CheckoutPage() {
 
   async function placeOrder(e: React.FormEvent) {
     e.preventDefault();
+    if (placingRef.current || placing) return;
     if (user && !user.isVerified) {
       toast.error('Please verify your email address before placing an order.');
       return;
@@ -71,6 +75,7 @@ export default function CheckoutPage() {
     }
     if (!canteenId || items.length === 0) return;
 
+    placingRef.current = true;
     setPlacing(true);
     try {
       const order = await orderApi.create({
@@ -80,12 +85,27 @@ export default function CheckoutPage() {
         paymentMethod: 'cash_on_delivery',
         specialInstructions: notes.trim() || undefined,
       });
+
+      // Automatically sync updated delivery address to profile if checked
+      if (saveToProfile && user) {
+        try {
+          const updated = await authApi.updateProfile({
+            hostelBlock: hostelBlock.trim(),
+            roomNumber: roomNumber.trim(),
+          });
+          setUser(updated);
+        } catch {
+          // Non-blocking: order was already created successfully
+        }
+      }
+
       clearCart();
       toast.success('Order placed! 🎉');
       router.replace(`/orders/${order._id}`);
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Could not place your order. Please try again.'));
     } finally {
+      placingRef.current = false;
       setPlacing(false);
     }
   }
@@ -201,6 +221,19 @@ export default function CheckoutPage() {
                   )}
                 </label>
               </div>
+
+              <label className="mt-3 flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={saveToProfile}
+                  onChange={(e) => setSaveToProfile(e.target.checked)}
+                  className="h-4 w-4 rounded border-line text-accent focus:ring-accent accent-accent"
+                />
+                <span className="text-xs text-muted">
+                  Save this room address as my default delivery address in profile
+                </span>
+              </label>
+
               <label className="mt-3 block">
                 <span className="text-sm text-muted">Notes for the kitchen (optional)</span>
                 <textarea

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -8,8 +8,10 @@ import { canteenApi } from '@/lib/api/canteen';
 import { menuApi } from '@/lib/api/menu';
 import { SiteHeader } from '@/components/site-header';
 import { MenuItemCard } from '@/components/browse/menu-item-card';
-import { isCanteenOpen } from '@/lib/utils';
+import { isCanteenOpen, formatCurrency } from '@/lib/utils';
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import { useCartStore } from '@/store/cart-store';
+import { useAuthStore } from '@/store/auth-store';
 
 const CATEGORY_ORDER = [
   'Breakfast',
@@ -43,6 +45,17 @@ export default function CanteenMenuPage() {
   const [diet, setDiet] = useState<'all' | 'veg' | 'nonveg'>('all');
   const [category, setCategory] = useState<string>('all');
   const [bannerError, setBannerError] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const user = useAuthStore((s) => s.user);
+  const cartItems = useCartStore((s) => s.items);
+  const cartCanteenId = useCartStore((s) => s.canteenId);
+  const cartTotal = useCartStore((s) => s.getTotal());
+  const cartItemCount = useCartStore((s) => s.getItemCount());
+
+  const isConsumer = !user || user.role === 'student';
+  const hasCartHere = mounted && isConsumer && cartItems.length > 0 && cartCanteenId === id;
 
   // Categories that actually have items, in menu order — drives the filter pills.
   const presentCategories = CATEGORY_ORDER.filter((c) => menu.some((i) => i.category === c));
@@ -74,7 +87,7 @@ export default function CanteenMenuPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
-      <main className="mx-auto max-w-4xl px-6 py-8">
+      <main className={`mx-auto max-w-4xl px-6 py-8 ${hasCartHere ? 'pb-24 sm:pb-28' : ''}`}>
         <Breadcrumbs
           items={[
             { label: 'Home', href: '/' },
@@ -211,6 +224,37 @@ export default function CanteenMenuPage() {
           </>
         )}
       </main>
+
+      {/* Floating Bottom Cart Bar (Appears when student adds dishes) */}
+      {hasCartHere && (
+        <aside
+          aria-label="Cart summary"
+          className="fixed bottom-4 left-4 right-4 z-30 mx-auto max-w-2xl animate-fade-in"
+        >
+          <div className="flex items-center justify-between rounded-2xl bg-accent px-5 py-3.5 text-white shadow-xl shadow-accent/20 border border-accent-hover/30">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-lg">
+                🛍️
+              </span>
+              <div>
+                <p className="text-xs uppercase font-medium tracking-wider text-accent-tint">
+                  {cartItemCount} {cartItemCount === 1 ? 'item' : 'items'} in cart
+                </p>
+                <p className="font-display text-lg font-bold">
+                  {formatCurrency(cartTotal)}
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/cart"
+              className="flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-accent shadow-sm hover:bg-surface active:scale-95 transition-all cursor-pointer"
+            >
+              <span>View Cart</span>
+              <span>→</span>
+            </Link>
+          </div>
+        </aside>
+      )}
     </div>
   );
 }
