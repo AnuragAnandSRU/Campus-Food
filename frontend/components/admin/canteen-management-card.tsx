@@ -94,12 +94,10 @@ export function CanteenManagementCard({
                 >
                   {canteen.isActive ? '● Live' : '○ Hidden'}
                 </span>
-                {canteen.rating > 0 ? (
+                {canteen.rating > 0 && (
                   <span className="badge badge-accent text-xs">
                     ★ {canteen.rating.toFixed(1)} ({canteen.totalRatings || 0})
                   </span>
-                ) : (
-                  <span className="badge bg-highlight-tint text-xs text-ink">New</span>
                 )}
               </div>
 
@@ -119,30 +117,32 @@ export function CanteenManagementCard({
               {/* Owner Info & Reassignment */}
               <div className="pt-1.5 text-xs">
                 {canteen.ownerId ? (
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <span className="text-ink/80 font-medium">
-                      👤 Owner: <span className="text-ink">{canteen.ownerId.name}</span>{' '}
+                      👤 Owner: <span className="text-ink font-semibold">{canteen.ownerId.name}</span>{' '}
                       <span className="text-muted font-normal">({canteen.ownerId.email})</span>
                     </span>
                     <button
                       type="button"
                       onClick={() => onAssignOwner(canteen._id)}
-                      className="text-muted hover:text-accent underline cursor-pointer text-[11px]"
+                      className="rounded-lg border border-line bg-surface hover:border-accent hover:text-accent hover:bg-accent-tint/20 px-2 py-0.5 text-xs font-semibold text-ink shadow-2xs transition-colors flex items-center gap-1 cursor-pointer"
                       title="Reassign or replace canteen owner"
                     >
-                      Reassign
+                      <span>🔄</span>
+                      <span>Reassign Owner</span>
                     </button>
                   </div>
                 ) : (
-                  <span className="text-danger font-medium flex items-center gap-1">
+                  <span className="text-danger font-medium flex items-center gap-1.5">
                     <span>⚠️</span>
                     <span>No Owner Assigned</span>
                     <button
                       type="button"
                       onClick={() => onAssignOwner(canteen._id)}
-                      className="ml-2 text-accent underline hover:opacity-80 cursor-pointer font-semibold"
+                      className="ml-2 rounded-lg border border-danger/30 bg-danger/5 hover:bg-danger/10 text-danger px-2.5 py-0.5 text-xs font-semibold cursor-pointer shadow-2xs transition-colors flex items-center gap-1"
                     >
-                      + Assign Owner
+                      <span>+</span>
+                      <span>Assign Owner</span>
                     </button>
                   </span>
                 )}

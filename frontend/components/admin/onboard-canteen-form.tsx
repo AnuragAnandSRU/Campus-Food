@@ -292,3 +292,4 @@ export function OnboardCanteenForm({ onDone }: { onDone: () => void }) {
     </form>
   );
 }
+
