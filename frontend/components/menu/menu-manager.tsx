@@ -33,6 +33,7 @@ interface MenuManagerProps {
  */
 export function MenuManager({ canteenId, canManage }: MenuManagerProps) {
   const [editing, setEditing] = useState<MenuItem | 'new' | null>(null);
+  const [search, setSearch] = useState('');
 
   const menuQuery = useQuery({
     queryKey: ['menu', canteenId],
@@ -40,9 +41,19 @@ export function MenuManager({ canteenId, canManage }: MenuManagerProps) {
   });
 
   const items = menuQuery.data ?? [];
+  const q = search.trim().toLowerCase();
+  const filteredItems = q
+    ? items.filter(
+        (i) =>
+          i.name.toLowerCase().includes(q) ||
+          i.description.toLowerCase().includes(q) ||
+          i.category.toLowerCase().includes(q)
+      )
+    : items;
+
   const grouped = CATEGORY_ORDER.map((cat) => ({
     cat,
-    items: items.filter((i) => i.category === cat),
+    items: filteredItems.filter((i) => i.category === cat),
   })).filter((g) => g.items.length > 0);
 
   return (
@@ -64,6 +75,39 @@ export function MenuManager({ canteenId, canManage }: MenuManagerProps) {
           item={editing === 'new' ? null : editing}
           onDone={() => setEditing(null)}
         />
+      )}
+
+      {items.length > 0 && !editing && (
+        <div className="relative">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search dishes by name or category (e.g. Chai, Samosa, Lunch)..."
+            className="input w-full pl-9 pr-16 text-sm"
+          />
+          <span className="absolute left-3 top-2.5 text-xs text-muted" aria-hidden>
+            🔍
+          </span>
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-2 text-xs text-muted hover:text-ink cursor-pointer bg-line/30 rounded px-1.5 py-0.5"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
+
+      {q && grouped.length === 0 && !editing && !menuQuery.isLoading && (
+        <div className="card p-8 text-center">
+          <p className="font-display text-ink">No dishes match &ldquo;{search}&rdquo;</p>
+          <button onClick={() => setSearch('')} className="btn btn-secondary mt-3 text-xs">
+            Clear search
+          </button>
+        </div>
       )}
 
       {menuQuery.isLoading && <ListSkeleton />}

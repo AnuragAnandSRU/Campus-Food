@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { MenuItem } from '../../../shared/src/types/menu.types';
 import { VegIndicator } from './veg-indicator';
 import { AddToCart } from './add-to-cart';
@@ -9,14 +10,23 @@ import { useFavorites } from '@/lib/use-favorites';
 /**
  * A single dish row on a canteen's menu, with its add-to-cart control and 1-tap favorites heart.
  */
-export function MenuItemCard({ item, canteenName }: { item: MenuItem; canteenName: string }) {
+export function MenuItemCard({
+  item,
+  canteenName,
+  isOrderingAllowed = true,
+}: {
+  item: MenuItem;
+  canteenName: string;
+  isOrderingAllowed?: boolean;
+}) {
   const { isFavorite, toggle } = useFavorites();
   const favorite = isFavorite(item._id);
+  const [imgError, setImgError] = useState(false);
 
   return (
     <div
       className={`card flex items-start justify-between gap-4 p-4 transition-all hover:shadow-sm ${
-        item.isAvailable ? '' : 'opacity-60'
+        item.isAvailable && isOrderingAllowed ? '' : 'opacity-60'
       }`}
     >
       <div className="min-w-0 flex-1">
@@ -40,12 +50,16 @@ export function MenuItemCard({ item, canteenName }: { item: MenuItem; canteenNam
 
         <div className="mt-2 flex items-center gap-3 text-xs text-muted">
           {item.preparationTime > 0 && <span>⏱ {item.preparationTime} min</span>}
-          {!item.isAvailable && <span className="font-medium text-danger">Unavailable</span>}
+          {!item.isAvailable ? (
+            <span className="font-medium text-danger">Sold out</span>
+          ) : !isOrderingAllowed ? (
+            <span className="font-medium text-muted">Canteen closed</span>
+          ) : null}
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-3">
-        {item.image && (
+        {item.image && !imgError && (
           <div className="relative h-18 w-18 shrink-0 overflow-hidden rounded-xl border border-line bg-surface/40 shadow-xs sm:h-20 sm:w-20">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -53,6 +67,7 @@ export function MenuItemCard({ item, canteenName }: { item: MenuItem; canteenNam
               alt={item.name}
               className="h-full w-full object-cover"
               loading="lazy"
+              onError={() => setImgError(true)}
             />
           </div>
         )}
@@ -60,7 +75,17 @@ export function MenuItemCard({ item, canteenName }: { item: MenuItem; canteenNam
           <span className="font-display text-lg font-semibold text-ink">
             {formatCurrency(item.price)}
           </span>
-          <AddToCart item={item} canteenName={canteenName} />
+          {!item.isAvailable ? (
+            <span className="rounded-full bg-line/60 px-3 py-1 text-xs font-semibold text-muted">
+              Sold out
+            </span>
+          ) : !isOrderingAllowed ? (
+            <span className="rounded-full bg-line/60 px-3 py-1 text-xs font-medium text-muted">
+              Closed
+            </span>
+          ) : (
+            <AddToCart item={item} canteenName={canteenName} />
+          )}
         </div>
       </div>
     </div>

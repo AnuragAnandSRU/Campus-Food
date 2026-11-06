@@ -42,6 +42,7 @@ export default function CanteenMenuPage() {
   const [search, setSearch] = useState('');
   const [diet, setDiet] = useState<'all' | 'veg' | 'nonveg'>('all');
   const [category, setCategory] = useState<string>('all');
+  const [bannerError, setBannerError] = useState(false);
 
   // Categories that actually have items, in menu order — drives the filter pills.
   const presentCategories = CATEGORY_ORDER.filter((c) => menu.some((i) => i.category === c));
@@ -67,6 +68,7 @@ export default function CanteenMenuPage() {
   };
 
   const open = canteen ? isCanteenOpen(canteen.openingHours) : false;
+  const isOrderingAllowed = Boolean(canteen?.isActive && open);
 
   return (
     <div className="min-h-screen bg-background">
@@ -97,12 +99,13 @@ export default function CanteenMenuPage() {
 
         {canteen && (
           <>
-            {canteen.image && (
+            {canteen.image && !bannerError && (
               <div className="relative mt-4 h-44 w-full overflow-hidden rounded-2xl border border-line bg-surface/50 sm:h-56">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={canteen.image}
                   alt={canteen.name}
+                  onError={() => setBannerError(true)}
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -136,6 +139,30 @@ export default function CanteenMenuPage() {
                 </span>
               </div>
             </header>
+
+            {canteen && !canteen.isActive && (
+              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900 flex items-center gap-3">
+                <span className="text-xl">⚠️</span>
+                <div>
+                  <p className="font-semibold">This canteen is temporarily offline</p>
+                  <p className="text-xs text-red-700 mt-0.5">
+                    The kitchen is not taking orders right now. You can browse the menu, but ordering is disabled.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {canteen && canteen.isActive && !open && (
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 flex items-center gap-3">
+                <span className="text-xl">🕒</span>
+                <div>
+                  <p className="font-semibold">Canteen is currently closed</p>
+                  <p className="text-xs text-amber-700 mt-0.5">
+                    Operating hours are {canteen.openingHours.open} to {canteen.openingHours.close}. You can browse dishes, but ordering is paused until opening time.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {menuQuery.isLoading && <MenuSkeleton />}
 
@@ -175,7 +202,7 @@ export default function CanteenMenuPage() {
                   </h2>
                   <div className="space-y-3">
                     {group.items.map((item) => (
-                      <MenuItemCard key={item._id} item={item} canteenName={canteen.name} />
+                      <MenuItemCard key={item._id} item={item} canteenName={canteen.name} isOrderingAllowed={isOrderingAllowed} />
                     ))}
                   </div>
                 </section>

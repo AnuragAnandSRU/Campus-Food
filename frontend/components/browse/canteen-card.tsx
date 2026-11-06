@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import type { Canteen } from '../../../shared/src/types/canteen.types';
 import { isCanteenOpen } from '@/lib/utils';
@@ -18,6 +21,7 @@ function PinIcon() {
 }
 
 export function CanteenCard({ canteen }: { canteen: Canteen }) {
+  const [imgError, setImgError] = useState(false);
   const open = isCanteenOpen(canteen.openingHours);
 
   return (
@@ -26,9 +30,14 @@ export function CanteenCard({ canteen }: { canteen: Canteen }) {
       className="card group block overflow-hidden transition-transform hover:-translate-y-1"
     >
       <div className="relative flex h-40 items-center justify-center bg-gradient-to-br from-accent-tint to-highlight-tint">
-        {canteen.image ? (
+        {canteen.image && !imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={canteen.image} alt={canteen.name} className="h-full w-full object-cover" />
+          <img
+            src={canteen.image}
+            alt={canteen.name}
+            onError={() => setImgError(true)}
+            className="h-full w-full object-cover"
+          />
         ) : (
           <span className="font-display text-5xl font-semibold text-accent/70">
             {canteen.name.charAt(0)}
@@ -36,10 +45,14 @@ export function CanteenCard({ canteen }: { canteen: Canteen }) {
         )}
         <span
           className={`badge absolute right-3 top-3 text-xs ${
-            open ? 'bg-accent text-white' : 'bg-ink/70 text-white'
+            !canteen.isActive
+              ? 'bg-red-700 text-white'
+              : open
+              ? 'bg-accent text-white'
+              : 'bg-ink/70 text-white'
           }`}
         >
-          {open ? 'Open now' : 'Closed'}
+          {!canteen.isActive ? 'Offline' : open ? 'Open now' : 'Closed'}
         </span>
       </div>
 

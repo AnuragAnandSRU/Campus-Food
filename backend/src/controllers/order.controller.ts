@@ -41,6 +41,30 @@ const STUDENT_CANCELLABLE = ['pending', 'confirmed'];
  * database — never from the request — so the client cannot tamper with the
  * total. Availability and canteen ownership are re-checked at order time.
  */
+// Helper to determine if a canteen is open in Indian Standard Time (IST, UTC+5:30)
+function isCanteenOpenNow(hours?: { open: string; close: string }): boolean {
+  if (!hours?.open || !hours?.close) return true;
+  const now = new Date();
+  const istTimeStr = now.toLocaleTimeString('en-US', {
+    timeZone: 'Asia/Kolkata',
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  const [hStr, mStr] = istTimeStr.split(':');
+  const cur = parseInt(hStr, 10) * 60 + parseInt(mStr, 10);
+
+  const [oh, om] = hours.open.split(':').map(Number);
+  const [ch, cm] = hours.close.split(':').map(Number);
+  const openMin = oh * 60 + om;
+  const closeMin = ch * 60 + cm;
+  if (Number.isNaN(openMin) || Number.isNaN(closeMin)) return true;
+
+  return closeMin <= openMin
+    ? cur >= openMin || cur < closeMin
+    : cur >= openMin && cur < closeMin;
+}
+
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   const { userId } = (req as AuthRequest).user!;
 
@@ -59,10 +83,17 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
       specialInstructions?: string;
     };
 
-  // 1. Canteen must exist and be open for business.
+  // 1. Canteen must exist, be active, and open for business.
   const canteen = await Canteen.findById(canteenId);
   if (!canteen || !canteen.isActive) {
     throw new AppError('This canteen is not available right now', 400);
+  }
+
+  if (!isCanteenOpenNow(canteen.openingHours)) {
+    throw new AppError(
+      `This canteen is currently closed. Operating hours: ${canteen.openingHours.open} to ${canteen.openingHours.close}`,
+      400
+    );
   }
 
   // 2. Load the referenced items, scoped to THIS canteen (prevents ordering
