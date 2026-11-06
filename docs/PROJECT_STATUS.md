@@ -15,17 +15,22 @@ cash-on-delivery.
 The original plan was simple "register and pick a role." Real deployment needed
 controlled access, so this grew into:
 - **Three sign-in doors** — student, partner (owner/staff), and platform admin — each rejecting the wrong audience
-- **Invite provisioning** — the admin creates canteens and issues single-use invite links; an account stays inactive until the invitee accepts and sets a password
+- **Invite provisioning** — the admin creates canteens and provisions owners; owners invite/manage their own staff
+- **Immediate session revocation** — accounts deactivated by an admin or owner are locked out instantly on their next request
+- **Role-aware password recovery** — preserves door context and directs users to their appropriate portal upon reset
+- **Real-time verification sync & auto-login** — email verification link logs user in instantly; tab focus sync clears unverified status live without refresh
+- **Email rate limiting** — 60-second cooldown protects SMTP services with real-time UI countdown timers
+- **Password visibility toggles** — interactive Eye/Eye-off controls on password fields
 - **Owner vs staff split** — owners run their own canteen; staff are scoped to it
 - **Per-staff powers** — duties (kitchen / delivery) and permissions (e.g. `manage_menu`)
-- Email verification, JWT, password reset, protected routes
+- Email verification, JWT (7-day duration), password reset, protected routes
 
 ### Canteens & menu — Phase 2
 - Canteen listing + detail pages
 - Menu browsing with category and veg/non-veg filters
 - Full menu management (add / edit / delete) for owners and permitted staff
 - Availability toggle (in / out of stock)
-- *Not done: image upload to S3 — items currently take an image URL.*
+- **Image upload to S3** — AWS S3 (Hyderabad ap-south-2) direct upload with UUID keys for canteens and menu items.
 
 ### Cart & ordering — Phase 3
 - Cart with quantity management and persistence

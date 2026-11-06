@@ -55,15 +55,21 @@
 
 ### Added beyond the original plan ✅
 - [x] Three sign-in doors (student / partner / admin)
-- [x] Invite-based provisioning (admin issues single-use invite links)
+- [x] Invite-based provisioning (admin provisions owners; owners invite and manage staff)
 - [x] Owner vs staff split
 - [x] Per-staff powers — duties (kitchen/delivery) + permissions (e.g. `manage_menu`)
 - [x] Owner self-service — owners edit their own canteen and invite / remove their own staff
+- [x] Immediate session deactivation & role sync (`auth.middleware.ts` rejects deactivated accounts with HTTP 401 instantly)
+- [x] Role-aware password recovery — preserves entry door context and routes resets cleanly by actual user role
+- [x] Email resend rate-limiting (60s cooldown enforced on backend + live countdown buttons in UI)
+- [x] Real-time window focus & tab-switching sync (`AuthSync` removes verification banner in real time without page reload)
+- [x] Instant auto-login upon clicking email verification link
+- [x] Password visibility toggles (Eye / Eye-off SVG icons) across all auth fields
+- [x] Role-separated profile pages (removes student hostel delivery fields from admin/partner accounts)
 
 ### Testing
-- [ ] Test user registration flow *(no automated tests yet — verified manually)*
-- [ ] Test login and JWT handling
-- [ ] Test protected routes
+- [x] Manual end-to-end verification of registration, login, verification, and role-based guards *(Tested locally & on EC2/Vercel)*
+- [ ] Automated unit & integration tests *(Jest/Supertest test suite planned for post-launch stabilization)*
 
 ---
 
