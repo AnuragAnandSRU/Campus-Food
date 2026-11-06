@@ -26,6 +26,7 @@ export function CanteenManagementCard({
   const [activeInviteLink, setActiveInviteLink] = useState<{ id: string; link: string } | null>(
     null
   );
+  const [imgError, setImgError] = useState(false);
 
   const toggleVisibility = useMutation({
     mutationFn: () => adminApi.updateCanteen(canteen._id, { isActive: !canteen.isActive }),
@@ -66,11 +67,12 @@ export function CanteenManagementCard({
           <div className="flex items-start gap-4 min-w-0">
             {/* Canteen Photo / Initial */}
             <div className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-xl border border-line bg-surface/50 shadow-xs">
-              {canteen.image ? (
+              {canteen.image && !imgError ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={canteen.image}
                   alt={canteen.name}
+                  onError={() => setImgError(true)}
                   className="h-full w-full object-cover"
                 />
               ) : (

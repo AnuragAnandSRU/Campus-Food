@@ -72,7 +72,12 @@ export const provisionUser = asyncHandler(async (req: Request, res: Response) =>
     throw new AppError('Selected canteen not found', 404);
   }
   if (targetRole === 'owner' && canteen.ownerId) {
-    throw new AppError('This canteen already has an owner assigned', 409);
+    const prevOwnerId = canteen.ownerId;
+    // Industry standard reassignment: cleanly unlink store and deactivate previous owner's session in real time
+    await User.findByIdAndUpdate(prevOwnerId, {
+      $unset: { canteenId: '' },
+      isActive: false,
+    });
   }
 
   const rawToken = generateRawToken();

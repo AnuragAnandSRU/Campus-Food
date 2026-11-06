@@ -19,7 +19,7 @@ export const canteenApi = {
   },
 
   update: async (id: string, data: UpdateCanteenDto): Promise<Canteen> => {
-    const response = await apiClient.put<ApiResponse<Canteen>>(`/canteens/${id}`, data);
+    const response = await apiClient.patch<ApiResponse<Canteen>>(`/canteens/${id}`, data);
     return response.data.data!;
   },
 
