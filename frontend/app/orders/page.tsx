@@ -11,7 +11,7 @@ import { useReorder } from '@/lib/use-reorder';
 import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { StatusBadge } from '@/components/orders/status-badge';
-import { formatCurrency, formatDateTime } from '@/lib/utils';
+import { formatCurrency, formatDateTime, formatTime } from '@/lib/utils';
 import type { OrderStatus } from '../../../shared/src/types/order.types';
 
 type TabFilter = 'all' | 'active' | 'completed' | 'cancelled';
@@ -254,11 +254,17 @@ export default function OrdersPage() {
 
                   {/* Bottom: Date, Price & Actions */}
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line/60 pt-3">
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2.5">
                       <span className="text-xs text-muted">{formatDateTime(order.createdAt)}</span>
                       <span className="font-display font-semibold text-ink">
                         {formatCurrency(order.totalAmount)}
                       </span>
+                      {isActive && order.estimatedDeliveryTime && (
+                        <span className="rounded-full bg-accent-tint/60 px-2 py-0.5 text-[11px] font-semibold text-accent ring-1 ring-accent/30 flex items-center gap-1">
+                          <span>🕒</span>
+                          <span>ETA: {formatTime(order.estimatedDeliveryTime)}</span>
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2">

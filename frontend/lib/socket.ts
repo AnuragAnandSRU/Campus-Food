@@ -5,6 +5,13 @@ const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000'
 let socket: Socket | null = null;
 
 export const initializeSocket = (token: string): Socket => {
+  // If the socket was already connected under a different token (e.g. account switch),
+  // disconnect it first so the new socket authenticates with the current user.
+  if (socket && (socket.auth as Record<string, unknown>)?.token !== token) {
+    socket.disconnect();
+    socket = null;
+  }
+
   if (!socket) {
     socket = io(SOCKET_URL, {
       auth: {
@@ -12,7 +19,7 @@ export const initializeSocket = (token: string): Socket => {
       },
       reconnection: true,
       reconnectionDelay: 1000,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 10,
     });
 
     socket.on('connect', () => {

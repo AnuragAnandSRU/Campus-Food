@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 /**
  * Hook providing audio chimes and background-tab visual alerts for incoming kitchen orders.
  * Uses the Web Audio API to synthesize a pleasant, clear two-tone chime without external audio assets.
+ * Automatically unlocks the browser Web Audio Autoplay Policy upon any user interaction on the page.
  */
 export function useAudioAlert(pageTitle = 'CampusFood') {
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -44,10 +45,28 @@ export function useAudioAlert(pageTitle = 'CampusFood') {
     };
   }, []);
 
+  // Unlock browser Web Audio Autoplay Policy on first user interaction anywhere on the page
+  useEffect(() => {
+    function unlockAudio() {
+      if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+        audioCtxRef.current.resume().catch(() => {});
+      }
+    }
+
+    window.addEventListener('click', unlockAudio, { once: true, passive: true });
+    window.addEventListener('keydown', unlockAudio, { once: true, passive: true });
+    return () => {
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+  }, []);
+
   // Initialize or resume AudioContext
   const getAudioContext = useCallback(() => {
     if (typeof window === 'undefined') return null;
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!AudioCtx) return null;
 
     if (!audioCtxRef.current) {
@@ -114,10 +133,13 @@ export function useAudioAlert(pageTitle = 'CampusFood') {
   }, []);
 
   // Combined incoming order alert
-  const notifyNewOrder = useCallback((orderId?: string) => {
-    playChime();
-    triggerTabAlert(orderId);
-  }, [playChime, triggerTabAlert]);
+  const notifyNewOrder = useCallback(
+    (orderId?: string) => {
+      playChime();
+      triggerTabAlert(orderId);
+    },
+    [playChime, triggerTabAlert]
+  );
 
   // Toggle sound with confirmation beep
   const toggleSound = useCallback(() => {

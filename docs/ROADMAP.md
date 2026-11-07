@@ -198,6 +198,10 @@
 - [x] Canteen `totalOrders` counter atomic increment on order placement
 - [x] BSON ObjectId casting safety in rating aggregation pipeline
 - [x] Order cancellation cache synchronization across order detail and order list queries
+- [x] Stale socket authentication reset on user/token mutation
+- [x] Web Audio Autoplay Policy auto-unlock on first document interaction
+- [x] High-contrast distinct status badge palette within Fresh Emerald design system
+- [x] Live ETA badge preview directly on student order list items (`/orders`)
 
 ### Testing
 - [ ] Test order status flow *(no automated tests yet — verified manually)*
