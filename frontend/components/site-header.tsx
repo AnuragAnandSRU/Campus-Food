@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
 import { useCartStore } from '@/store/cart-store';
+import { usePwaStore } from '@/store/pwa-store';
 import { useLogout } from '@/lib/use-logout';
 import toast from 'react-hot-toast';
 import { authApi } from '@/lib/api/auth';
@@ -36,6 +37,8 @@ export function SiteHeader() {
   const user = useAuthStore((s) => s.user);
   const handleLogout = useLogout();
   const items = useCartStore((s) => s.items);
+  const canInstall = usePwaStore((s) => s.canInstall);
+  const promptInstall = usePwaStore((s) => s.promptInstall);
 
   useEffect(() => {
     setMounted(true);
@@ -156,6 +159,20 @@ export function SiteHeader() {
                   </span>
                 )}
               </Link>
+
+              {/* PWA Discreet Install Trigger (Only visible if browser supports installation and not already installed) */}
+              {canInstall && (
+                <button
+                  type="button"
+                  onClick={() => promptInstall()}
+                  className="inline-flex items-center gap-1 rounded-full border border-accent/30 bg-accent-tint/50 px-2.5 py-1 text-xs font-semibold text-accent hover:bg-accent hover:text-white transition-all cursor-pointer shadow-xs active:scale-95"
+                  title="Install Campus Food app for 1-tap ordering"
+                  aria-label="Install Campus Food App"
+                >
+                  <span className="text-sm leading-none">📲</span>
+                  <span className="hidden sm:inline">Install App</span>
+                </button>
+              )}
             </>
           )}
 

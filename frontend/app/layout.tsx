@@ -3,7 +3,7 @@ import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import { Toaster } from 'react-hot-toast';
-import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
+import { PwaLifecycle } from '@/components/pwa-lifecycle';
 import { OfflineIndicator } from '@/components/offline-indicator';
 
 const inter = Inter({
@@ -46,7 +46,7 @@ export default function RootLayout({
       <body className="antialiased">
         <Providers>
           {children}
-          <PwaInstallPrompt />
+          <PwaLifecycle />
           <OfflineIndicator />
           <Toaster
             position="top-center"

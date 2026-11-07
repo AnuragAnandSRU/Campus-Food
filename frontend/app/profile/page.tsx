@@ -11,6 +11,7 @@ import { getApiErrorMessage } from '@/lib/api-client';
 import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { formatDateTime } from '@/lib/utils';
+import { usePwaStore } from '@/store/pwa-store';
 
 function EyeIcon({ show }: { show: boolean }) {
   if (show) {
@@ -33,6 +34,10 @@ export default function ProfilePage() {
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
   const handleLogout = useLogout();
+  const canInstall = usePwaStore((s) => s.canInstall);
+  const isInstalled = usePwaStore((s) => s.isInstalled);
+  const isIos = usePwaStore((s) => s.isIos);
+  const promptInstall = usePwaStore((s) => s.promptInstall);
 
   // Form states
   const [name, setName] = useState('');
@@ -454,6 +459,57 @@ export default function ProfilePage() {
             </button>
           </div>
         </form>
+
+        {/* App Experience & PWA Installation Card */}
+        <div className="card mt-6 p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-xl text-accent">
+                📱
+              </div>
+              <div>
+                <h2 className="font-display text-base font-semibold text-ink">
+                  Campus Food App
+                </h2>
+                <p className="text-xs text-muted">
+                  {isInstalled
+                    ? 'Installed & active as standalone app on this device.'
+                    : canInstall
+                    ? 'Install to your home screen for fast 1-tap food ordering.'
+                    : isIos
+                    ? 'Add to iPhone / iPad home screen for 1-tap access.'
+                    : 'Experience fast 1-tap mobile ordering with offline capability.'}
+                </p>
+              </div>
+            </div>
+
+            {canInstall && (
+              <button
+                type="button"
+                onClick={() => promptInstall()}
+                className="btn btn-primary px-4 py-2 text-xs font-semibold self-start sm:self-auto cursor-pointer"
+              >
+                📲 Install App
+              </button>
+            )}
+
+            {isInstalled && (
+              <span className="badge badge-accent text-xs font-medium self-start sm:self-auto">
+                ✓ Installed
+              </span>
+            )}
+          </div>
+
+          {isIos && !isInstalled && (
+            <div className="mt-4 rounded-xl border border-accent/20 bg-accent-tint/10 p-3 text-xs text-ink/80 flex items-start gap-2">
+              <span className="text-sm">💡</span>
+              <span>
+                <strong>To install on iOS Safari:</strong> Tap the Share button (
+                <span className="font-mono text-ink">⎋</span>) in Safari, then scroll down and tap <strong>'Add to Home Screen'</strong>.
+              </span>
+            </div>
+          )}
+        </div>
 
         {/* Role-Specific Shortcuts */}
         <div className="mt-6 flex flex-wrap gap-3">

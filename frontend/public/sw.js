@@ -1,4 +1,4 @@
-const CACHE_NAME = 'campus-food-v1';
+const CACHE_NAME = 'campus-food-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
@@ -34,7 +34,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Bypass service worker for API endpoints, websockets, and external domains
+  // Bypass service worker for API endpoints, websockets, external domains, and non-GET requests
   if (
     url.pathname.startsWith('/api') ||
     url.pathname.startsWith('/socket.io') ||
@@ -48,8 +48,8 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone and cache successful response
-        if (response && response.status === 200) {
+        // Clone and cache successful GET response for static/page assets
+        if (response && response.status === 200 && response.type === 'basic') {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
