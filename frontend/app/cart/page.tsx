@@ -66,8 +66,10 @@ export default function CartPage() {
   const hasUnavailableItems = unavailableItemIds.size > 0;
 
   function handleClearCart() {
-    clearCart();
-    toast.success('Cart cleared');
+    if (confirm('Are you sure you want to clear your cart?')) {
+      clearCart();
+      toast.success('Cart cleared');
+    }
   }
 
   return (

@@ -342,8 +342,24 @@ export default function CheckoutPage() {
                 </span>
               </label>
 
+              {user?.phone && (
+                <div className="mt-3 flex items-center justify-between rounded-xl bg-surface p-3 text-xs border border-line text-muted">
+                  <span className="flex items-center gap-1.5 text-ink font-medium">
+                    <span>📞</span>
+                    <span>{user.phone}</span>
+                    <span className="text-muted font-normal">· Runner will call on arrival</span>
+                  </span>
+                  <Link href="/profile" className="text-accent hover:underline font-semibold ml-2">
+                    Edit
+                  </Link>
+                </div>
+              )}
+
               <label className="mt-3 block">
-                <span className="text-sm text-muted">Notes for the kitchen (optional)</span>
+                <div className="flex items-center justify-between text-sm text-muted">
+                  <span>Notes for the kitchen (optional)</span>
+                  <span className="text-xs">{notes.length}/500</span>
+                </div>
                 <textarea
                   className="input mt-1 resize-none"
                   rows={2}

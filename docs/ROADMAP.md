@@ -151,6 +151,9 @@
 - [x] Live operating hours & offline store guard on Checkout page (prevents ordering when canteen closes)
 - [x] Re-order live menu stock & availability review (redirects re-orders via Cart review before checkout)
 - [x] Real-time multi-tab cart synchronization via window storage events
+- [x] Accidental cart wipeout confirmation guard (`Clear cart` confirmation prompt)
+- [x] Delivery contact phone preview with direct profile edit link at checkout
+- [x] Kitchen notes live character counter (`{notes.length}/500`)
 
 ### Testing
 - [ ] Test cart operations *(no automated tests yet — verified manually)*

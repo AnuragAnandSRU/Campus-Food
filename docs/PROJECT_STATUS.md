@@ -44,6 +44,7 @@ controlled access, so this grew into:
 - Input boundary hardening (`max: 50` chars for block/room, phantom canteen lockout guard, guest cart adoption)
 - Checkout operating hours guard (alerts and blocks submission if canteen is closed or offline)
 - Multi-tab real-time cart synchronization and safe re-order availability review
+- Accidental cart wipeout confirmation guard, delivery contact phone preview, and live kitchen notes counter
 
 ### Order tracking & staff dashboard — Phase 4
 - Full status lifecycle: pending → confirmed → preparing → ready → out for delivery → delivered (+ cancelled)
