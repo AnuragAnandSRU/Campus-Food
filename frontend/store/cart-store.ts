@@ -188,3 +188,17 @@ export const useCartStore = create<CartState>()((set, get) => ({
     return get().items.reduce((count, item) => count + item.quantity, 0);
   },
 }));
+
+// Multi-tab real-time cart synchronization
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key && (event.key.startsWith('campus_food_cart_') || event.key === 'cart-storage')) {
+      const { activeUserId } = useCartStore.getState();
+      const updated = readVault(activeUserId);
+      useCartStore.setState({
+        items: updated.items,
+        canteenId: updated.canteenId,
+      });
+    }
+  });
+}

@@ -1,18 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useCartStore } from '@/store/cart-store';
 import { useAuthStore } from '@/store/auth-store';
 import { useRequireAuth } from '@/lib/use-require-auth';
 import { orderApi } from '@/lib/api/order';
+import { canteenApi } from '@/lib/api/canteen';
+import { menuApi } from '@/lib/api/menu';
 import { authApi } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, isCanteenOpen } from '@/lib/utils';
 
 export default function CheckoutPage() {
   const ready = useRequireAuth();
@@ -24,6 +27,43 @@ export default function CheckoutPage() {
   const canteenId = useCartStore((s) => s.canteenId);
   const total = useCartStore((s) => s.getTotal());
   const clearCart = useCartStore((s) => s.clearCart);
+
+  // Live canteen status validation (operating hours & active status)
+  const canteenQuery = useQuery({
+    queryKey: ['canteen-checkout', canteenId],
+    queryFn: () => canteenApi.getById(canteenId!),
+    enabled: Boolean(canteenId),
+  });
+
+  // Live menu validation (catches sold-out items if arriving directly or via reorder)
+  const menuQuery = useQuery({
+    queryKey: ['canteen-menu-checkout', canteenId],
+    queryFn: () => menuApi.getByCanteen(canteenId!),
+    enabled: Boolean(canteenId),
+    staleTime: 10000,
+  });
+
+  const canteen = canteenQuery.data;
+  const isHoursOpen = canteen ? isCanteenOpen(canteen.openingHours) : true;
+  const isCanteenActive = canteen ? canteen.isActive : true;
+  const isOrderingAllowed = Boolean(isCanteenActive && isHoursOpen);
+
+  const liveMenu = useMemo(() => menuQuery.data ?? [], [menuQuery.data]);
+  const liveMenuMap = useMemo(() => new Map(liveMenu.map((m) => [m._id, m])), [liveMenu]);
+
+  const unavailableItemIds = useMemo(() => {
+    if (!menuQuery.isSuccess) return new Set<string>();
+    return new Set(
+      items
+        .filter((item) => {
+          const live = liveMenuMap.get(item.menuItemId);
+          return !live || !live.isAvailable;
+        })
+        .map((i) => i.menuItemId)
+    );
+  }, [menuQuery.isSuccess, items, liveMenuMap]);
+
+  const hasUnavailableItems = unavailableItemIds.size > 0;
 
   const [hostelBlock, setHostelBlock] = useState('');
   const [roomNumber, setRoomNumber] = useState('');
@@ -71,6 +111,14 @@ export default function CheckoutPage() {
     }
     if (!validate()) {
       toast.error('Please add your hostel block and room number.');
+      return;
+    }
+    if (!isOrderingAllowed) {
+      toast.error('This canteen is currently closed or offline.');
+      return;
+    }
+    if (hasUnavailableItems) {
+      toast.error('Please remove sold out items from your cart before placing an order.');
       return;
     }
     if (!canteenId || items.length === 0) return;
@@ -151,6 +199,50 @@ export default function CheckoutPage() {
           </div>
         )}
 
+        {/* Canteen Temporarily Offline Alert */}
+        {canteen && !canteen.isActive && (
+          <div className="card mt-4 border-red-300 bg-red-50/80 p-4 text-xs sm:text-sm text-red-900 flex items-center gap-3">
+            <span className="text-xl shrink-0">⚠️</span>
+            <div>
+              <p className="font-semibold">This canteen is temporarily offline</p>
+              <p className="text-xs text-red-700 mt-0.5">
+                The kitchen is currently paused and cannot accept new orders right now.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Canteen Closed Hours Alert */}
+        {canteen && canteen.isActive && !isHoursOpen && (
+          <div className="card mt-4 border-amber-300 bg-amber-50/80 p-4 text-xs sm:text-sm text-amber-900 flex items-center gap-3">
+            <span className="text-xl shrink-0">🕒</span>
+            <div>
+              <p className="font-semibold">Canteen is currently closed</p>
+              <p className="text-xs text-amber-700 mt-0.5">
+                Operating hours are {canteen.openingHours?.open} to {canteen.openingHours?.close}. Ordering is paused until opening time.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Sold-out Items Warning Alert */}
+        {hasUnavailableItems && (
+          <div className="card mt-4 border-red-300 bg-red-50/80 p-4 text-xs sm:text-sm text-red-900 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xl shrink-0">⚠️</span>
+              <div>
+                <p className="font-semibold">Some dishes in your order are sold out</p>
+                <p className="text-xs text-red-700 mt-0.5">
+                  Please return to your cart and remove sold-out dishes before placing this order.
+                </p>
+              </div>
+            </div>
+            <Link href="/cart" className="btn btn-secondary text-xs px-3 py-1.5 shrink-0">
+              Edit cart
+            </Link>
+          </div>
+        )}
+
         {!ready ? (
           <p className="mt-6 text-muted">Loading…</p>
         ) : items.length === 0 ? (
@@ -166,17 +258,31 @@ export default function CheckoutPage() {
             {/* Order summary */}
             <section className="card p-5">
               <h2 className="font-display font-semibold text-ink">
-                Order from {items[0]?.canteenName}
+                Order from {canteen?.name || items[0]?.canteenName || 'Canteen'}
               </h2>
               <div className="mt-3 space-y-2 text-sm">
-                {items.map((i) => (
-                  <div key={i.menuItemId} className="flex justify-between">
-                    <span className="text-muted">
-                      {i.quantity} × {i.name}
-                    </span>
-                    <span className="text-ink">{formatCurrency(i.price * i.quantity)}</span>
-                  </div>
-                ))}
+                {items.map((i) => {
+                  const isSoldOut = unavailableItemIds.has(i.menuItemId);
+                  return (
+                    <div key={i.menuItemId} className="flex justify-between items-center">
+                      <span
+                        className={`text-muted flex items-center gap-1.5 ${
+                          isSoldOut ? 'line-through text-red-600' : ''
+                        }`}
+                      >
+                        <span>
+                          {i.quantity} × {i.name}
+                        </span>
+                        {isSoldOut && (
+                          <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700 not-italic no-underline">
+                            Sold out
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-ink">{formatCurrency(i.price * i.quantity)}</span>
+                    </div>
+                  );
+                })}
               </div>
               <div className="mt-3 flex justify-between border-t border-line pt-3">
                 <span className="font-medium text-ink">Total</span>
@@ -269,13 +375,24 @@ export default function CheckoutPage() {
 
             <button
               type="submit"
-              disabled={placing || Boolean(user && !user.isVerified)}
+              disabled={
+                placing ||
+                Boolean(user && !user.isVerified) ||
+                !isOrderingAllowed ||
+                hasUnavailableItems
+              }
               className="btn btn-primary w-full disabled:opacity-60 cursor-pointer"
             >
               {placing
                 ? 'Placing order…'
                 : user && !user.isVerified
                 ? 'Verify your email to place order'
+                : canteen && !canteen.isActive
+                ? 'Canteen is temporarily offline'
+                : canteen && !isHoursOpen
+                ? 'Canteen is currently closed'
+                : hasUnavailableItems
+                ? 'Remove sold out items to place order'
                 : `Place order · ${formatCurrency(total)}`}
             </button>
           </form>

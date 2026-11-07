@@ -38,7 +38,7 @@ export function useReorder() {
       }
 
       toast.success('Meal reloaded into your cart!');
-      router.push('/checkout');
+      router.push('/cart');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Could not reorder items';
       toast.error(msg);

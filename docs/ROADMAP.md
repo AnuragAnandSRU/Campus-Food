@@ -148,6 +148,9 @@
 - [x] Guest cart adoption priority upon student login (preserves active guest selections over stale vaults)
 - [x] Phantom canteen ID guard (strictly nullifies `canteenId` when cart items are empty)
 - [x] Delivery address & notes input boundary enforcement (`max: 50` chars for block/room, trimmed notes)
+- [x] Live operating hours & offline store guard on Checkout page (prevents ordering when canteen closes)
+- [x] Re-order live menu stock & availability review (redirects re-orders via Cart review before checkout)
+- [x] Real-time multi-tab cart synchronization via window storage events
 
 ### Testing
 - [ ] Test cart operations *(no automated tests yet — verified manually)*

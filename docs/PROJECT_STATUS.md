@@ -42,6 +42,8 @@ controlled access, so this grew into:
 - 6-Digit Order ID generation space (`ORD-YYYYMMDD-XXXXXX`) eliminating MongoDB duplicate key collisions
 - Live menu validation on Cart review (auto-syncs prices, highlights sold-out dishes, blocks invalid checkouts)
 - Input boundary hardening (`max: 50` chars for block/room, phantom canteen lockout guard, guest cart adoption)
+- Checkout operating hours guard (alerts and blocks submission if canteen is closed or offline)
+- Multi-tab real-time cart synchronization and safe re-order availability review
 
 ### Order tracking & staff dashboard — Phase 4
 - Full status lifecycle: pending → confirmed → preparing → ready → out for delivery → delivered (+ cancelled)
