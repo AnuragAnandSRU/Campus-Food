@@ -27,16 +27,25 @@ export function SalesChart({ data }: { data: SalesData[] }) {
   const chartHeight = height - padY * 2;
 
   const points = data.map((d, i) => {
-    const x = padX + (i / Math.max(data.length - 1, 1)) * chartWidth;
+    const x =
+      data.length === 1
+        ? width / 2
+        : padX + (i / Math.max(data.length - 1, 1)) * chartWidth;
     const y = padY + chartHeight - (d.totalRevenue / maxRevenue) * chartHeight;
     return { x, y, ...d };
   });
 
-  const pathD = points.reduce((acc, pt, i) => {
+  const pathD =
+    points.length === 1
+      ? `M ${padX} ${points[0].y} L ${width - padX} ${points[0].y}`
+      : points.reduce((acc, pt, i) => {
     return i === 0 ? `M ${pt.x} ${pt.y}` : `${acc} L ${pt.x} ${pt.y}`;
   }, '');
 
-  const areaD = `${pathD} L ${points[points.length - 1].x} ${padY + chartHeight} L ${points[0].x} ${padY + chartHeight} Z`;
+  const areaD =
+    points.length === 1
+      ? `M ${padX} ${points[0].y} L ${width - padX} ${points[0].y} L ${width - padX} ${padY + chartHeight} L ${padX} ${padY + chartHeight} Z`
+      : `${pathD} L ${points[points.length - 1].x} ${padY + chartHeight} L ${points[0].x} ${padY + chartHeight} Z`;
 
   const totalPeriodRevenue = data.reduce((acc, d) => acc + d.totalRevenue, 0);
   const totalPeriodOrders = data.reduce((acc, d) => acc + d.totalOrders, 0);

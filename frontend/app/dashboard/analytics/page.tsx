@@ -41,6 +41,7 @@ export default function AnalyticsPage() {
     queryKey: ['analytics-dashboard', canteenId, timezone],
     queryFn: () => analyticsApi.getDashboardStats(canteenId, timezone),
     enabled: ready && canView && Boolean(canteenId || user?.role === 'admin'),
+    refetchInterval: 60000,
   });
 
   const salesQuery = useQuery({
@@ -71,10 +72,13 @@ export default function AnalyticsPage() {
       'data:text/csv;charset=utf-8,' +
       [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
 
+    const canteenSlug = canteenQuery.data?.name
+      ? canteenQuery.data.name.toLowerCase().replace(/[^a-z0-9]+/g, '_')
+      : 'canteen';
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `canteen_sales_${days}d_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `${canteenSlug}_sales_${days}d_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -92,6 +96,23 @@ export default function AnalyticsPage() {
           </p>
           <Link href="/dashboard" className="btn btn-secondary mt-6 inline-flex">
             Back to Live Orders
+          </Link>
+        </main>
+      </div>
+    );
+  }
+
+  if (ready && !canteenId && user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-background">
+        <SiteHeader />
+        <main className="mx-auto max-w-2xl px-6 py-16 text-center">
+          <p className="font-display text-2xl font-semibold text-ink">No Canteen Assigned</p>
+          <p className="mt-2 font-light text-muted">
+            Your account is not linked to an active canteen yet. Once an administrator assigns your canteen, your sales analytics and live metrics will appear here.
+          </p>
+          <Link href="/dashboard" className="btn btn-secondary mt-6 inline-flex">
+            Go to Dashboard
           </Link>
         </main>
       </div>
@@ -223,7 +244,9 @@ export default function AnalyticsPage() {
           {/* Popular Menu Items Leaderboard (Span 1) */}
           <div className="card p-5">
             <div className="mb-4">
-              <h2 className="font-display text-lg font-semibold text-ink">Top Performing Dishes</h2>
+              <h2 className="font-display text-lg font-semibold text-ink">
+                Top Dishes ({days === 1 ? 'Today' : `Last ${days} Days`})
+              </h2>
               <p className="text-xs text-muted">Ranked by order count and revenue</p>
             </div>
 
