@@ -46,7 +46,7 @@ export function HourlyChart({ data }: { data: OrderTimeline[] }) {
       </div>
 
       {/* 24-hour bar columns */}
-      <div className="grid grid-cols-24 gap-1 items-end h-40 pt-4 pb-2 px-1">
+      <div className="grid gap-1 items-end h-40 pt-4 pb-2 px-1" style={{ gridTemplateColumns: 'repeat(24, minmax(0, 1fr))' }}>
         {data.map((item) => {
           const heightPct = (item.orderCount / maxOrders) * 100;
           const isPeak = item.hour === peak.hour && peak.orderCount > 0;

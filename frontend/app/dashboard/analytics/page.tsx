@@ -21,6 +21,11 @@ export default function AnalyticsPage() {
 
   const [days, setDays] = useState<number>(7);
 
+  const timezone =
+    typeof Intl !== 'undefined'
+      ? Intl.DateTimeFormat().resolvedOptions().timeZone
+      : 'Asia/Kolkata';
+
   const canView =
     user?.role === 'admin' ||
     user?.role === 'owner' ||
@@ -33,26 +38,26 @@ export default function AnalyticsPage() {
   });
 
   const statsQuery = useQuery({
-    queryKey: ['analytics-dashboard', canteenId],
-    queryFn: () => analyticsApi.getDashboardStats(canteenId),
+    queryKey: ['analytics-dashboard', canteenId, timezone],
+    queryFn: () => analyticsApi.getDashboardStats(canteenId, timezone),
     enabled: ready && canView && Boolean(canteenId || user?.role === 'admin'),
   });
 
   const salesQuery = useQuery({
-    queryKey: ['analytics-sales', canteenId, days],
-    queryFn: () => analyticsApi.getSales(days, canteenId),
+    queryKey: ['analytics-sales', canteenId, days, timezone],
+    queryFn: () => analyticsApi.getSales(days, canteenId, timezone),
     enabled: ready && canView && Boolean(canteenId || user?.role === 'admin'),
   });
 
   const popularQuery = useQuery({
-    queryKey: ['analytics-popular', canteenId],
-    queryFn: () => analyticsApi.getPopularItems(5, canteenId),
+    queryKey: ['analytics-popular', canteenId, days],
+    queryFn: () => analyticsApi.getPopularItems(5, canteenId, days),
     enabled: ready && canView && Boolean(canteenId || user?.role === 'admin'),
   });
 
   const timelineQuery = useQuery({
-    queryKey: ['analytics-timeline', canteenId],
-    queryFn: () => analyticsApi.getOrdersTimeline(canteenId),
+    queryKey: ['analytics-timeline', canteenId, timezone],
+    queryFn: () => analyticsApi.getOrdersTimeline(canteenId, timezone),
     enabled: ready && canView && Boolean(canteenId || user?.role === 'admin'),
   });
 
@@ -121,15 +126,20 @@ export default function AnalyticsPage() {
           <div className="flex flex-wrap items-center gap-3">
             {/* Days Window Switcher */}
             <div className="flex gap-1 rounded-full bg-surface p-1 ring-1 ring-line">
-              {[7, 14, 30].map((d) => (
+              {[
+                { label: 'Today', value: 1 },
+                { label: '7 Days', value: 7 },
+                { label: '14 Days', value: 14 },
+                { label: '30 Days', value: 30 },
+              ].map(({ label, value }) => (
                 <button
-                  key={d}
-                  onClick={() => setDays(d)}
+                  key={value}
+                  onClick={() => setDays(value)}
                   className={`rounded-full px-3.5 py-1 text-xs font-medium transition-colors ${
-                    days === d ? 'bg-accent text-white' : 'text-muted hover:text-ink'
+                    days === value ? 'bg-accent text-white' : 'text-muted hover:text-ink'
                   }`}
                 >
-                  {d} Days
+                  {label}
                 </button>
               ))}
             </div>
@@ -154,7 +164,7 @@ export default function AnalyticsPage() {
             <p className="mt-2 font-display text-2xl font-semibold text-ink">
               {stats ? formatCurrency(stats.todayRevenue) : '—'}
             </p>
-            <p className="mt-1 text-xs text-muted">Excludes cancelled orders</p>
+            <p className="mt-1 text-xs text-muted">Realized from delivered orders</p>
           </div>
 
           <div className="card p-4">
@@ -174,7 +184,9 @@ export default function AnalyticsPage() {
             <p className="mt-2 font-display text-2xl font-semibold text-ink">
               {stats ? `${stats.pendingOrders}` : '—'}
             </p>
-            <p className="mt-1 text-xs text-muted">Needs preparation or delivery</p>
+            <p className="mt-1 text-xs text-muted">
+              {stats?.pendingRevenue ? `~${formatCurrency(stats.pendingRevenue)} in-flight` : 'Needs prep or delivery'}
+            </p>
           </div>
 
           <div className="card p-4">
@@ -182,7 +194,7 @@ export default function AnalyticsPage() {
               Avg. Delivery Time
             </span>
             <p className="mt-2 font-display text-2xl font-semibold text-ink">
-              {stats ? `${stats.averagePreparationTime} mins` : '—'}
+              {stats && stats.averagePreparationTime > 0 ? `${stats.averagePreparationTime} mins` : '—'}
             </p>
             <p className="mt-1 text-xs text-muted">From order to doorstep</p>
           </div>
@@ -194,7 +206,9 @@ export default function AnalyticsPage() {
           <div className="card p-5 lg:col-span-2">
             <div className="mb-2 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold text-ink">Revenue &amp; Sales Trend</h2>
-              <span className="badge badge-accent text-[11px]">Last {days} days</span>
+              <span className="badge badge-accent text-[11px]">
+                {days === 1 ? 'Today' : `Last ${days} days`}
+              </span>
             </div>
 
             {salesQuery.isLoading ? (

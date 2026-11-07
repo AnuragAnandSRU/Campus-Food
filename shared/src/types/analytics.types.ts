@@ -24,4 +24,5 @@ export interface DashboardStats {
   pendingOrders: number;
   completedOrders: number;
   averagePreparationTime: number;
+  pendingRevenue?: number;
 }

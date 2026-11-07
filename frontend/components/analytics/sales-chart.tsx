@@ -73,6 +73,12 @@ export function SalesChart({ data }: { data: SalesData[] }) {
         </div>
       </div>
 
+      {totalPeriodRevenue === 0 && (
+        <div className="rounded-lg bg-accent-tint/20 border border-line px-3 py-2 text-xs text-muted text-center">
+          No completed sales recorded in this window yet. Live orders will populate this trend automatically.
+        </div>
+      )}
+
       {/* SVG Chart */}
       <div className="relative w-full overflow-hidden">
         <svg
