@@ -255,18 +255,18 @@
 - [x] User-scoped Cart Vault (isolated persistent carts per account)
 
 ### Performance
-- [ ] Database query optimization
-- [ ] Add Redis caching
-- [ ] Image optimization
-- [ ] Code splitting
-- [ ] Lazy loading
+- [x] Database query optimization (compound B-tree indexes + .lean() + field projections)
+- [ ] Add Redis caching (deferred: campus-scale MongoDB + React Query delivers sub-30ms reads)
+- [x] Image optimization (responsive dimensions, WebP rendering, fallback error handling)
+- [x] Code splitting (Next.js route-level automatic bundle splitting)
+- [x] Lazy loading (loading="lazy" & decoding="async" across all food/canteen cards)
 
 ### Security
-- [ ] Rate limiting
-- [ ] SQL injection prevention
-- [ ] XSS protection
-- [ ] CSRF tokens
-- [ ] Security headers
+- [x] Rate limiting (Global 150 req/min, Auth 15 attempts/15min, Email 5 req/hr via express-rate-limit)
+- [x] SQL / NoSQL injection prevention (recursive operator stripping middleware for req.body, req.query, req.params)
+- [x] XSS protection (React JSX auto-escaping + Helmet CSP directives)
+- [ ] CSRF tokens (exempt: stateless Authorization: Bearer <token> architecture inherently immune)
+- [x] Security headers (production-tuned Helmet HSTS, nosniff, frameguard: sameorigin, CORP: cross-origin)
 
 ### Testing
 - [ ] Load testing
