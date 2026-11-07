@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import crypto from 'crypto';
 
 export interface IOrder extends Document {
   orderId: string;
@@ -159,7 +160,8 @@ orderSchema.pre('validate', async function (next) {
     this.orderId = `ORD-${dateStr}-${random}`;
   }
   if (this.isNew && !this.deliveryPin) {
-    this.deliveryPin = Math.floor(1000 + Math.random() * 9000).toString();
+    // Cryptographically secure 4-digit numeric handover PIN (1000 - 9999)
+    this.deliveryPin = crypto.randomInt(1000, 10000).toString();
   }
   next();
 });

@@ -241,13 +241,6 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
         </div>
       )}
 
-      {/* Owner-only PIN hint if available */}
-      {isOwnerOrAdmin && order.deliveryPin && order.status !== 'delivered' && (
-        <div className="mt-2 flex items-center justify-between rounded-md bg-surface/70 px-2.5 py-1 text-xs text-muted border border-line">
-          <span>Student PIN:</span>
-          <span className="font-mono font-bold text-accent">{order.deliveryPin}</span>
-        </div>
-      )}
 
       {/* Safe Cancel Prompt with Reason Dropdown */}
       {showCancelPrompt ? (

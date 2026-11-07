@@ -221,7 +221,7 @@ export const getOrderById = asyncHandler(async (req: Request, res: Response) => 
   }
 
   let data: any = order;
-  if (role === 'staff' && studentOwnerId !== userId) {
+  if (studentOwnerId !== userId) {
     data = order.toObject();
     delete data.deliveryPin;
   }
@@ -261,13 +261,14 @@ export const getCanteenOrders = asyncHandler(async (req: Request, res: Response)
     .populate('studentId', 'name email phone')
     .sort({ createdAt: -1 })
     .limit(200);
-  const data = role === 'staff'
-    ? orders.map((o) => {
-        const obj = o.toObject();
-        delete (obj as any).deliveryPin;
-        return obj;
-      })
-    : orders;
+
+  // Industry Standard: Handover PIN is strictly zero-knowledge. Canteen staff,
+  // owners, and runners must never receive the student's secret PIN in advance.
+  const data = orders.map((o) => {
+    const obj = o.toObject();
+    delete (obj as any).deliveryPin;
+    return obj;
+  });
   res.json({ success: true, data });
 });
 
@@ -331,6 +332,8 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
     if (order.paymentMethod === 'cash_on_delivery') {
       order.paymentStatus = 'paid';
     }
+    // Handover complete: Invalidate and retire the ephemeral delivery PIN immediately.
+    order.deliveryPin = undefined;
   }
   await order.save();
 
@@ -340,7 +343,7 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
   const studentOwnerId = getStudentIdString(order);
 
   let data: any = order;
-  if (role === 'staff' && studentOwnerId !== userId) {
+  if (studentOwnerId !== userId) {
     data = order.toObject();
     delete data.deliveryPin;
   }
@@ -400,13 +403,15 @@ export const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
   order.cancelledAt = new Date();
   order.cancelReason =
     cancelReason?.trim() || (role === 'student' ? 'Cancelled by student' : 'Cancelled by canteen');
+  // Order cancelled: Invalidate and retire the ephemeral delivery PIN.
+  order.deliveryPin = undefined;
   await order.save();
 
   await order.populate('studentId', 'name email phone');
   emitOrderStatusUpdate(order);
 
   let data: any = order;
-  if (role === 'staff' && studentOwnerId !== userId) {
+  if (studentOwnerId !== userId) {
     data = order.toObject();
     delete data.deliveryPin;
   }

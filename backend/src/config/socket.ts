@@ -94,6 +94,12 @@ export const emitOrderStatusUpdate = (order: IOrder): void => {
   const canteenOrder = { ...studentOrder };
   delete canteenOrder.deliveryPin;
 
-  ioInstance.to(userRoom(order.studentId.toString())).emit(event, { order: studentOrder });
+  const sid = (order as any).studentId;
+  const rawStudentId =
+    sid && typeof sid === 'object' && sid._id ? sid._id.toString() : sid ? sid.toString() : '';
+
+  if (rawStudentId) {
+    ioInstance.to(userRoom(rawStudentId)).emit(event, { order: studentOrder });
+  }
   ioInstance.to(canteenRoom(order.canteenId.toString())).emit(event, { order: canteenOrder });
 };

@@ -57,8 +57,11 @@ export const updateOrderStatusValidator = [
     .withMessage('Estimated delivery time must be a valid date'),
   body('deliveryPin')
     .optional()
-    .isString()
-    .trim(),
+    .trim()
+    .isNumeric()
+    .withMessage('Delivery PIN must contain only digits')
+    .isLength({ min: 4, max: 4 })
+    .withMessage('Delivery PIN must be exactly 4 digits'),
   body('overridePin')
     .optional()
     .isBoolean(),
