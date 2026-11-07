@@ -24,11 +24,14 @@ const CANCELLABLE = ['pending', 'confirmed', 'preparing', 'ready'];
 /**
  * A single order in the canteen dashboard, with the actions staff can take on
  * it. Requires a 4-digit student delivery PIN to complete handover when
- * 'out_for_delivery' -> 'delivered'.
+ * 'out_for_delivery' -> 'delivered'. Displays student name and phone for campus runners.
  */
 export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: () => void }) {
   const [busy, setBusy] = useState(false);
   const [showPinPrompt, setShowPinPrompt] = useState(false);
+  const [showCancelPrompt, setShowCancelPrompt] = useState(false);
+  const [cancelReasonChoice, setCancelReasonChoice] = useState('Item out of stock');
+  const [customReason, setCustomReason] = useState('');
   const [pin, setPin] = useState('');
 
   const user = useAuthStore((s) => s.user);
@@ -37,6 +40,14 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
   const next = NEXT[order.status];
   const canCancel = CANCELLABLE.includes(order.status);
   const isDeliveryHandover = order.status === 'out_for_delivery';
+  const isActive = ['pending', 'confirmed', 'preparing', 'ready', 'out_for_delivery'].includes(
+    order.status
+  );
+
+  const student =
+    typeof order.studentId === 'object' && order.studentId !== null
+      ? (order.studentId as { name?: string; phone?: string; email?: string })
+      : null;
 
   async function advance() {
     if (!next) return;
@@ -46,6 +57,26 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
       onChanged();
     } catch (e) {
       toast.error(getApiErrorMessage(e, 'Could not update the order.'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleBumpEta(minutesToAdd: number) {
+    setBusy(true);
+    try {
+      const baseTime = order.estimatedDeliveryTime
+        ? new Date(order.estimatedDeliveryTime).getTime()
+        : Date.now();
+      const updatedTime = new Date(baseTime + minutesToAdd * 60 * 1000);
+      await orderApi.updateStatus(order._id, {
+        status: order.status,
+        estimatedDeliveryTime: updatedTime,
+      });
+      toast.success(`Target time adjusted (+${minutesToAdd}m)`);
+      onChanged();
+    } catch (e) {
+      toast.error(getApiErrorMessage(e, 'Could not update delivery time.'));
     } finally {
       setBusy(false);
     }
@@ -93,11 +124,17 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
     }
   }
 
-  async function cancel() {
+  async function handleConfirmCancel() {
+    const finalReason =
+      cancelReasonChoice === 'Other'
+        ? customReason.trim() || 'Cancelled by canteen'
+        : cancelReasonChoice;
+
     setBusy(true);
     try {
-      await orderApi.cancel(order._id, { cancelReason: 'Cancelled by canteen' });
+      await orderApi.cancel(order._id, { cancelReason: finalReason });
       toast.success('Order cancelled');
+      setShowCancelPrompt(false);
       onChanged();
     } catch (e) {
       toast.error(getApiErrorMessage(e, 'Could not cancel the order.'));
@@ -108,6 +145,7 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
 
   return (
     <div className="card p-4 transition-all">
+      {/* Header: Order ID + Time + Status */}
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="font-mono text-xs text-muted">{order.orderId}</p>
@@ -116,6 +154,7 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
         <StatusBadge status={order.status} />
       </div>
 
+      {/* Items List */}
       <div className="mt-3 space-y-1 text-sm">
         {order.items.map((i) => (
           <div key={i.menuItemId} className="flex justify-between gap-3">
@@ -127,6 +166,7 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
         ))}
       </div>
 
+      {/* Delivery Room & Total Amount */}
       <div className="mt-2 flex items-center justify-between border-t border-line pt-2 text-sm">
         <span className="text-muted">
           {order.deliveryAddress.hostelBlock}, Room {order.deliveryAddress.roomNumber}
@@ -136,10 +176,65 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
         </span>
       </div>
 
+      {/* Student Contact Info for Runners */}
+      {student && (
+        <div className="mt-2 flex items-center justify-between rounded-lg bg-surface/80 px-2.5 py-1.5 text-xs border border-line/70">
+          <span className="text-ink font-medium flex items-center gap-1.5">
+            <span>👤</span>
+            <span>{student.name || 'Student'}</span>
+          </span>
+          {student.phone ? (
+            <a
+              href={`tel:${student.phone}`}
+              className="text-accent font-semibold hover:underline flex items-center gap-1"
+              title="Call student"
+            >
+              <span>📞</span>
+              <span>{student.phone}</span>
+            </a>
+          ) : (
+            <span className="text-muted text-[11px]">No phone</span>
+          )}
+        </div>
+      )}
+
+      {/* Special Kitchen Notes */}
       {order.specialInstructions && (
         <p className="mt-2 rounded-lg bg-highlight-tint px-3 py-2 text-xs text-ink">
           Note: {order.specialInstructions}
         </p>
+      )}
+
+      {/* Target ETA & Quick Bump Chips for Active Orders */}
+      {isActive && order.estimatedDeliveryTime && (
+        <div className="mt-2 flex items-center justify-between rounded-md bg-surface/50 px-2.5 py-1.5 text-xs text-muted border border-line/50">
+          <div className="flex items-center gap-1">
+            <span>🕒 Target:</span>
+            <span className="font-semibold text-ink">
+              {formatTime(order.estimatedDeliveryTime)}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => handleBumpEta(10)}
+              className="rounded bg-line/60 px-1.5 py-0.5 text-[10px] font-medium text-ink hover:bg-line cursor-pointer disabled:opacity-50"
+              title="Add 10 minutes to ETA"
+            >
+              +10m
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => handleBumpEta(20)}
+              className="rounded bg-line/60 px-1.5 py-0.5 text-[10px] font-medium text-ink hover:bg-line cursor-pointer disabled:opacity-50"
+              title="Add 20 minutes to ETA"
+            >
+              +20m
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Owner-only PIN hint if available */}
@@ -150,8 +245,66 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
         </div>
       )}
 
-      {/* Interactive PIN verification box when completing delivery */}
-      {showPinPrompt ? (
+      {/* Safe Cancel Prompt with Reason Dropdown */}
+      {showCancelPrompt ? (
+        <div className="mt-3 rounded-xl border border-danger/30 bg-danger/5 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-danger flex items-center gap-1">
+              <span>⚠️</span>
+              <span>Cancel Order #{order.orderId.slice(-6)}?</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowCancelPrompt(false)}
+              className="text-xs text-muted hover:text-ink cursor-pointer"
+            >
+              ✕ Back
+            </button>
+          </div>
+
+          <select
+            value={cancelReasonChoice}
+            onChange={(e) => setCancelReasonChoice(e.target.value)}
+            className="input text-xs py-1"
+          >
+            <option value="Item out of stock">Item out of stock</option>
+            <option value="Kitchen closing early">Kitchen closing early</option>
+            <option value="Student requested cancellation">Student requested cancellation</option>
+            <option value="Kitchen overwhelmed with rush">Kitchen overwhelmed with rush</option>
+            <option value="Other">Other reason…</option>
+          </select>
+
+          {cancelReasonChoice === 'Other' && (
+            <input
+              type="text"
+              value={customReason}
+              onChange={(e) => setCustomReason(e.target.value)}
+              placeholder="Enter cancellation reason…"
+              maxLength={100}
+              className="input text-xs py-1"
+            />
+          )}
+
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setShowCancelPrompt(false)}
+              className="btn btn-secondary flex-1 py-1.5 text-xs cursor-pointer"
+            >
+              Keep Order
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmCancel}
+              disabled={busy}
+              className="btn bg-danger hover:bg-danger/90 text-white flex-1 py-1.5 text-xs font-semibold cursor-pointer disabled:opacity-50"
+            >
+              {busy ? 'Cancelling…' : 'Confirm Cancel'}
+            </button>
+          </div>
+        </div>
+      ) : showPinPrompt ? (
+        /* Interactive PIN verification box when completing delivery */
         <div className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-3 space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-ink flex items-center gap-1.5">
@@ -207,6 +360,7 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
           )}
         </div>
       ) : (
+        /* Action Buttons */
         (next || canCancel) && (
           <div className="mt-3 flex gap-2">
             {next && (
@@ -227,7 +381,7 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
             )}
             {canCancel && (
               <button
-                onClick={cancel}
+                onClick={() => setShowCancelPrompt(true)}
                 disabled={busy}
                 className="btn btn-secondary py-2 text-sm text-danger disabled:opacity-60 cursor-pointer"
               >

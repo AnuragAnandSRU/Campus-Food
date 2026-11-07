@@ -42,8 +42,9 @@ export default function OrderDetailPage() {
   // Re-fetch whenever the server broadcasts an update for this specific order.
   useOrderSocket({
     onStatusUpdate: (updated) => {
-      if (updated.orderId === order?.orderId) {
+      if (updated._id === id || updated.orderId === order?.orderId) {
         queryClient.invalidateQueries({ queryKey: ['order', id] });
+        queryClient.invalidateQueries({ queryKey: ['my-orders'] });
       }
     },
   });
@@ -52,6 +53,7 @@ export default function OrderDetailPage() {
     mutationFn: () => orderApi.cancel(id, { cancelReason: 'Cancelled by student' }),
     onSuccess: (updated) => {
       queryClient.setQueryData(['order', id], updated);
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
       toast.success('Order cancelled');
     },
     onError: (err) => {
@@ -72,6 +74,7 @@ export default function OrderDetailPage() {
 
   // Students can only cancel while the kitchen hasn't started prepping yet.
   const canCancel = order && (order.status === 'pending' || order.status === 'confirmed');
+  const isOutForDelivery = order?.status === 'out_for_delivery';
 
   return (
     <div className="min-h-screen bg-background">
@@ -106,11 +109,24 @@ export default function OrderDetailPage() {
               status={order.status}
               canteenName={canteenQuery.data?.name}
               cancelReason={order.cancelReason}
+              estimatedDeliveryTime={order.estimatedDeliveryTime}
             />
 
             {/* Delivery Handover PIN Card */}
             {order.deliveryPin && order.status !== 'delivered' && order.status !== 'cancelled' && (
-              <div className="card mt-6 border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-50/80 to-accent-tint/40 p-5 shadow-xs">
+              <div
+                className={`card mt-6 border-2 transition-all p-5 shadow-xs ${
+                  isOutForDelivery
+                    ? 'border-accent bg-accent-tint/30 ring-2 ring-accent/20'
+                    : 'border-emerald-500/30 bg-gradient-to-br from-emerald-50/80 to-accent-tint/40'
+                }`}
+              >
+                {isOutForDelivery && (
+                  <div className="mb-3 flex items-center gap-2 rounded-lg bg-emerald-600/10 px-3 py-1.5 text-xs font-semibold text-accent animate-pulse">
+                    <span>🛵</span>
+                    <span>Runner is arriving at your hostel! Show this 4-digit PIN for handover.</span>
+                  </div>
+                )}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -175,18 +191,26 @@ export default function OrderDetailPage() {
             <div className="card mt-4 space-y-3 p-5 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted">Deliver to</span>
-                <span className="text-right text-ink">
+                <span className="text-right text-ink font-medium">
                   {order.deliveryAddress.hostelBlock}, Room {order.deliveryAddress.roomNumber}
                 </span>
               </div>
+              {canteenQuery.data?.location && (
+                <div className="flex justify-between">
+                  <span className="text-muted">Prepared at</span>
+                  <span className="text-right text-ink">
+                    {canteenQuery.data.name} ({canteenQuery.data.location})
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-muted">Payment</span>
                 <span className="text-ink">Cash on delivery</span>
               </div>
               {order.estimatedDeliveryTime && (
                 <div className="flex justify-between">
-                  <span className="text-muted">Estimated by</span>
-                  <span className="text-ink">{formatDateTime(order.estimatedDeliveryTime)}</span>
+                  <span className="text-muted">Estimated arrival</span>
+                  <span className="text-ink font-medium">{formatDateTime(order.estimatedDeliveryTime)}</span>
                 </div>
               )}
               {order.specialInstructions && (

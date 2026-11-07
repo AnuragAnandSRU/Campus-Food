@@ -23,10 +23,17 @@ export interface DeliveryAddress {
   roomNumber: string;
 }
 
+export interface StudentSummary {
+  _id: string;
+  name: string;
+  phone?: string;
+  email?: string;
+}
+
 export interface Order {
   _id: string;
   orderId: string; // "ORD-20260911-1234"
-  studentId: string;
+  studentId: string | StudentSummary;
   canteenId: string;
   items: OrderItem[];
   totalAmount: number;

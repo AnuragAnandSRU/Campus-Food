@@ -48,9 +48,15 @@ controlled access, so this grew into:
 
 ### Order tracking & staff dashboard — Phase 4
 - Full status lifecycle: pending → confirmed → preparing → ready → out for delivery → delivered (+ cancelled)
-- Live updates over Socket.io
-- Student "my orders" + order detail / tracking
-- Staff live order-book dashboard with new-order alerts
+- Live updates over Socket.io with student/canteen room segregation
+- Student "my orders" + order detail / live tracking
+- Staff live order-book dashboard with station/stage filtering (All Active, New, Cooking, Dispatch)
+- Student contact identification & direct 1-tap `tel:` phone call link for campus runners
+- Accidental cancellation safety guard with structured cancellation reasons on staff dashboard
+- Intelligent baseline ETA calculation on backend with quick adjustment chips (+10m, +20m) on kitchen cards
+- Live arrival countdown badge on student tracking page (`🕒 Arriving in ~25 mins`)
+- Elevated delivery handover PIN pulse and runner arrival banner for `out_for_delivery`
+- Canteen `totalOrders` counter atomic increment and BSON type-safe rating aggregation
 
 ---
 

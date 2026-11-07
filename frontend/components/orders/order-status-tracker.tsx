@@ -4,6 +4,7 @@ interface OrderStatusTrackerProps {
   status: OrderStatus;
   canteenName?: string;
   cancelReason?: string;
+  estimatedDeliveryTime?: Date | string;
 }
 
 const STEPS: Array<{ key: string; label: string; icon: string; match: OrderStatus[] }> = [
@@ -14,7 +15,12 @@ const STEPS: Array<{ key: string; label: string; icon: string; match: OrderStatu
   { key: 'delivered', label: 'Delivered', icon: '🎉', match: ['delivered'] },
 ];
 
-export function OrderStatusTracker({ status, canteenName, cancelReason }: OrderStatusTrackerProps) {
+export function OrderStatusTracker({
+  status,
+  canteenName,
+  cancelReason,
+  estimatedDeliveryTime,
+}: OrderStatusTrackerProps) {
   if (status === 'cancelled') {
     return (
       <div className="mt-4 flex flex-col items-center text-center">
@@ -79,6 +85,20 @@ export function OrderStatusTracker({ status, canteenName, cancelReason }: OrderS
     }
   })();
 
+  const etaText = (() => {
+    if (!estimatedDeliveryTime || status === 'delivered') return null;
+    const diffMs = new Date(estimatedDeliveryTime).getTime() - Date.now();
+    const diffMins = Math.round(diffMs / (60 * 1000));
+    const timeFormatted = new Date(estimatedDeliveryTime).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    if (diffMins <= 0) {
+      return `Arriving shortly (around ${timeFormatted})`;
+    }
+    return `Estimated arrival: ~${diffMins} mins (by ${timeFormatted})`;
+  })();
+
   const currentStepIndex = (() => {
     switch (status) {
       case 'pending':
@@ -108,6 +128,14 @@ export function OrderStatusTracker({ status, canteenName, cancelReason }: OrderS
       <p className="mt-1 font-light text-muted max-w-md">
         {details.subtitle}
       </p>
+
+      {/* Dynamic Estimated Arrival Badge */}
+      {etaText && (
+        <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent-tint/60 px-3.5 py-1 text-xs font-semibold text-accent ring-1 ring-accent/30 animate-pulse">
+          <span>🕒</span>
+          <span>{etaText}</span>
+        </div>
+      )}
 
       {/* Progress Stepper */}
       <div className="w-full max-w-md mt-6 pt-4 border-t border-line/60">

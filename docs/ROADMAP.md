@@ -186,6 +186,19 @@
 - [x] Menu availability toggle
 - [x] Delivery handover verification prompt *(numeric PIN check + Owner Emergency Override)*
 
+### Added beyond the original plan ✅
+- [x] Student contact identification & 1-tap `tel:` phone link on Staff dashboard and runner order cards
+- [x] Accidental cancellation safety guard with structured cancellation reasons dropdown on staff order card
+- [x] Intelligent baseline ETA computation on backend (`max(prepTime) + 15 min buffer`) stored at order creation
+- [x] Quick ETA adjustment chips (`+10m`, `+20m`) on staff order cards for active rush hours
+- [x] Live estimated delivery countdown badge on student tracking page (`🕒 Arriving in ~25 mins (by HH:MM)`)
+- [x] Kitchen station / stage filtering on staff dashboard (`All Active`, `New / Incoming`, `Cooking`, `Ready / Delivery`) with live station counts
+- [x] Robust socket listener race-condition guard on student tracking page (`updated._id === id || updated.orderId === order?.orderId`)
+- [x] Elevated delivery handover PIN pulse and arrival banner when status transitions to `out_for_delivery`
+- [x] Canteen `totalOrders` counter atomic increment on order placement
+- [x] BSON ObjectId casting safety in rating aggregation pipeline
+- [x] Order cancellation cache synchronization across order detail and order list queries
+
 ### Testing
 - [ ] Test order status flow *(no automated tests yet — verified manually)*
 - [ ] Test staff dashboard
