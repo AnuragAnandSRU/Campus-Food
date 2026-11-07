@@ -302,7 +302,8 @@ export const updateOrderStatus = asyncHandler(async (req: Request, res: Response
   }
 
   const allowed = FORWARD_TRANSITIONS[order.status] ?? [];
-  if (!allowed.includes(status)) {
+  // Allow same-status updates for adjusting estimatedDeliveryTime, or forward state machine transitions
+  if (status !== order.status && !allowed.includes(status)) {
     throw new AppError(`Cannot move an order from “${order.status}” to “${status}”`, 400);
   }
 

@@ -20,7 +20,7 @@ type StationFilter = 'all_active' | 'incoming' | 'cooking' | 'dispatch';
  * Canteen dashboard for staff/owner: the live order book for their own canteen.
  * Orders stream in over the socket (server auto-joins the canteen room from the
  * user's record); we invalidate the query on each event and also poll every 30s
- * as a safety net in case the socket drops.
+ * as a safety net in case the socket drops. Features live fast search and station filters.
  */
 export default function DashboardPage() {
   const ready = useRequireRole(['staff', 'owner'], '/partner');
@@ -30,6 +30,7 @@ export default function DashboardPage() {
 
   const [primaryFilter, setPrimaryFilter] = useState<PrimaryFilter>('active');
   const [stationFilter, setStationFilter] = useState<StationFilter>('all_active');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const canteenQuery = useQuery({
     queryKey: ['canteen', canteenId],
@@ -85,24 +86,50 @@ export default function DashboardPage() {
     return { incoming, cooking, dispatch, activeTotal, all: rawOrders.length };
   }, [rawOrders]);
 
-  // Filter orders by active station
+  // Filter orders by active station and search keyword
   const displayedOrders = useMemo(() => {
-    if (primaryFilter === 'all') return rawOrders;
-
-    switch (stationFilter) {
-      case 'incoming':
-        return rawOrders.filter((o) => ['pending', 'confirmed'].includes(o.status));
-      case 'cooking':
-        return rawOrders.filter((o) => o.status === 'preparing');
-      case 'dispatch':
-        return rawOrders.filter((o) => ['ready', 'out_for_delivery'].includes(o.status));
-      case 'all_active':
-      default:
-        return rawOrders.filter((o) =>
-          ['pending', 'confirmed', 'preparing', 'ready', 'out_for_delivery'].includes(o.status)
-        );
+    let list = rawOrders;
+    if (primaryFilter === 'active') {
+      switch (stationFilter) {
+        case 'incoming':
+          list = rawOrders.filter((o) => ['pending', 'confirmed'].includes(o.status));
+          break;
+        case 'cooking':
+          list = rawOrders.filter((o) => o.status === 'preparing');
+          break;
+        case 'dispatch':
+          list = rawOrders.filter((o) => ['ready', 'out_for_delivery'].includes(o.status));
+          break;
+        case 'all_active':
+        default:
+          list = rawOrders.filter((o) =>
+            ['pending', 'confirmed', 'preparing', 'ready', 'out_for_delivery'].includes(o.status)
+          );
+          break;
+      }
     }
-  }, [rawOrders, primaryFilter, stationFilter]);
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter((order) => {
+        const matchesId = order.orderId.toLowerCase().includes(q);
+        const matchesRoom =
+          order.deliveryAddress.roomNumber.toLowerCase().includes(q) ||
+          order.deliveryAddress.hostelBlock.toLowerCase().includes(q);
+        const student =
+          typeof order.studentId === 'object' && order.studentId !== null
+            ? (order.studentId as { name?: string; phone?: string })
+            : null;
+        const matchesStudent =
+          (student?.name && student.name.toLowerCase().includes(q)) ||
+          (student?.phone && student.phone.includes(q));
+        const matchesItems = order.items.some((i) => i.name.toLowerCase().includes(q));
+        return matchesId || matchesRoom || matchesStudent || matchesItems;
+      });
+    }
+
+    return list;
+  }, [rawOrders, primaryFilter, stationFilter, searchQuery]);
 
   // A staff/owner without an assigned canteen can't have an order book.
   if (ready && !canteenId) {
@@ -192,9 +219,32 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Live Kitchen Search Bar */}
+        {rawOrders.length > 0 && (
+          <div className="mt-5 relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search active orders by ID, student name, dish, or room number…"
+              className="input text-xs pl-9 py-2"
+            />
+            <span className="absolute left-3 top-2.5 text-muted text-xs">🔍</span>
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-2 text-xs text-muted hover:text-ink cursor-pointer"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Station Sub-Filters (Active Mode Only) */}
         {primaryFilter === 'active' && (
-          <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-line pb-3 text-xs">
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-b border-line pb-3 text-xs">
             <span className="text-muted font-medium mr-1">Kitchen Station:</span>
             <button
               onClick={() => setStationFilter('all_active')}
@@ -277,8 +327,8 @@ export default function DashboardPage() {
 
         {ready && !ordersQuery.isLoading && rawOrders.length > 0 && displayedOrders.length === 0 && (
           <div className="card mt-6 p-8 text-center text-muted">
-            <p className="text-base font-medium text-ink">No orders at this station</p>
-            <p className="text-xs mt-1">Select &ldquo;All Active&rdquo; to see all current kitchen orders.</p>
+            <p className="text-base font-medium text-ink">No matching orders found</p>
+            <p className="text-xs mt-1">Try clearing your search or selecting &ldquo;All Active&rdquo;.</p>
           </div>
         )}
 

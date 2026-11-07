@@ -202,6 +202,12 @@
 - [x] Web Audio Autoplay Policy auto-unlock on first document interaction
 - [x] High-contrast distinct status badge palette within Fresh Emerald design system
 - [x] Live ETA badge preview directly on student order list items (`/orders`)
+- [x] Same-status ETA adjustment support in backend transition validator
+- [x] Live kitchen search bar on staff dashboard matching order ID, student name, dish, and room number
+- [x] Dynamic 30-second live ticking countdown clock on student order tracker
+- [x] Role-aware dashboard navigation on order detail screens
+- [x] Enter-key keyboard shortcut for rapid delivery handover PIN verification
+- [x] High-visibility dietary & allergy notes callout on staff order cards
 
 ### Testing
 - [ ] Test order status flow *(no automated tests yet — verified manually)*

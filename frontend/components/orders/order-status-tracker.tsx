@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import type { OrderStatus } from '../../../shared/src/types/order.types';
 
 interface OrderStatusTrackerProps {
@@ -21,6 +24,16 @@ export function OrderStatusTracker({
   cancelReason,
   estimatedDeliveryTime,
 }: OrderStatusTrackerProps) {
+  const [now, setNow] = useState(() => Date.now());
+
+  // Gentle 30-second live countdown ticker so minutes update while student watches
+  useEffect(() => {
+    if (!estimatedDeliveryTime || status === 'delivered') return;
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [estimatedDeliveryTime, status]);
   if (status === 'cancelled') {
     return (
       <div className="mt-4 flex flex-col items-center text-center">
@@ -87,7 +100,7 @@ export function OrderStatusTracker({
 
   const etaText = (() => {
     if (!estimatedDeliveryTime || status === 'delivered') return null;
-    const diffMs = new Date(estimatedDeliveryTime).getTime() - Date.now();
+    const diffMs = new Date(estimatedDeliveryTime).getTime() - now;
     const diffMins = Math.round(diffMs / (60 * 1000));
     const timeFormatted = new Date(estimatedDeliveryTime).toLocaleTimeString([], {
       hour: '2-digit',

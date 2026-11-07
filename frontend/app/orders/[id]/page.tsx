@@ -8,6 +8,7 @@ import { orderApi } from '@/lib/api/order';
 import { canteenApi } from '@/lib/api/canteen';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { useRequireAuth } from '@/lib/use-require-auth';
+import { useAuthStore } from '@/store/auth-store';
 import { useOrderSocket } from '@/lib/use-order-socket';
 import { useReorder } from '@/lib/use-reorder';
 import { SiteHeader } from '@/components/site-header';
@@ -73,6 +74,11 @@ export default function OrderDetailPage() {
   }
 
   // Students can only cancel while the kitchen hasn't started prepping yet.
+  const user = useAuthStore((s) => s.user);
+  const isStaffOrOwner = user?.role === 'staff' || user?.role === 'owner';
+  const parentLabel = isStaffOrOwner ? 'Dashboard' : 'My Orders';
+  const parentHref = isStaffOrOwner ? '/dashboard' : '/orders';
+
   const canCancel = order && (order.status === 'pending' || order.status === 'confirmed');
   const isOutForDelivery = order?.status === 'out_for_delivery';
 
@@ -83,7 +89,7 @@ export default function OrderDetailPage() {
         <Breadcrumbs
           items={[
             { label: 'Home', href: '/' },
-            { label: 'My Orders', href: '/orders' },
+            { label: parentLabel, href: parentHref },
             { label: order?.orderId ?? 'Order Details' },
           ]}
         />
@@ -223,17 +229,19 @@ export default function OrderDetailPage() {
 
             <div className="mt-6 space-y-3">
               <div className="flex gap-3">
-                <Link href="/orders" className="btn btn-secondary flex-1 text-center">
-                  ← All Orders
+                <Link href={parentHref} className="btn btn-secondary flex-1 text-center">
+                  ← {isStaffOrOwner ? 'Back to Dashboard' : 'All Orders'}
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => reorder(order, canteenQuery.data?.name)}
-                  className="btn btn-primary flex-1 text-center flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <span>🔁</span>
-                  <span>Order Again</span>
-                </button>
+                {!isStaffOrOwner && (
+                  <button
+                    type="button"
+                    onClick={() => reorder(order, canteenQuery.data?.name)}
+                    className="btn btn-primary flex-1 text-center flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>🔁</span>
+                    <span>Order Again</span>
+                  </button>
+                )}
               </div>
               {canCancel && (
                 <button

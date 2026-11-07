@@ -200,9 +200,13 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
 
       {/* Special Kitchen Notes */}
       {order.specialInstructions && (
-        <p className="mt-2 rounded-lg bg-highlight-tint px-3 py-2 text-xs text-ink">
-          Note: {order.specialInstructions}
-        </p>
+        <div className="mt-2 rounded-lg bg-amber-500/10 border border-amber-500/25 px-3 py-2 text-xs text-amber-950 font-medium flex items-start gap-1.5">
+          <span className="shrink-0 text-sm">📝</span>
+          <span>
+            <strong className="text-amber-900 font-semibold">Special Note:</strong>{' '}
+            {order.specialInstructions}
+          </span>
+        </div>
       )}
 
       {/* Target ETA & Quick Bump Chips for Active Orders */}
@@ -331,6 +335,12 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
               maxLength={4}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && pin.length === 4 && !busy) {
+                  e.preventDefault();
+                  handleVerifyHandover();
+                }
+              }}
               placeholder="4-digit PIN"
               className="input font-mono text-center tracking-widest text-lg font-bold py-1.5 flex-1"
               autoFocus
