@@ -168,7 +168,20 @@ export default function OrderDetailPage() {
             <div className="card mt-6 p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-mono text-sm text-muted">{order.orderId}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-mono text-sm text-muted font-medium">{order.orderId}</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(order.orderId);
+                        toast.success('Order ID copied to clipboard!');
+                      }}
+                      className="rounded p-1 text-xs text-muted hover:text-ink hover:bg-line/40 transition-colors cursor-pointer"
+                      title="Copy order ID"
+                    >
+                      📋
+                    </button>
+                  </div>
                   <p className="mt-0.5 text-xs text-muted">{formatDateTime(order.createdAt)}</p>
                 </div>
                 <StatusBadge status={order.status} />
@@ -201,12 +214,16 @@ export default function OrderDetailPage() {
                   {order.deliveryAddress.hostelBlock}, Room {order.deliveryAddress.roomNumber}
                 </span>
               </div>
-              {canteenQuery.data?.location && (
-                <div className="flex justify-between">
+              {canteenQuery.data && (
+                <div className="flex justify-between items-center">
                   <span className="text-muted">Prepared at</span>
-                  <span className="text-right text-ink">
-                    {canteenQuery.data.name} ({canteenQuery.data.location})
-                  </span>
+                  <Link
+                    href={`/canteens/${order.canteenId}`}
+                    className="text-right text-accent font-medium hover:underline text-sm"
+                    title="View canteen menu"
+                  >
+                    {canteenQuery.data.name} {canteenQuery.data.location ? `(${canteenQuery.data.location})` : ''} →
+                  </Link>
                 </div>
               )}
               <div className="flex justify-between">

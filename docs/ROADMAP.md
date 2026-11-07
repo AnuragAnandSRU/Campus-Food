@@ -208,6 +208,10 @@
 - [x] Role-aware dashboard navigation on order detail screens
 - [x] Enter-key keyboard shortcut for rapid delivery handover PIN verification
 - [x] High-visibility dietary & allergy notes callout on staff order cards
+- [x] Review card role guard (students submit reviews; staff/owners view student feedback)
+- [x] Clickable canteen menu shortcut on order details card
+- [x] Mobile touchscreen audio unlock (`touchstart`) on kitchen alert hook
+- [x] 1-Tap Order ID clipboard copy shortcut on order tracking screen
 
 ### Testing
 - [ ] Test order status flow *(no automated tests yet — verified manually)*

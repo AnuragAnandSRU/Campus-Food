@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { orderApi } from '@/lib/api/order';
 import { getApiErrorMessage } from '@/lib/api-client';
+import { useAuthStore } from '@/store/auth-store';
 import type { Order } from '../../../shared/src/types/order.types';
 
 interface OrderRatingCardProps {
@@ -22,6 +23,9 @@ const RATING_LABELS: Record<number, string> = {
 
 export function OrderRatingCard({ order, canteenName = 'the canteen' }: OrderRatingCardProps) {
   const queryClient = useQueryClient();
+  const user = useAuthStore((s) => s.user);
+  const isStudent = user?.role === 'student';
+
   const [selectedRating, setSelectedRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [reviewText, setReviewText] = useState('');
@@ -46,17 +50,19 @@ export function OrderRatingCard({ order, canteenName = 'the canteen' }: OrderRat
   // Only delivered orders can be rated
   if (order.status !== 'delivered') return null;
 
-  // Already rated view
+  // Already rated view: visible to both student and canteen staff/owner
   if (order.rating) {
     return (
       <div className="card mt-6 p-5 border-accent/20 bg-accent-tint/10">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold tracking-wider uppercase text-accent">
-              Your Review
+              {isStudent ? 'Your Review' : 'Student Feedback'}
             </p>
             <p className="mt-1 font-display text-base font-semibold text-ink">
-              You rated this order {order.rating} / 5
+              {isStudent
+                ? `You rated this order ${order.rating} / 5`
+                : `Rated ${order.rating} / 5 by student`}
             </p>
           </div>
           <div className="flex text-lg text-highlight">
@@ -75,7 +81,10 @@ export function OrderRatingCard({ order, canteenName = 'the canteen' }: OrderRat
     );
   }
 
-  // Not yet rated: Interactive review submission card
+  // If the order hasn't been rated and the viewer is NOT a student (e.g. staff/owner), hide the form
+  if (!isStudent) return null;
+
+  // Not yet rated: Interactive review submission card for students
   const activeRating = hoverRating || selectedRating;
 
   return (
