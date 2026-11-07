@@ -68,20 +68,42 @@ export default function AnalyticsPage() {
 
     const headers = ['Date', 'Total Orders', 'Revenue (INR)', 'Average Order Value (INR)'];
     const rows = sales.map((s) => [s.date, s.totalOrders, s.totalRevenue, s.averageOrderValue]);
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const csvContent = [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
 
     const canteenSlug = canteenQuery.data?.name
       ? canteenQuery.data.name.toLowerCase().replace(/[^a-z0-9]+/g, '_')
       : 'canteen';
-    const encodedUri = encodeURI(csvContent);
+
+    // Modern Blob download with UTF-8 BOM for perfect Excel compatibility & unlimited file size
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', url);
     link.setAttribute('download', `${canteenSlug}_sales_${days}d_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SiteHeader />
+        <main className="mx-auto max-w-5xl px-6 py-8">
+          <div className="h-8 w-48 animate-pulse rounded bg-accent-tint/30" />
+          <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="card h-28 animate-pulse bg-accent-tint/20" />
+            ))}
+          </div>
+          <div className="mt-6 grid gap-6 lg:grid-cols-3">
+            <div className="card h-72 animate-pulse bg-accent-tint/15 lg:col-span-2" />
+            <div className="card h-72 animate-pulse bg-accent-tint/15" />
+          </div>
+        </main>
+      </div>
+    );
   }
 
   if (ready && !canView) {

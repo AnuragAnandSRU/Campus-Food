@@ -299,7 +299,7 @@ export const getPopularItems = asyncHandler(async (req: Request, res: Response) 
     { $unwind: '$items' },
     {
       $group: {
-        _id: '$items.menuItemId',
+        _id: { $ifNull: ['$items.menuItemId', '$items.name'] },
         name: { $first: '$items.name' },
         image: { $first: '$items.image' },
         totalOrders: { $sum: '$items.quantity' },

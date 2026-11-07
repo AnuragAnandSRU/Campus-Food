@@ -17,26 +17,30 @@ router.use(protect);
 // - Platform admins and canteen owners have full access.
 // - Canteen staff are admitted only if they have the 'view_analytics' permission granted.
 router.use(async (req, res, next) => {
-  const user = (req as AuthRequest).user;
-  if (!user) {
-    return res.status(401).json({ success: false, message: 'Not authenticated' });
-  }
+  try {
+    const user = (req as AuthRequest).user;
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
 
-  if (user.role === 'admin' || user.role === 'owner') {
-    return next();
-  }
-
-  if (user.role === 'staff') {
-    const dbUser = await User.findById(user.userId).select('permissions');
-    if (dbUser?.permissions?.includes('view_analytics')) {
+    if (user.role === 'admin' || user.role === 'owner') {
       return next();
     }
-  }
 
-  return res.status(403).json({
-    success: false,
-    message: 'You do not have permission to view analytics.',
-  });
+    if (user.role === 'staff') {
+      const dbUser = await User.findById(user.userId).select('permissions');
+      if (dbUser?.permissions?.includes('view_analytics')) {
+        return next();
+      }
+    }
+
+    return res.status(403).json({
+      success: false,
+      message: 'You do not have permission to view analytics.',
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.get('/dashboard', getDashboardStats);
