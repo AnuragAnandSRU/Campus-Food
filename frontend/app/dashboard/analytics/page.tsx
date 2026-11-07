@@ -57,8 +57,8 @@ export default function AnalyticsPage() {
   });
 
   const timelineQuery = useQuery({
-    queryKey: ['analytics-timeline', canteenId, timezone],
-    queryFn: () => analyticsApi.getOrdersTimeline(canteenId, timezone),
+    queryKey: ['analytics-timeline', canteenId, days, timezone],
+    queryFn: () => analyticsApi.getOrdersTimeline(canteenId, timezone, days),
     enabled: ready && canView && Boolean(canteenId || user?.role === 'admin'),
   });
 
@@ -195,7 +195,11 @@ export default function AnalyticsPage() {
             <p className="mt-2 font-display text-2xl font-semibold text-accent">
               {stats ? `${stats.todayOrders} orders` : '—'}
             </p>
-            <p className="mt-1 text-xs text-muted">Placed since midnight</p>
+            <p className="mt-1 text-xs text-muted">
+              {stats && stats.todayOrders > 0
+                ? `${stats.completedOrders} delivered · ${stats.pendingOrders} active`
+                : 'Placed since midnight'}
+            </p>
           </div>
 
           <div className="card p-4">
@@ -267,7 +271,9 @@ export default function AnalyticsPage() {
         {/* Peak Ordering Hours Distribution */}
         <div className="card mt-6 p-5">
           <div className="mb-2">
-            <h2 className="font-display text-lg font-semibold text-ink">24-Hour Kitchen Demand</h2>
+            <h2 className="font-display text-lg font-semibold text-ink">
+              24-Hour Kitchen Demand ({days === 1 ? 'Today' : `Last ${days} Days`})
+            </h2>
             <p className="text-xs text-muted">
               Order volume breakdown by hour of day (helps plan food prep and kitchen staffing).
             </p>

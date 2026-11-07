@@ -40,13 +40,14 @@ export const analyticsApi = {
     return response.data.data || [];
   },
 
-  getOrdersTimeline: async (canteenId?: string, timezone?: string): Promise<OrderTimeline[]> => {
+  getOrdersTimeline: async (canteenId?: string, timezone?: string, days?: number): Promise<OrderTimeline[]> => {
     const response = await apiClient.get<ApiResponse<OrderTimeline[]>>(
       '/analytics/orders-timeline',
       {
         params: {
           ...(canteenId ? { canteenId } : {}),
           ...(timezone ? { timezone } : {}),
+          ...(days ? { days } : {}),
         },
       }
     );

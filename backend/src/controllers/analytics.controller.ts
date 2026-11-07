@@ -181,6 +181,11 @@ export const getDashboardStats = asyncHandler(async (req: Request, res: Response
       },
     },
     {
+      $match: {
+        prepMinutes: { $gte: 1, $lte: 180 },
+      },
+    },
+    {
       $group: {
         _id: null,
         avgMinutes: { $avg: '$prepMinutes' },
@@ -325,6 +330,7 @@ export const getPopularItems = asyncHandler(async (req: Request, res: Response) 
  */
 export const getOrdersTimeline = asyncHandler(async (req: Request, res: Response) => {
   const canteenId = await resolveCanteenScope(req);
+  const days = req.query.days ? parseInt(req.query.days as string, 10) : undefined;
   const timezone = sanitizeTimezone(req.query.timezone as string);
 
   const matchBase: Record<string, any> = {};
@@ -332,13 +338,17 @@ export const getOrdersTimeline = asyncHandler(async (req: Request, res: Response
     matchBase.canteenId = canteenId;
   }
 
+  const matchStage: Record<string, any> = {
+    ...matchBase,
+    status: { $ne: 'cancelled' },
+  };
+
+  if (days && days > 0) {
+    matchStage.createdAt = { $gte: getStartOfDayInTimezone(timezone, days - 1) };
+  }
+
   const timelineAgg = await Order.aggregate([
-    {
-      $match: {
-        ...matchBase,
-        status: { $ne: 'cancelled' },
-      },
-    },
+    { $match: matchStage },
     {
       $group: {
         _id: { $hour: { date: '$createdAt', timezone } },

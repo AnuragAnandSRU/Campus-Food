@@ -45,46 +45,55 @@ export function HourlyChart({ data }: { data: OrderTimeline[] }) {
         )}
       </div>
 
-      {/* 24-hour bar columns */}
-      <div className="grid gap-1 items-end h-40 pt-4 pb-2 px-1" style={{ gridTemplateColumns: 'repeat(24, minmax(0, 1fr))' }}>
-        {data.map((item) => {
-          const heightPct = (item.orderCount / maxOrders) * 100;
-          const isPeak = item.hour === peak.hour && peak.orderCount > 0;
-          const isHovered = hoveredHour?.hour === item.hour;
+      {/* Horizontally Scrollable on Narrow Mobile Viewports */}
+      <div className="overflow-x-auto pb-2">
+        <div className="min-w-[440px]">
+          {/* 24-hour bar columns */}
+          <div
+            className="grid gap-1 items-end h-40 pt-4 pb-2 px-1"
+            style={{ gridTemplateColumns: 'repeat(24, minmax(0, 1fr))' }}
+          >
+            {data.map((item) => {
+              const heightPct = (item.orderCount / maxOrders) * 100;
+              const isPeak = item.hour === peak.hour && peak.orderCount > 0;
+              const isHovered = hoveredHour?.hour === item.hour;
 
-          return (
-            <div
-              key={item.hour}
-              className="group relative flex flex-col items-center h-full justify-end cursor-pointer"
-              onMouseEnter={() => setHoveredHour(item)}
-              onMouseLeave={() => setHoveredHour(null)}
-            >
-              <div
-                style={{ height: `${Math.max(heightPct, 4)}%` }}
-                className={`w-full rounded-t transition-all duration-200 ${
-                  isHovered
-                    ? 'bg-accent shadow-md scale-105'
-                    : isPeak
-                    ? 'bg-accent/90'
-                    : item.orderCount > 0
-                    ? 'bg-accent/40 hover:bg-accent/70'
-                    : 'bg-line/60'
-                }`}
-              />
-            </div>
-          );
-        })}
-      </div>
+              return (
+                <div
+                  key={item.hour}
+                  className="group relative flex flex-col items-center h-full justify-end cursor-pointer"
+                  onMouseEnter={() => setHoveredHour(item)}
+                  onMouseLeave={() => setHoveredHour(null)}
+                  onClick={() => setHoveredHour(item)}
+                >
+                  <div
+                    style={{ height: `${Math.max(heightPct, 4)}%` }}
+                    className={`w-full rounded-t transition-all duration-200 ${
+                      isHovered
+                        ? 'bg-accent shadow-md scale-105'
+                        : isPeak
+                        ? 'bg-accent/90'
+                        : item.orderCount > 0
+                        ? 'bg-accent/40 hover:bg-accent/70'
+                        : 'bg-line/60'
+                    }`}
+                  />
+                </div>
+              );
+            })}
+          </div>
 
-      {/* Hour axis labels (every 4 hours: 12 AM, 4 AM, 8 AM, 12 PM, 4 PM, 8 PM) */}
-      <div className="flex justify-between text-[11px] font-mono text-muted px-1">
-        <span>12 AM</span>
-        <span>4 AM</span>
-        <span>8 AM</span>
-        <span>12 PM</span>
-        <span>4 PM</span>
-        <span>8 PM</span>
-        <span>11 PM</span>
+          {/* Hour axis labels (every 4 hours: 12 AM, 4 AM, 8 AM, 12 PM, 4 PM, 8 PM) */}
+          <div className="flex justify-between text-[11px] font-mono text-muted px-1 mt-1">
+            <span>12 AM</span>
+            <span>4 AM</span>
+            <span>8 AM</span>
+            <span>12 PM</span>
+            <span>4 PM</span>
+            <span>8 PM</span>
+            <span>11 PM</span>
+          </div>
+        </div>
       </div>
     </div>
   );
