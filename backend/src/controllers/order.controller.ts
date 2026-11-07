@@ -184,7 +184,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
  */
 export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
   const { userId } = (req as AuthRequest).user!;
-  const orders = await Order.find({ studentId: userId }).sort({ createdAt: -1 });
+  const orders = await Order.find({ studentId: userId }).sort({ createdAt: -1 }).lean();
   res.json({ success: true, data: orders });
 });
 

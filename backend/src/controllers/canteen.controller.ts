@@ -10,7 +10,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
  * Lists active canteens for students to browse, newest-rated first.
  */
 export const getAllCanteens = asyncHandler(async (_req: Request, res: Response) => {
-  const canteens = await Canteen.find({ isActive: true }).sort({ rating: -1, name: 1 });
+  const canteens = await Canteen.find({ isActive: true }).sort({ rating: -1, name: 1 }).lean();
   res.json({ success: true, data: canteens });
 });
 
@@ -23,7 +23,7 @@ export const getCanteenById = asyncHandler(async (req: Request, res: Response) =
     throw new AppError('Canteen not found', 404);
   }
 
-  const canteen = await Canteen.findById(id);
+  const canteen = await Canteen.findById(id).lean();
   if (!canteen) {
     throw new AppError('Canteen not found', 404);
   }

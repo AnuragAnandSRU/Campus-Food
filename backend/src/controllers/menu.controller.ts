@@ -27,7 +27,7 @@ export const getMenuByCanteen = asyncHandler(async (req: Request, res: Response)
   if (isAvailable !== undefined) filter.isAvailable = isAvailable === 'true';
   if (search) filter.$text = { $search: String(search) };
 
-  const items = await MenuItem.find(filter).sort({ category: 1, name: 1 });
+  const items = await MenuItem.find(filter).sort({ category: 1, name: 1 }).lean();
   res.json({ success: true, data: items });
 });
 
@@ -40,7 +40,7 @@ export const getMenuItemById = asyncHandler(async (req: Request, res: Response) 
     throw new AppError('Menu item not found', 404);
   }
 
-  const item = await MenuItem.findById(id);
+  const item = await MenuItem.findById(id).lean();
   if (!item) {
     throw new AppError('Menu item not found', 404);
   }

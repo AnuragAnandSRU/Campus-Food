@@ -118,6 +118,8 @@ export default function CanteenMenuPage() {
                 <img
                   src={canteen.image}
                   alt={canteen.name}
+                  loading="lazy"
+                  decoding="async"
                   onError={() => setBannerError(true)}
                   className="h-full w-full object-cover"
                 />
