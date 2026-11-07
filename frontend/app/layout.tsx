@@ -4,6 +4,7 @@ import './globals.css';
 import { Providers } from './providers';
 import { Toaster } from 'react-hot-toast';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
+import { OfflineIndicator } from '@/components/offline-indicator';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -46,6 +47,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <PwaInstallPrompt />
+          <OfflineIndicator />
           <Toaster
             position="top-center"
             toastOptions={{

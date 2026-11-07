@@ -27,13 +27,19 @@ export function PwaInstallPrompt() {
     user?.role === 'admin' || user?.role === 'owner' || user?.role === 'staff';
 
   useEffect(() => {
-    // Register service worker if supported
+    // Register service worker if supported (handles cases where window.load already fired before mount)
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      const registerSW = () => {
         navigator.serviceWorker.register('/sw.js').catch((err) => {
           console.warn('SW registration failed:', err);
         });
-      });
+      };
+
+      if (document.readyState === 'complete') {
+        registerSW();
+      } else {
+        window.addEventListener('load', registerSW);
+      }
     }
 
     // Check if already in standalone mode (already installed as PWA)

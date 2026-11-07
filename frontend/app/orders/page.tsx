@@ -98,7 +98,7 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <main className="mx-auto max-w-2xl px-6 py-8">
+      <main className="mx-auto max-w-2xl px-6 pt-8 pb-24 sm:pb-12">
         <Breadcrumbs
           items={[
             { label: 'Home', href: '/' },
