@@ -1,6 +1,6 @@
 # 🎯 Project Status
 
-**Last updated:** 2026-10-13
+**Last updated:** 2026-11-09
 
 **Where we are:** Phases 1–4 of the 8-phase [roadmap](ROADMAP.md) are built and
 working — roughly half the project. The whole order path (browse → cart →
@@ -58,16 +58,47 @@ controlled access, so this grew into:
 - Elevated delivery handover PIN pulse and runner arrival banner for `out_for_delivery`
 - Canteen `totalOrders` counter atomic increment and BSON type-safe rating aggregation
 
+### Analytics & Canteen Owner Dashboard — Phase 5
+- Midnight-aligned campus date partitioning (`Asia/Kolkata` UTC+5:30)
+- Realized vs. in-flight revenue segregation
+- Order prep time outlier clamping (1–180 minutes)
+- Peak 24-hour hourly order demand distribution
+- Top-selling menu items by revenue and quantity
+- Blob-based CSV financial export with Excel UTF-8 BOM (`\uFEFF`)
+- 60-second real-time auto-polling
+
+### Polish, Performance & Security — Phase 6
+- Kitchen audio chime & background tab alert (Web Audio API)
+- 1-Click Reorder & order history filters/search
+- 5-Star post-delivery rating system with dynamic canteen score aggregation
+- Headless PWA lifecycle & discreet Add-to-Home-Screen header/profile triggers
+- User-scoped Cart Vault (isolated persistent carts per student account)
+- Compound B-tree database indexing & `.lean()` query optimizations
+- Multi-tier rate limiting (Global 150 req/min, Auth 15 attempts/15min, Email 5 req/hr)
+- NoSQL injection recursive operator stripping middleware
+- Production-tuned Helmet security headers (HSTS, nosniff, SAMEORIGIN, CORP)
+
+### Production Deployment & Operations — Phase 8
+- AWS EC2 production backend (`16.113.19.64`, ap-south-2 Hyderabad)
+- Domain & SSL: `https://campusfood.duckdns.org` (Let's Encrypt / Certbot timer active)
+- Vercel production frontend: `https://campus-food-lime.vercel.app` (CI/CD active)
+- Reliability & monitoring: PM2 daemon with `pm2-logrotate`, 1GB swapfile, `/health` probe
+- Verified superadmin access (`anuraganand.sru@gmail.com` & `kpranjal2222@gmail.com`)
+
 ---
 
-## ⬜ Not started yet
+## 📋 Scope Status
 
-| Phase | What it covers |
-|---|---|
-| 5. Analytics & owner dashboard | Sales / popular-items / revenue reports (route stub exists, no logic yet) |
-| 6. Polish & optimization | PWA, push notifications, ratings, caching, rate-limiting, security headers |
-| 7. Payment | Online payment — deliberately last; COD for now (schema already payment-ready) |
-| 8. Deployment | 🟡 In progress — EC2 backend + SSL (campusfood.duckdns.org), Vercel frontend (campus-food-lime.vercel.app) |
+| Phase | What it covers | Status |
+|---|---|---|
+| 1. Authentication & Access | 3-door sign-in, verification, session security | ✅ Complete |
+| 2. Canteens & Menu | Canteen management, menu CRUD, S3 upload | ✅ Complete |
+| 3. Cart & Ordering | Multi-item cart, live checkout, boundary validation | ✅ Complete |
+| 4. Order Tracking & Staff | Real-time tracking, live kitchen dashboard, PIN | ✅ Complete |
+| 5. Analytics & Owner Reports | Financial KPIs, charts, CSV export, auto-polling | ✅ Complete |
+| 6. Polish, Performance & Security | PWA, audio chime, rate-limiting, NoSQL sanitizer | ✅ Complete |
+| 7. Payment | Online payment (Razorpay) — COD active; deferred | ⏸️ Deferred |
+| 8. Deployment & Handover | AWS EC2, Vercel, SSL, PM2, swap, superadmins | ✅ Complete |
 
 ---
 

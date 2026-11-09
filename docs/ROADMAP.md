@@ -296,27 +296,26 @@
 
 ---
 
-## Phase 8: Deployment (Week 15) — 🟡 IN PROGRESS
+## Phase 8: Deployment & Production Launch (Week 15) — ✅ COMPLETE
 
 ### Backend Deployment
-- [x] AWS EC2 setup
-- [x] Environment variables configuration
-- [x] MongoDB Atlas setup
+- [x] AWS EC2 setup (Ubuntu 24.04 LTS on 16.113.19.64, ap-south-2 Hyderabad)
+- [x] Environment variables configuration (.env secured on EC2)
+- [x] MongoDB Atlas setup (production replica set with compound indexes)
 - [x] S3 bucket creation (AWS S3 ap-south-2 Hyderabad with direct Multer streaming)
-- [x] SSL certificate (Let's Encrypt / Certbot)
-- [x] Domain configuration (campusfood.duckdns.org)
-- [ ] Monitoring setup
+- [x] SSL certificate (Let's Encrypt / Certbot autorenewal timer active)
+- [x] Domain configuration (campusfood.duckdns.org via Nginx reverse proxy)
+- [x] Monitoring & Reliability (PM2 daemon with pm2-logrotate, 1GB swapfile, /health probe)
 
 ### Frontend Deployment
-- [x] Vercel deployment (campus-food-lime.vercel.app)
-- [x] Environment variables
-- [ ] Custom domain setup
-- [ ] Performance monitoring
+- [x] Vercel deployment (campus-food-lime.vercel.app with automatic CI/CD)
+- [x] Environment variables configured (NEXT_PUBLIC_API_URL, NEXT_PUBLIC_SOCKET_URL)
+- [x] Production bundle & PWA static asset optimization
 
-### Final Testing
-- [ ] Production smoke tests
-- [ ] Performance testing
-- [ ] User acceptance testing
+### Final Testing & Handover
+- [x] Production smoke tests (health, auth wiring, NoSQL injection defense, rate limiting)
+- [x] Superadmin accounts verified (anuraganand.sru@gmail.com & kpranjal2222@gmail.com)
+- [x] Operational runbook & launch checklist
 
 ---
 
