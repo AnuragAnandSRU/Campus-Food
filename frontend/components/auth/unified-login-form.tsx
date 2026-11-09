@@ -68,19 +68,23 @@ export function UnifiedLoginForm({ initialRole = 'student' }: UnifiedLoginFormPr
     }
   }
 
-  function fillDemo(type: 'student' | 'owner_spice' | 'owner_green') {
+  function fillDemo(type: 'student' | 'owner' | 'kitchen' | 'delivery') {
     if (type === 'student') {
       setRole('student');
       setForm({ email: 'demo.student@college.edu', password: 'testpass123' });
       toast.success('Filled Student demo credentials');
-    } else if (type === 'owner_spice') {
+    } else if (type === 'owner') {
       setRole('partner');
       setForm({ email: 'owner.spice@campusfood.local', password: 'demo12345' });
       toast.success('Filled Spice Junction Owner credentials');
-    } else {
+    } else if (type === 'kitchen') {
       setRole('partner');
-      setForm({ email: 'owner.green@campusfood.local', password: 'demo12345' });
-      toast.success('Filled Green Bowl Owner credentials');
+      setForm({ email: 'kitchen.spice@campusfood.local', password: 'demo12345' });
+      toast.success('Filled Spice Kitchen Staff credentials');
+    } else if (type === 'delivery') {
+      setRole('partner');
+      setForm({ email: 'delivery.spice@campusfood.local', password: 'demo12345' });
+      toast.success('Filled Spice Delivery Runner credentials');
     }
     setErrors({});
   }
@@ -225,17 +229,24 @@ export function UnifiedLoginForm({ initialRole = 'student' }: UnifiedLoginFormPr
           </button>
           <button
             type="button"
-            onClick={() => fillDemo('owner_spice')}
+            onClick={() => fillDemo('owner')}
             className="px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-50 text-amber-800 hover:bg-amber-100 transition-colors border border-amber-200 cursor-pointer"
           >
-            🌶️ Spice Junction Owner
+            🏪 Spice Owner
           </button>
           <button
             type="button"
-            onClick={() => fillDemo('owner_green')}
-            className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition-colors border border-emerald-200 cursor-pointer"
+            onClick={() => fillDemo('kitchen')}
+            className="px-2.5 py-1 rounded-lg text-xs font-medium bg-orange-50 text-orange-800 hover:bg-orange-100 transition-colors border border-orange-200 cursor-pointer"
           >
-            🥗 Green Bowl Owner
+            🍳 Kitchen Staff
+          </button>
+          <button
+            type="button"
+            onClick={() => fillDemo('delivery')}
+            className="px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-800 hover:bg-blue-100 transition-colors border border-blue-200 cursor-pointer"
+          >
+            🛵 Delivery Runner
           </button>
         </div>
       </div>
