@@ -23,6 +23,9 @@ import uploadRoutes from './routes/upload.routes';
  */
 export const app: Application = express();
 
+// Trust first reverse proxy (Nginx) for accurate per-client IP rate limiting
+app.set('trust proxy', 1);
+
 // Production-hardened security headers
 app.use(
   helmet({

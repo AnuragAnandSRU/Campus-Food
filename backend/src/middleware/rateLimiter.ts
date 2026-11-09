@@ -46,3 +46,4 @@ export const emailLimiter = rateLimit({
     message: 'Too many email requests. Please check your spam folder or try again in an hour.',
   },
 });
+
