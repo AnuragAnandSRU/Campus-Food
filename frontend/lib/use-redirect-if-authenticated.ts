@@ -3,11 +3,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
+import { getSafeRedirectForRole, readStoredAuth } from '@/lib/role-routing';
 
 /**
- * Industry-standard guard for public auth pages (/login, /partner, /register).
- * If a user is already authenticated with a valid session:
- * Immediately redirect them to their proper home screen using router.replace.
+ * Guard for public auth pages (`/login`, `/partner`, `/register`, `/admin/login`).
+ * If a user already has an active session, sends them straight to the safe
+ * destination for their role (validating any `?redirect=` param).
  */
 export function useRedirectIfAuthenticated() {
   const router = useRouter();
@@ -15,34 +16,12 @@ export function useRedirectIfAuthenticated() {
   const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
-    let currentUser = user;
-    if (!currentUser && typeof window !== 'undefined') {
-      const savedUser = localStorage.getItem('user');
-      if (savedUser) {
-        try {
-          currentUser = JSON.parse(savedUser);
-        } catch {}
-      }
-    }
-
-    const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token');
-    const isAuthed = isAuthenticated || hasToken;
+    const { isAuthed, user: currentUser } = readStoredAuth();
 
     if (isAuthed && currentUser) {
       const params = new URLSearchParams(window.location.search);
-      const redirect = params.get('redirect');
-      if (redirect) {
-        router.replace(redirect);
-        return;
-      }
-
-      if (currentUser.role === 'admin') {
-        router.replace('/admin');
-      } else if (currentUser.role === 'staff' || currentUser.role === 'owner') {
-        router.replace('/dashboard');
-      } else {
-        router.replace('/canteens');
-      }
+      const target = getSafeRedirectForRole(params.get('redirect'), currentUser.role);
+      router.replace(target);
     }
   }, [isAuthenticated, user, router]);
 

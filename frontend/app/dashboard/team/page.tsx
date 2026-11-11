@@ -9,7 +9,7 @@ import { OwnerStaffManager } from '@/components/dashboard/owner-staff-manager';
 
 /**
  * Owner-only screen to manage their canteen's staff (invite / resend / remove).
- * Staff are bounced to /partner by the role guard; the real UI lives in
+ * Staff are bounced to /unauthorized by the role guard; the real UI lives in
  * <OwnerStaffManager>.
  */
 export default function OwnerTeamPage() {

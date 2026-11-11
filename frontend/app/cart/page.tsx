@@ -10,6 +10,7 @@ import { menuApi } from '@/lib/api/menu';
 import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { formatCurrency } from '@/lib/utils';
+import { ConsumerRouteGuard } from '@/components/consumer-route-guard';
 
 export default function CartPage() {
   const [mounted, setMounted] = useState(false);
@@ -73,7 +74,8 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <ConsumerRouteGuard>
+      <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="mx-auto max-w-2xl px-6 py-8">
         <Breadcrumbs
@@ -235,6 +237,7 @@ export default function CartPage() {
           </>
         )}
       </main>
-    </div>
+      </div>
+    </ConsumerRouteGuard>
   );
 }

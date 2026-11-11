@@ -10,8 +10,8 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { OwnerCanteenForm } from '@/components/dashboard/owner-canteen-form';
 
 /**
- * Owner-only screen to edit their own canteen. Staff are bounced to /partner by
- * the role guard; the real form lives in <OwnerCanteenForm>.
+ * Owner-only screen to edit their own canteen. Staff are bounced to /unauthorized
+ * by the role guard; the real form lives in <OwnerCanteenForm>.
  */
 export default function OwnerCanteenPage() {
   const ready = useRequireRole(['owner'], '/partner');

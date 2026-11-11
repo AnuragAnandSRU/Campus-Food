@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { authApi } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/api-client';
+import { getRoleHomePath, getRoleLoginPath } from '@/lib/role-routing';
 import { useAuthStore } from '@/store/auth-store';
 
 type Status = 'verifying' | 'success' | 'error' | 'info';
@@ -47,7 +48,7 @@ export function VerifyEmailClient({ token }: { token?: string }) {
         setStatus('error');
       }
     })();
-  }, [token, setUser]);
+  }, [token, setAuth, setUser]);
 
   if (status === 'verifying') {
     return (
@@ -64,6 +65,15 @@ export function VerifyEmailClient({ token }: { token?: string }) {
     );
   }
 
+  const verifiedRole = user?.role ?? 'student';
+  const successHome = getRoleHomePath(verifiedRole);
+  const successCtaLabel =
+    verifiedRole === 'admin'
+      ? 'Open Admin Console'
+      : verifiedRole === 'owner' || verifiedRole === 'staff'
+        ? 'Open Dashboard'
+        : 'Start ordering';
+
   if (status === 'success') {
     return (
       <>
@@ -74,11 +84,12 @@ export function VerifyEmailClient({ token }: { token?: string }) {
           You&apos;re all <em className="not-italic text-accent">set</em>
         </h1>
         <p className="mt-3 font-light text-muted">
-          Your email is verified. You can now place orders and have them delivered
-          to your room.
+          {verifiedRole === 'student'
+            ? 'Your email is verified. You can now place orders and have them delivered to your room.'
+            : 'Your email is verified. Your account is ready to use.'}
         </p>
-        <Link href="/" className="btn btn-primary mt-8 inline-flex">
-          Start ordering
+        <Link href={successHome} className="btn btn-primary mt-8 inline-flex">
+          {successCtaLabel}
         </Link>
       </>
     );
@@ -94,7 +105,7 @@ export function VerifyEmailClient({ token }: { token?: string }) {
           Verification <em className="not-italic text-accent">failed</em>
         </h1>
         <p className="mt-3 font-light text-muted">{message}</p>
-        <Link href="/login" className="btn btn-secondary mt-8 inline-flex">
+        <Link href={getRoleLoginPath(user?.role)} className="btn btn-secondary mt-8 inline-flex">
           Back to sign in
         </Link>
       </>
@@ -121,8 +132,11 @@ export function VerifyEmailClient({ token }: { token?: string }) {
           <>We&apos;ve sent you a verification link. Open it to activate your account.</>
         )}
       </p>
-      <Link href="/" className="btn btn-secondary mt-8 inline-flex">
-        Go to home
+      <Link
+        href={user ? getRoleHomePath(user.role) : '/login'}
+        className="btn btn-secondary mt-8 inline-flex"
+      >
+        {user ? 'Continue to Campus Food' : 'Go to sign in'}
       </Link>
     </>
   );

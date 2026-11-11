@@ -22,6 +22,9 @@ export default function AdminLoginPage() {
           }
           subtitle="Restricted access. Sign in with your administrator account."
           defaultRedirect="/admin"
+          emailLabel="Admin Email"
+          emailPlaceholder="admin@sru.edu.in"
+          forgotDoor="admin"
           showForgot={true}
         />
       </div>

@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { authApi } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { useAuthStore } from '@/store/auth-store';
+import { getRoleHomePath } from '@/lib/role-routing';
 import { Field } from '@/components/auth/field';
 import { SubmitButton } from '@/components/auth/submit-button';
 
@@ -45,13 +46,7 @@ export function AcceptInviteForm({ token }: { token: string }) {
       const { user, token: authToken } = await authApi.acceptInvite(token, form.password);
       setAuth(user, authToken);
       toast.success(`Welcome to Campus Food, ${user.name.split(' ')[0]}!`);
-      const home =
-        user.role === 'admin'
-          ? '/admin'
-          : user.role === 'staff' || user.role === 'owner'
-            ? '/dashboard'
-            : '/';
-      router.replace(home);
+      router.replace(getRoleHomePath(user.role));
     } catch (err) {
       toast.error(
         getApiErrorMessage(err, 'This invitation may have expired. Ask your admin to resend it.')

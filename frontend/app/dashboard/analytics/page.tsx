@@ -15,7 +15,7 @@ import { PopularItemsCard } from '@/components/analytics/popular-items-card';
 import { formatCurrency } from '@/lib/utils';
 
 export default function AnalyticsPage() {
-  const ready = useRequireRole(['staff', 'owner', 'admin'], '/partner');
+  const ready = useRequireRole(['staff', 'owner'], '/partner');
   const user = useAuthStore((s) => s.user);
   const canteenId = user?.canteenId;
 
@@ -27,7 +27,6 @@ export default function AnalyticsPage() {
       : 'Asia/Kolkata';
 
   const canView =
-    user?.role === 'admin' ||
     user?.role === 'owner' ||
     Boolean(user?.permissions?.includes('view_analytics'));
 
@@ -40,26 +39,26 @@ export default function AnalyticsPage() {
   const statsQuery = useQuery({
     queryKey: ['analytics-dashboard', canteenId, timezone],
     queryFn: () => analyticsApi.getDashboardStats(canteenId, timezone),
-    enabled: ready && canView && Boolean(canteenId || user?.role === 'admin'),
+    enabled: ready && canView && Boolean(canteenId),
     refetchInterval: 60000,
   });
 
   const salesQuery = useQuery({
     queryKey: ['analytics-sales', canteenId, days, timezone],
     queryFn: () => analyticsApi.getSales(days, canteenId, timezone),
-    enabled: ready && canView && Boolean(canteenId || user?.role === 'admin'),
+    enabled: ready && canView && Boolean(canteenId),
   });
 
   const popularQuery = useQuery({
     queryKey: ['analytics-popular', canteenId, days],
     queryFn: () => analyticsApi.getPopularItems(5, canteenId, days),
-    enabled: ready && canView && Boolean(canteenId || user?.role === 'admin'),
+    enabled: ready && canView && Boolean(canteenId),
   });
 
   const timelineQuery = useQuery({
     queryKey: ['analytics-timeline', canteenId, days, timezone],
     queryFn: () => analyticsApi.getOrdersTimeline(canteenId, timezone, days),
-    enabled: ready && canView && Boolean(canteenId || user?.role === 'admin'),
+    enabled: ready && canView && Boolean(canteenId),
   });
 
   function exportCSV() {
@@ -124,7 +123,7 @@ export default function AnalyticsPage() {
     );
   }
 
-  if (ready && !canteenId && user?.role !== 'admin') {
+  if (ready && !canteenId) {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />

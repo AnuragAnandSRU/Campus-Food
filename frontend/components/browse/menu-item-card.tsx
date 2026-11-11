@@ -6,6 +6,8 @@ import { VegIndicator } from './veg-indicator';
 import { AddToCart } from './add-to-cart';
 import { formatCurrency } from '@/lib/utils';
 import { useFavorites } from '@/lib/use-favorites';
+import { useAuthStore } from '@/store/auth-store';
+import { useIsClient } from '@/lib/use-client-state';
 
 /**
  * A single dish row on a canteen's menu, with its add-to-cart control and 1-tap favorites heart.
@@ -20,28 +22,33 @@ export function MenuItemCard({
   isOrderingAllowed?: boolean;
 }) {
   const { isFavorite, toggle } = useFavorites();
+  const user = useAuthStore((s) => s.user);
+  const mounted = useIsClient();
+
+  const showFavorite = !mounted || !user || user.role === 'student';
   const favorite = isFavorite(item._id);
   const [imgError, setImgError] = useState(false);
 
   return (
     <div
-      className={`card flex items-start justify-between gap-4 p-4 transition-all hover:shadow-sm ${
-        item.isAvailable && isOrderingAllowed ? '' : 'opacity-60'
-      }`}
+      className={`card flex items-start justify-between gap-4 p-4 transition-all hover:shadow-sm ${item.isAvailable && isOrderingAllowed ? '' : 'opacity-60'
+        }`}
     >
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <VegIndicator isVeg={item.isVeg} />
           <h4 className="font-display font-semibold text-ink">{item.name}</h4>
-          <button
-            type="button"
-            onClick={() => toggle(item._id, item.name)}
-            title={favorite ? 'Remove from favorites' : 'Save to favorites'}
-            aria-label={favorite ? 'Remove from favorites' : 'Save to favorites'}
-            className="text-base transition-transform hover:scale-125 focus:outline-none cursor-pointer p-0.5 ml-1"
-          >
-            <span>{favorite ? '❤️' : '🤍'}</span>
-          </button>
+          {showFavorite && (
+            <button
+              type="button"
+              onClick={() => toggle(item._id, item.name)}
+              title={favorite ? 'Remove from favorites' : 'Save to favorites'}
+              aria-label={favorite ? 'Remove from favorites' : 'Save to favorites'}
+              className="text-base transition-transform hover:scale-125 focus:outline-none cursor-pointer p-0.5 ml-1"
+            >
+              <span>{favorite ? '❤️' : '🤍'}</span>
+            </button>
+          )}
         </div>
 
         {item.description && (

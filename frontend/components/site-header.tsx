@@ -101,16 +101,20 @@ export function SiteHeader() {
               <Link href="/dashboard/menu" className="text-muted hover:text-ink transition-colors">
                 Menu
               </Link>
-              <Link href="/dashboard/analytics" className="text-muted hover:text-ink transition-colors">
-                Analytics
-              </Link>
-              <Link href="/dashboard/canteen" className="text-muted hover:text-ink transition-colors">
-                Canteen
-              </Link>
-              {user.role === 'owner' && (
-                <Link href="/dashboard/team" className="text-muted hover:text-ink transition-colors">
-                  Team
+              {(user.role === 'owner' || user.permissions?.includes('view_analytics')) && (
+                <Link href="/dashboard/analytics" className="text-muted hover:text-ink transition-colors">
+                  Analytics
                 </Link>
+              )}
+              {user.role === 'owner' && (
+                <>
+                  <Link href="/dashboard/canteen" className="text-muted hover:text-ink transition-colors">
+                    Canteen
+                  </Link>
+                  <Link href="/dashboard/team" className="text-muted hover:text-ink transition-colors">
+                    Team
+                  </Link>
+                </>
               )}
             </>
           )}

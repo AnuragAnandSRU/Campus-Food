@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { orderApi } from '@/lib/api/order';
 import { canteenApi } from '@/lib/api/canteen';
-import { useRequireAuth } from '@/lib/use-require-auth';
+import { useRequireStudent } from '@/lib/use-require-student';
 import { useOrderSocket } from '@/lib/use-order-socket';
 import { useReorder } from '@/lib/use-reorder';
 import { SiteHeader } from '@/components/site-header';
@@ -25,7 +25,7 @@ const ACTIVE_STATUSES: OrderStatus[] = [
 ];
 
 export default function OrdersPage() {
-  const ready = useRequireAuth();
+  const ready = useRequireStudent();
   const queryClient = useQueryClient();
   const { reorder } = useReorder();
 

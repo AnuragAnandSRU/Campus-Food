@@ -1,32 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
+import { readStoredAuth } from '@/lib/role-routing';
+import { useIsClient } from '@/lib/use-client-state';
 
 /**
- * Bulletproof client-side guard for pages that require a signed-in user (checkout, orders).
- * 1. Checks Zustand auth state AND direct localStorage token.
- * 2. Never gets stuck in an infinite loading state.
- * 3. Immediately sets ready=true if authenticated.
- * 4. Redirects cleanly to /login if unauthenticated.
+ * Guard for pages shared by any signed-in role (e.g. `/profile`).
+ * Student-only routes should use `useRequireStudent`; role-scoped workspaces
+ * should use `useRequireRole`.
  */
 export function useRequireAuth(): boolean {
   const router = useRouter();
+  const isClient = useIsClient();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const [ready, setReady] = useState(false);
+  const user = useAuthStore((s) => s.user);
+
+  const auth = isClient ? readStoredAuth() : { isAuthed: false, user: null };
+  const ready = Boolean(isClient && auth.isAuthed && auth.user);
 
   useEffect(() => {
-    const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token');
-    const isAuthed = isAuthenticated || hasToken;
-
-    if (isAuthed) {
-      setReady(true);
-    } else {
+    if (!isClient) return;
+    const current = readStoredAuth();
+    if (!current.isAuthed || !current.user) {
       const path = window.location.pathname + window.location.search;
       router.replace(`/login?redirect=${encodeURIComponent(path)}`);
     }
-  }, [isAuthenticated, router]);
+  }, [isClient, isAuthenticated, user, router]);
 
   return ready;
 }

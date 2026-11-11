@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { orderApi } from '@/lib/api/order';
 import { canteenApi } from '@/lib/api/canteen';
 import { getApiErrorMessage } from '@/lib/api-client';
-import { useRequireAuth } from '@/lib/use-require-auth';
+import { useRequireStudent } from '@/lib/use-require-student';
 import { useAuthStore } from '@/store/auth-store';
 import { useOrderSocket } from '@/lib/use-order-socket';
 import { useReorder } from '@/lib/use-reorder';
@@ -19,7 +19,7 @@ import { OrderRatingCard } from '@/components/orders/order-rating-card';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
 
 export default function OrderDetailPage() {
-  const ready = useRequireAuth();
+  const ready = useRequireStudent();
   const params = useParams<{ id: string }>();
   const id = params.id;
   const queryClient = useQueryClient();

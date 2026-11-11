@@ -1,42 +1,34 @@
 'use client';
 
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/auth-store';
 import { useCartStore } from '@/store/cart-store';
 import { disconnectSocket } from '@/lib/socket';
+import { getRoleLoginPath, readStoredAuth } from '@/lib/role-routing';
 
 /**
  * Industry-standard logout hook:
- * 1. Disconnects Socket.io WebSocket connections immediately.
- * 2. Purges React Query cache so no user data remains in memory.
- * 3. Wipes auth state and localStorage tokens.
- * 4. Navigates cleanly to the appropriate login door (replace history, no back-forward loop).
- * 5. Shows a clean user feedback toast.
+ * 1. Captures the authenticated role BEFORE wiping auth state.
+ * 2. Disconnects Socket.io and clears React Query / cart / auth caches.
+ * 3. Always routes back to the role's dedicated sign-in door
+ *    (admin -> /admin/login, owner/staff -> /partner, student -> /login).
  */
 export function useLogout() {
   const router = useRouter();
-  const pathname = usePathname();
   const queryClient = useQueryClient();
   const logout = useAuthStore((s) => s.logout);
 
   return function handleLogout(redirectPath?: string) {
+    const role = readStoredAuth().user?.role;
+
     disconnectSocket();
     queryClient.clear();
     useCartStore.getState().switchUser(null);
     logout();
 
-    let target = redirectPath;
-    if (!target) {
-      if (pathname?.startsWith('/admin')) {
-        target = '/admin/login';
-      } else if (pathname?.startsWith('/dashboard')) {
-        target = '/partner';
-      } else {
-        target = '/login';
-      }
-    }
+    const target = redirectPath || getRoleLoginPath(role);
 
     toast.success('Logged out successfully');
     router.replace(target);

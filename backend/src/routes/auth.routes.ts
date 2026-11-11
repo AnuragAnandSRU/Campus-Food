@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { protect } from '../middleware/auth.middleware';
+import { protect, restrictTo } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate';
 import { authLimiter, emailLimiter } from '../middleware/rateLimiter';
 import {
@@ -45,9 +45,9 @@ router.get('/me', protect, getMe);
 router.patch('/profile', protect, updateProfileValidator, validate, updateProfile);
 router.post('/change-password', protect, changePasswordValidator, validate, changePassword);
 
-// Favorites endpoints
-router.get('/favorites', protect, getFavorites);
-router.post('/favorites/:menuItemId', protect, toggleFavorite);
+// Favorites endpoints (students only)
+router.get('/favorites', protect, restrictTo('student'), getFavorites);
+router.post('/favorites/:menuItemId', protect, restrictTo('student'), toggleFavorite);
 
 router.post('/logout', protect, logout);
 

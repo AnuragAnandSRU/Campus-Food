@@ -102,9 +102,16 @@ export const sendVerificationEmail = async (
 export const sendPasswordResetEmail = async (
   to: string,
   name: string,
-  rawToken: string
+  rawToken: string,
+  role?: 'student' | 'staff' | 'owner' | 'admin'
 ): Promise<void> => {
-  const url = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${rawToken}`;
+  const doorParam =
+    role === 'admin'
+      ? '&door=admin'
+      : role === 'owner' || role === 'staff'
+        ? '&door=partner'
+        : '';
+  const url = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${rawToken}${doorParam}`;
   await sendEmail({
     to,
     subject: 'Reset your Campus Food password',

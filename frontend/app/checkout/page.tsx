@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useCartStore } from '@/store/cart-store';
 import { useAuthStore } from '@/store/auth-store';
-import { useRequireAuth } from '@/lib/use-require-auth';
+import { useRequireStudent } from '@/lib/use-require-student';
 import { orderApi } from '@/lib/api/order';
 import { canteenApi } from '@/lib/api/canteen';
 import { menuApi } from '@/lib/api/menu';
@@ -18,7 +18,7 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { formatCurrency, isCanteenOpen } from '@/lib/utils';
 
 export default function CheckoutPage() {
-  const ready = useRequireAuth();
+  const ready = useRequireStudent();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);

@@ -12,6 +12,7 @@ import { isCanteenOpen, formatCurrency } from '@/lib/utils';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { useCartStore } from '@/store/cart-store';
 import { useAuthStore } from '@/store/auth-store';
+import { ConsumerRouteGuard } from '@/components/consumer-route-guard';
 
 const CATEGORY_ORDER = [
   'Breakfast',
@@ -84,7 +85,8 @@ export default function CanteenMenuPage() {
   const isOrderingAllowed = Boolean(canteen?.isActive && open);
 
   return (
-    <div className="min-h-screen bg-background">
+    <ConsumerRouteGuard>
+      <div className="min-h-screen bg-background">
       <SiteHeader />
 
       <main className={`mx-auto max-w-4xl px-6 py-8 ${hasCartHere ? 'pb-24 sm:pb-28' : ''}`}>
@@ -257,7 +259,8 @@ export default function CanteenMenuPage() {
           </div>
         </aside>
       )}
-    </div>
+      </div>
+    </ConsumerRouteGuard>
   );
 }
 

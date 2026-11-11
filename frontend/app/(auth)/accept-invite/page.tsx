@@ -24,8 +24,8 @@ export default async function AcceptInvitePage({
           This invitation link is missing or malformed. Ask your administrator to
           resend your invite — links expire for security.
         </p>
-        <Link href="/login" className="btn btn-primary mt-8 inline-flex">
-          Go to sign in
+        <Link href="/partner" className="btn btn-primary mt-8 inline-flex">
+          Go to Partner sign in
         </Link>
       </>
     );

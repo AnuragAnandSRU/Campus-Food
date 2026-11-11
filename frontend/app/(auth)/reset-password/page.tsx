@@ -7,9 +7,13 @@ import { ResetPasswordForm } from './reset-form';
 export default async function ResetPasswordPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string }>;
+  searchParams: Promise<{ token?: string; door?: string }>;
 }) {
-  const { token } = await searchParams;
+  const { token, door } = await searchParams;
+  const forgotHref =
+    door === 'admin' || door === 'partner'
+      ? `/forgot-password?door=${door}`
+      : '/forgot-password';
 
   if (!token) {
     return (
@@ -24,7 +28,7 @@ export default async function ResetPasswordPage({
           This password reset link is missing or malformed. Please request a new
           one — links expire for your security.
         </p>
-        <Link href="/forgot-password" className="btn btn-primary mt-8 inline-flex">
+        <Link href={forgotHref} className="btn btn-primary mt-8 inline-flex">
           Request a new link
         </Link>
       </>

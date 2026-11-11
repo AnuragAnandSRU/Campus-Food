@@ -19,6 +19,10 @@ export function useFavorites() {
         return;
       }
 
+      if (user.role !== 'student') {
+        return;
+      }
+
       // Optimistic local update
       const nowFavorite = toggleFavoriteLocal(menuItemId);
       if (dishName) {

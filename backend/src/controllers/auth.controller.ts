@@ -230,7 +230,7 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
     user.resetPasswordToken = hashToken(rawToken);
     user.resetPasswordExpire = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await user.save({ validateBeforeSave: false });
-    await sendPasswordResetEmail(user.email, user.name, rawToken);
+    await sendPasswordResetEmail(user.email, user.name, rawToken, user.role);
   }
 
   res.json({

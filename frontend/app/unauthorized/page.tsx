@@ -1,7 +1,27 @@
+'use client';
+
 import Link from 'next/link';
 import { SiteHeader } from '@/components/site-header';
+import { useAuthStore } from '@/store/auth-store';
+import { useLogout } from '@/lib/use-logout';
+import { getRoleHomePath, isPartnerRole } from '@/lib/role-routing';
+import { useIsClient } from '@/lib/use-client-state';
 
 export default function UnauthorizedPage() {
+  const mounted = useIsClient();
+  const user = useAuthStore((s) => s.user);
+  const handleLogout = useLogout();
+
+  const homeHref = mounted && user ? getRoleHomePath(user.role) : '/';
+  const homeLabel =
+    mounted && user?.role === 'admin'
+      ? 'Go to Admin Console'
+      : mounted && isPartnerRole(user?.role)
+        ? 'Go to Dashboard'
+        : mounted && user?.role === 'student'
+          ? 'Browse Canteens'
+          : 'Back to Home';
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SiteHeader />
@@ -16,20 +36,37 @@ export default function UnauthorizedPage() {
           </h1>
 
           <p className="mt-2 text-sm text-muted leading-relaxed">
-            You do not have permission to access this page. Please sign in with an account that has the required permissions.
+            {mounted && user ? (
+              <>
+                Your account (
+                <span className="font-medium text-ink capitalize">{user.role}</span>)
+                does not have permission to open this area.
+              </>
+            ) : (
+              'You do not have permission to access this page. Please sign in with an authorized account.'
+            )}
           </p>
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/" className="btn btn-secondary px-5 py-2 text-sm">
-              Back to Home
+            <Link href={homeHref} className="btn btn-primary px-5 py-2 text-sm">
+              {homeLabel}
             </Link>
-            <Link href="/canteens" className="btn btn-primary px-5 py-2 text-sm">
-              Browse Canteens
-            </Link>
+            {mounted && user ? (
+              <button
+                type="button"
+                onClick={() => handleLogout()}
+                className="btn btn-secondary px-5 py-2 text-sm cursor-pointer"
+              >
+                Sign out
+              </button>
+            ) : (
+              <Link href="/login" className="btn btn-secondary px-5 py-2 text-sm">
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
       </main>
     </div>
   );
 }
-

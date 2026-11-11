@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { authApi } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/api-client';
+import type { PortalDoor } from '@/lib/role-routing';
+import { useClientSearchParam } from '@/lib/use-client-state';
 import { Field } from '@/components/auth/field';
 import { SubmitButton } from '@/components/auth/submit-button';
 
@@ -13,16 +15,18 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState<string>();
   const [pending, setPending] = useState(false);
   const [sent, setSent] = useState(false);
-  const [isAdminDoor, setIsAdminDoor] = useState(false);
+  const doorParam = useClientSearchParam('door');
+  const door: PortalDoor =
+    doorParam === 'admin' || doorParam === 'partner' ? doorParam : 'student';
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setIsAdminDoor(new URLSearchParams(window.location.search).get('door') === 'admin');
-    }
-  }, []);
-
-  const backLink = isAdminDoor ? '/admin/login' : '/login';
-  const backLabel = isAdminDoor ? 'Back to Admin sign in' : 'Back to sign in';
+  const backLink =
+    door === 'admin' ? '/admin/login' : door === 'partner' ? '/partner' : '/login';
+  const backLabel =
+    door === 'admin'
+      ? 'Back to Admin sign in'
+      : door === 'partner'
+        ? 'Back to Partner sign in'
+        : 'Back to sign in';
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -87,7 +91,13 @@ export default function ForgotPasswordPage() {
           name="email"
           type="email"
           autoComplete="email"
-          placeholder={isAdminDoor ? 'admin@sru.edu.in' : 'you@college.edu'}
+          placeholder={
+            door === 'admin'
+              ? 'admin@sru.edu.in'
+              : door === 'partner'
+                ? 'owner.spice@campusfood.local'
+                : 'you@college.edu'
+          }
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           error={error}

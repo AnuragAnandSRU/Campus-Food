@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { canteenApi } from '@/lib/api/canteen';
 import { SiteHeader } from '@/components/site-header';
 import { CanteenCard } from '@/components/browse/canteen-card';
+import { ConsumerRouteGuard } from '@/components/consumer-route-guard';
 
 export default function CanteensPage() {
   const [search, setSearch] = useState('');
@@ -33,7 +34,8 @@ export default function CanteensPage() {
     : [];
 
   return (
-    <div className="min-h-screen bg-background">
+    <ConsumerRouteGuard>
+      <div className="min-h-screen bg-background">
       <SiteHeader />
 
       <main className="mx-auto max-w-6xl px-6 py-10">
@@ -108,7 +110,8 @@ export default function CanteensPage() {
           </div>
         )}
       </main>
-    </div>
+      </div>
+    </ConsumerRouteGuard>
   );
 }
 

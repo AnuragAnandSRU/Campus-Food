@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useCartStore } from './cart-store';
 
-interface User {
+export interface User {
   _id: string;
   email: string;
   name: string;

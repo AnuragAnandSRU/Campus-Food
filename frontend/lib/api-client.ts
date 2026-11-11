@@ -1,4 +1,11 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
+import { useAuthStore } from '@/store/auth-store';
+import {
+  getLoginPathForPathname,
+  getRoleLoginPath,
+  isPathAllowedForRole,
+  readStoredAuth,
+} from '@/lib/role-routing';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -40,21 +47,25 @@ apiClient.interceptors.response.use(
       !isAuthRequest &&
       typeof window !== 'undefined'
     ) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('auth-storage');
+      const storedRole = readStoredAuth().user?.role;
+      useAuthStore.getState().logout();
       localStorage.removeItem('cart-storage');
 
-      // Send the user back to the door that matches the area they were in, so a
-      // partner/admin isn't dumped on the student sign-in (hard separation).
+      // Prefer the user's actual role door over URL heuristics so admins/partners
+      // on `/profile` or `/` are never dropped onto the student sign-in page.
       const current = window.location.pathname;
-      const loginPath = current.startsWith('/admin')
-        ? '/admin/login'
-        : current.startsWith('/partner') || current.startsWith('/dashboard')
-          ? '/partner'
-          : '/login';
+      const loginPath = storedRole
+        ? getRoleLoginPath(storedRole)
+        : getLoginPathForPathname(current);
+
       if (current !== loginPath) {
-        window.location.href = `${loginPath}?redirect=${encodeURIComponent(current)}`;
+        const currentWithQuery = current + window.location.search;
+        const canRestoreHere =
+          !storedRole || isPathAllowedForRole(currentWithQuery, storedRole);
+        const redirectQuery = canRestoreHere
+          ? `?redirect=${encodeURIComponent(currentWithQuery)}`
+          : '';
+        window.location.href = `${loginPath}${redirectQuery}`;
       }
     }
 

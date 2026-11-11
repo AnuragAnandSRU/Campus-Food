@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '@/lib/api/auth';
-import { useRequireAuth } from '@/lib/use-require-auth';
+import { useRequireStudent } from '@/lib/use-require-student';
 import { useFavorites } from '@/lib/use-favorites';
 import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
@@ -14,7 +14,7 @@ import { formatCurrency } from '@/lib/utils';
 import type { MenuItem } from '../../../shared/src/types/menu.types';
 
 export default function FavoritesPage() {
-  const ready = useRequireAuth();
+  const ready = useRequireStudent();
   const queryClient = useQueryClient();
   const { toggle } = useFavorites();
   const [search, setSearch] = useState('');

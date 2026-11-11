@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { authApi } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/api-client';
+import { getRoleLoginPath } from '@/lib/role-routing';
 import { Field } from '@/components/auth/field';
 import { SubmitButton } from '@/components/auth/submit-button';
 
@@ -37,14 +38,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
     try {
       const res = await authApi.resetPassword(token, form.password);
       toast.success('Password updated. Please sign in with your new credentials.');
-
-      let targetDoor = '/login';
-      if (res.role === 'admin') {
-        targetDoor = '/admin/login';
-      } else if (res.role === 'owner' || res.role === 'staff') {
-        targetDoor = '/partner';
-      }
-      router.replace(targetDoor);
+      router.replace(getRoleLoginPath(res.role));
     } catch (err) {
       toast.error(
         getApiErrorMessage(err, 'This link may have expired. Request a new one.')

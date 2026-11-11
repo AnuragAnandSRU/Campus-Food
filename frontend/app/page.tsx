@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { SiteHeader } from '@/components/site-header';
 import { HomeHeroActions } from '@/components/home-hero-actions';
+import { ConsumerRouteGuard } from '@/components/consumer-route-guard';
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <ConsumerRouteGuard>
+      <div className="min-h-screen flex flex-col bg-background">
       <SiteHeader />
 
       <main className="flex-1">
@@ -121,6 +123,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </ConsumerRouteGuard>
   );
 }
