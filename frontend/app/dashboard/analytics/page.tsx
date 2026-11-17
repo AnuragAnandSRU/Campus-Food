@@ -13,6 +13,7 @@ import { SalesChart } from '@/components/analytics/sales-chart';
 import { HourlyChart } from '@/components/analytics/hourly-chart';
 import { PopularItemsCard } from '@/components/analytics/popular-items-card';
 import { formatCurrency } from '@/lib/utils';
+import { ChefHat, Clock, Download, ShoppingBag, TrendingUp } from 'lucide-react';
 
 export default function AnalyticsPage() {
   const ready = useRequireRole(['staff', 'owner'], '/partner');
@@ -192,28 +193,35 @@ export default function AnalyticsPage() {
               className="btn btn-secondary text-xs px-3.5 py-1.5 flex items-center gap-1.5 disabled:opacity-50"
               title="Download CSV export"
             >
-              <span>📥</span> Export CSV
+              <Download className="h-4 w-4 text-accent" />
+              <span>Export CSV</span>
             </button>
           </div>
         </div>
 
         {/* 4 Summary Stat Cards */}
         <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <div className="card p-4">
-            <span className="text-xs uppercase tracking-wider text-muted font-medium">
-              Today&apos;s Revenue
-            </span>
-            <p className="mt-2 font-display text-2xl font-semibold text-ink">
+          <div className="card p-4 sm:p-5">
+            <div className="flex items-center justify-between text-muted">
+              <span className="text-xs uppercase tracking-wider font-semibold">
+                Today&apos;s Revenue
+              </span>
+              <TrendingUp className="h-4 w-4 text-accent" />
+            </div>
+            <p className="mt-2 font-display text-2xl font-bold text-ink tabular-nums">
               {stats ? formatCurrency(stats.todayRevenue) : '—'}
             </p>
             <p className="mt-1 text-xs text-muted">Realized from delivered orders</p>
           </div>
 
-          <div className="card p-4">
-            <span className="text-xs uppercase tracking-wider text-muted font-medium">
-              Today&apos;s Orders
-            </span>
-            <p className="mt-2 font-display text-2xl font-semibold text-accent">
+          <div className="card p-4 sm:p-5">
+            <div className="flex items-center justify-between text-muted">
+              <span className="text-xs uppercase tracking-wider font-semibold">
+                Today&apos;s Orders
+              </span>
+              <ShoppingBag className="h-4 w-4 text-accent" />
+            </div>
+            <p className="mt-2 font-display text-2xl font-bold text-accent tabular-nums">
               {stats ? `${stats.todayOrders} orders` : '—'}
             </p>
             <p className="mt-1 text-xs text-muted">
@@ -223,11 +231,14 @@ export default function AnalyticsPage() {
             </p>
           </div>
 
-          <div className="card p-4">
-            <span className="text-xs uppercase tracking-wider text-muted font-medium">
-              Active In-Kitchen
-            </span>
-            <p className="mt-2 font-display text-2xl font-semibold text-ink">
+          <div className="card p-4 sm:p-5">
+            <div className="flex items-center justify-between text-muted">
+              <span className="text-xs uppercase tracking-wider font-semibold">
+                Active In-Kitchen
+              </span>
+              <ChefHat className="h-4 w-4 text-blue-600" />
+            </div>
+            <p className="mt-2 font-display text-2xl font-bold text-ink tabular-nums">
               {stats ? `${stats.pendingOrders}` : '—'}
             </p>
             <p className="mt-1 text-xs text-muted">
@@ -235,11 +246,14 @@ export default function AnalyticsPage() {
             </p>
           </div>
 
-          <div className="card p-4">
-            <span className="text-xs uppercase tracking-wider text-muted font-medium">
-              Avg. Delivery Time
-            </span>
-            <p className="mt-2 font-display text-2xl font-semibold text-ink">
+          <div className="card p-4 sm:p-5">
+            <div className="flex items-center justify-between text-muted">
+              <span className="text-xs uppercase tracking-wider font-semibold">
+                Avg. Delivery Time
+              </span>
+              <Clock className="h-4 w-4 text-amber-600" />
+            </div>
+            <p className="mt-2 font-display text-2xl font-bold text-ink tabular-nums">
               {stats && stats.averagePreparationTime > 0 ? `${stats.averagePreparationTime} mins` : '—'}
             </p>
             <p className="mt-1 text-xs text-muted">From order to doorstep</p>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
 
 interface BreadcrumbItem {
   label: string;
@@ -11,12 +12,12 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
   return (
-    <nav aria-label="Breadcrumbs" className="mb-6 flex items-center flex-wrap gap-2 text-sm text-muted">
+    <nav aria-label="Breadcrumbs" className="mb-6 flex items-center flex-wrap gap-1.5 text-sm text-muted">
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
 
         return (
-          <div key={item.label} className="flex items-center gap-2">
+          <div key={item.label} className="flex items-center gap-1.5">
             {item.href && !isLast ? (
               <Link
                 href={item.href}
@@ -30,7 +31,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
               </span>
             )}
             {!isLast && (
-              <span className="text-muted/60 select-none">/</span>
+              <ChevronRight className="h-3.5 w-3.5 text-muted/60 select-none" aria-hidden="true" />
             )}
           </div>
         );

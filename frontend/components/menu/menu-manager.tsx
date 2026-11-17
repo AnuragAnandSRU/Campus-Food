@@ -7,6 +7,7 @@ import { menuApi } from '@/lib/api/menu';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { formatCurrency } from '@/lib/utils';
 import { MenuItemForm } from '@/components/menu/menu-item-form';
+import { Plus, Search, X } from 'lucide-react';
 import type { MenuCategory, MenuItem } from '../../../shared/src/types/menu.types';
 
 const CATEGORY_ORDER: MenuCategory[] = [
@@ -63,8 +64,9 @@ export function MenuManager({ canteenId, canManage }: MenuManagerProps) {
           {items.length} {items.length === 1 ? 'item' : 'items'} on the menu
         </p>
         {canManage && !editing && (
-          <button onClick={() => setEditing('new')} className="btn btn-primary">
-            Add item
+          <button onClick={() => setEditing('new')} className="btn btn-primary text-xs sm:text-sm flex items-center gap-1.5 shadow-xs">
+            <Plus className="h-4 w-4" />
+            <span>Add item</span>
           </button>
         )}
       </div>
@@ -79,23 +81,24 @@ export function MenuManager({ canteenId, canManage }: MenuManagerProps) {
 
       {items.length > 0 && !editing && (
         <div className="relative">
+          <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-muted">
+            <Search className="h-4 w-4" />
+          </span>
           <input
-            type="search"
+            type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search dishes by name or category (e.g. Chai, Samosa, Lunch)..."
-            className="input w-full pl-9 pr-16 text-sm"
+            className="input w-full pl-9 pr-10 text-sm"
           />
-          <span className="absolute left-3 top-2.5 text-xs text-muted" aria-hidden>
-            🔍
-          </span>
           {search && (
             <button
               type="button"
               onClick={() => setSearch('')}
-              className="absolute right-3 top-2 text-xs text-muted hover:text-ink cursor-pointer bg-line/30 rounded px-1.5 py-0.5"
+              className="absolute inset-y-0 right-3 flex items-center text-muted hover:text-ink cursor-pointer"
+              aria-label="Clear search"
             >
-              Clear
+              <X className="h-4 w-4" />
             </button>
           )}
         </div>

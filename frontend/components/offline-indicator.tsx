@@ -1,30 +1,32 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Wifi, WifiOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export function OfflineIndicator() {
-  const [isOffline, setIsOffline] = useState(false);
+  const [isOffline, setIsOffline] = useState(() =>
+    typeof navigator !== 'undefined' ? !navigator.onLine : false
+  );
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    setIsOffline(!navigator.onLine);
-
     const handleOffline = () => {
       setIsOffline(true);
-      toast('📶 You are offline. Showing cached menus.', {
+      toast('You are offline. Showing cached menus.', {
         id: 'network-status',
         duration: 5000,
-        icon: '⚠️',
+        icon: <WifiOff className="h-4 w-4 text-amber-600" />,
       });
     };
 
     const handleOnline = () => {
       setIsOffline(false);
-      toast.success('✅ Back online! Reconnected to campus network.', {
+      toast.success('Back online! Reconnected to campus network.', {
         id: 'network-status',
         duration: 3000,
+        icon: <Wifi className="h-4 w-4 text-accent" />,
       });
     };
 

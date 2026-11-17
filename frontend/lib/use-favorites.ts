@@ -15,7 +15,7 @@ export function useFavorites() {
   const toggle = useCallback(
     async (menuItemId: string, dishName?: string) => {
       if (!user) {
-        toast.error('Please sign in to save your favorite dishes! ❤️');
+        toast.error('Please sign in to save your favorite dishes.');
         return;
       }
 
@@ -27,7 +27,7 @@ export function useFavorites() {
       const nowFavorite = toggleFavoriteLocal(menuItemId);
       if (dishName) {
         if (nowFavorite) {
-          toast.success(`Saved ${dishName} to favorites! ❤️`);
+          toast.success(`Saved ${dishName} to favorites`);
         } else {
           toast(`Removed ${dishName} from favorites`);
         }

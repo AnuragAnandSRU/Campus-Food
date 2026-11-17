@@ -8,6 +8,7 @@ import { getApiErrorMessage } from '@/lib/api-client';
 import { Field } from '@/components/auth/field';
 import { ImageUploadField } from '@/components/ui/image-upload-field';
 import { InviteLinkCard } from '@/components/admin/invite-link-card';
+import { Building2, CheckCircle2, Clock, MapPin, User } from 'lucide-react';
 import type { AdminCanteen } from '../../../shared/src/types/canteen.types';
 import type { ProvisionResult } from '../../../shared/src/types/user.types';
 
@@ -114,7 +115,10 @@ export function OnboardCanteenForm({ onDone }: { onDone: () => void }) {
     return (
       <div className="space-y-5 animate-fade-in">
         <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 text-xs text-emerald-900">
-          <p className="font-bold text-sm">🎉 Canteen & Partner Successfully Onboarded</p>
+          <p className="font-bold text-sm flex items-center gap-1.5 text-emerald-950">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <span>Canteen & Partner Successfully Onboarded</span>
+          </p>
           <p className="mt-1 text-emerald-800">
             <strong>{successData.canteen.name}</strong> has been created, and an invitation has been
             dispatched to owner <strong>{successData.ownerResult.user.name}</strong> ({successData.ownerResult.user.email}).
@@ -123,8 +127,14 @@ export function OnboardCanteenForm({ onDone }: { onDone: () => void }) {
 
         <div className="rounded-xl border border-line bg-surface/50 p-4 space-y-2 text-xs">
           <div className="flex justify-between items-center text-ink font-medium">
-            <span>📍 Location: {successData.canteen.location}</span>
-            <span>🕒 Hours: {successData.canteen.openingHours.open}–{successData.canteen.openingHours.close}</span>
+            <span className="flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5 text-accent" />
+              <span>Location: {successData.canteen.location}</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5 text-accent" />
+              <span>Hours: {successData.canteen.openingHours.open}–{successData.canteen.openingHours.close}</span>
+            </span>
           </div>
           <p className="text-muted text-[11px]">
             Once the owner activates their account via the link below, they can configure their food
@@ -162,7 +172,7 @@ export function OnboardCanteenForm({ onDone }: { onDone: () => void }) {
       <div className="space-y-4">
         <div className="border-b border-line pb-2">
           <h4 className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
-            <span>🏢</span>
+            <Building2 className="h-3.5 w-3.5" />
             <span>Part 1: Canteen Information</span>
           </h4>
           <p className="text-xs text-muted font-light mt-0.5">
@@ -235,7 +245,7 @@ export function OnboardCanteenForm({ onDone }: { onDone: () => void }) {
       <div className="space-y-4">
         <div className="border-b border-line pb-2">
           <h4 className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
-            <span>👤</span>
+            <User className="h-3.5 w-3.5" />
             <span>Part 2: Canteen Partner (Owner)</span>
           </h4>
           <p className="text-xs text-muted font-light mt-0.5">

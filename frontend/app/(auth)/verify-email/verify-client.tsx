@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { AlertTriangle, CheckCircle2, Mail } from 'lucide-react';
 import { authApi } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { getRoleHomePath, getRoleLoginPath } from '@/lib/role-routing';
@@ -77,8 +78,8 @@ export function VerifyEmailClient({ token }: { token?: string }) {
   if (status === 'success') {
     return (
       <>
-        <div className="mb-6 grid h-12 w-12 place-items-center rounded-full bg-accent-tint text-2xl">
-          ✅
+        <div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl bg-accent-tint text-accent">
+          <CheckCircle2 className="h-7 w-7" />
         </div>
         <h1 className="font-display text-3xl tracking-tight text-ink sm:text-4xl">
           You&apos;re all <em className="not-italic text-accent">set</em>
@@ -98,8 +99,8 @@ export function VerifyEmailClient({ token }: { token?: string }) {
   if (status === 'error') {
     return (
       <>
-        <div className="mb-6 grid h-12 w-12 place-items-center rounded-full bg-red-50 text-2xl">
-          ⚠️
+        <div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl bg-red-50 text-danger">
+          <AlertTriangle className="h-7 w-7" />
         </div>
         <h1 className="font-display text-3xl tracking-tight text-ink sm:text-4xl">
           Verification <em className="not-italic text-accent">failed</em>
@@ -115,8 +116,8 @@ export function VerifyEmailClient({ token }: { token?: string }) {
   // info — just registered, waiting on the email
   return (
     <>
-      <div className="mb-6 grid h-12 w-12 place-items-center rounded-full bg-accent-tint text-2xl">
-        ✉️
+      <div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl bg-accent-tint text-accent">
+        <Mail className="h-7 w-7" />
       </div>
       <h1 className="font-display text-3xl tracking-tight text-ink sm:text-4xl">
         Verify your <em className="not-italic text-accent">email</em>

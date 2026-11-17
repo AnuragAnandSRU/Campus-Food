@@ -11,6 +11,7 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { VegIndicator } from '@/components/browse/veg-indicator';
 import { AddToCart } from '@/components/browse/add-to-cart';
 import { formatCurrency } from '@/lib/utils';
+import { Heart, Search, X } from 'lucide-react';
 import type { MenuItem } from '../../../shared/src/types/menu.types';
 
 export default function FavoritesPage() {
@@ -56,9 +57,9 @@ export default function FavoritesPage() {
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="font-display text-3xl font-semibold tracking-tight text-ink flex items-center gap-2">
+            <h1 className="font-display text-3xl font-semibold tracking-tight text-ink flex items-center gap-2.5">
               <span>My Favorites</span>
-              <span className="text-2xl">❤️</span>
+              <Heart className="h-6 w-6 fill-red-500 text-red-500" />
             </h1>
             <p className="mt-1 text-sm text-muted">
               Your go-to campus dishes saved for fast, 1-tap reordering.
@@ -71,14 +72,27 @@ export default function FavoritesPage() {
 
         {/* Search bar when items exist */}
         {favorites.length > 0 && (
-          <div className="mt-6">
+          <div className="mt-6 relative max-w-md">
+            <span className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-muted">
+              <Search className="h-4 w-4" />
+            </span>
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search your favorite dishes or canteens…"
-              className="input text-sm"
+              className="input text-sm pl-10 pr-10"
             />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className="absolute inset-y-0 right-3 flex items-center text-muted hover:text-ink cursor-pointer"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
         )}
 
@@ -97,15 +111,17 @@ export default function FavoritesPage() {
 
         {/* Empty state */}
         {ready && !favoritesQuery.isLoading && !favoritesQuery.isError && favorites.length === 0 && (
-          <div className="card mt-6 p-10 text-center">
-            <span className="text-4xl">🤍</span>
-            <p className="mt-3 font-display text-lg font-semibold text-ink">
+          <div className="card mt-6 p-10 text-center max-w-md mx-auto">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-500">
+              <Heart className="h-7 w-7" />
+            </div>
+            <p className="font-display text-lg font-semibold text-ink">
               No favorite dishes saved yet
             </p>
             <p className="mt-1 text-sm font-light text-muted max-w-sm mx-auto">
-              Explore menus from any campus canteen and tap the ❤️ heart icon to pin your go-to meals here!
+              Explore menus from any campus canteen and tap the heart icon to pin your go-to meals here!
             </p>
-            <Link href="/canteens" className="btn btn-primary mt-5">
+            <Link href="/canteens" className="btn btn-primary mt-5 text-sm">
               Browse Canteen Menus
             </Link>
           </div>
@@ -175,9 +191,9 @@ export default function FavoritesPage() {
                           type="button"
                           onClick={() => handleToggle(normalizedItem)}
                           title="Remove from favorites"
-                          className="text-base hover:scale-125 transition-transform cursor-pointer"
+                          className="p-1 text-red-500 hover:scale-125 transition-transform cursor-pointer"
                         >
-                          ❤️
+                          <Heart className="h-4 w-4 fill-red-500" />
                         </button>
                       </div>
 

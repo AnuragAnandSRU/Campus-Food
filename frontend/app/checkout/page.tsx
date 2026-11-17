@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import { AlertTriangle, Clock, Mail, Phone } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCartStore } from '@/store/cart-store';
 import { useAuthStore } from '@/store/auth-store';
@@ -74,13 +75,14 @@ export default function CheckoutPage() {
   const [resending, setResending] = useState(false);
   const placingRef = useRef(false);
 
-  // Prefill the delivery address from the student's saved profile.
-  useEffect(() => {
-    if (user) {
-      setHostelBlock(user.hostelBlock ?? '');
-      setRoomNumber(user.roomNumber ?? '');
-    }
-  }, [user]);
+  // Prefill the delivery address from the student's saved profile without cascading effects.
+  const [syncedUserKey, setSyncedUserKey] = useState('');
+  const currentUserKey = user ? `${user._id}:${user.hostelBlock ?? ''}:${user.roomNumber ?? ''}` : '';
+  if (user && syncedUserKey !== currentUserKey) {
+    setSyncedUserKey(currentUserKey);
+    setHostelBlock(user.hostelBlock ?? '');
+    setRoomNumber(user.roomNumber ?? '');
+  }
 
   async function handleResendVerification() {
     setResending(true);
@@ -148,7 +150,7 @@ export default function CheckoutPage() {
       }
 
       clearCart();
-      toast.success('Order placed! 🎉');
+      toast.success('Order placed successfully!');
       router.replace(`/orders/${order._id}`);
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Could not place your order. Please try again.'));
@@ -176,7 +178,7 @@ export default function CheckoutPage() {
           <div className="card mt-4 border-amber-300 bg-amber-50/70 p-4 sm:p-5">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-start gap-3">
-                <span className="text-2xl shrink-0">✉️</span>
+                <Mail className="h-6 w-6 text-amber-700 shrink-0" />
                 <div>
                   <h2 className="font-display text-sm font-semibold text-ink">
                     Email verification required
@@ -202,7 +204,7 @@ export default function CheckoutPage() {
         {/* Canteen Temporarily Offline Alert */}
         {canteen && !canteen.isActive && (
           <div className="card mt-4 border-red-300 bg-red-50/80 p-4 text-xs sm:text-sm text-red-900 flex items-center gap-3">
-            <span className="text-xl shrink-0">⚠️</span>
+            <AlertTriangle className="h-5 w-5 text-danger shrink-0" />
             <div>
               <p className="font-semibold">This canteen is temporarily offline</p>
               <p className="text-xs text-red-700 mt-0.5">
@@ -215,7 +217,7 @@ export default function CheckoutPage() {
         {/* Canteen Closed Hours Alert */}
         {canteen && canteen.isActive && !isHoursOpen && (
           <div className="card mt-4 border-amber-300 bg-amber-50/80 p-4 text-xs sm:text-sm text-amber-900 flex items-center gap-3">
-            <span className="text-xl shrink-0">🕒</span>
+            <Clock className="h-5 w-5 text-amber-700 shrink-0" />
             <div>
               <p className="font-semibold">Canteen is currently closed</p>
               <p className="text-xs text-amber-700 mt-0.5">
@@ -229,7 +231,7 @@ export default function CheckoutPage() {
         {hasUnavailableItems && (
           <div className="card mt-4 border-red-300 bg-red-50/80 p-4 text-xs sm:text-sm text-red-900 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <span className="text-xl shrink-0">⚠️</span>
+              <AlertTriangle className="h-5 w-5 text-danger shrink-0" />
               <div>
                 <p className="font-semibold">Some dishes in your order are sold out</p>
                 <p className="text-xs text-red-700 mt-0.5">
@@ -345,7 +347,7 @@ export default function CheckoutPage() {
               {user?.phone && (
                 <div className="mt-3 flex items-center justify-between rounded-xl bg-surface p-3 text-xs border border-line text-muted">
                   <span className="flex items-center gap-1.5 text-ink font-medium">
-                    <span>📞</span>
+                    <Phone className="h-3.5 w-3.5 text-accent" />
                     <span>{user.phone}</span>
                     <span className="text-muted font-normal">· Runner will call on arrival</span>
                   </span>

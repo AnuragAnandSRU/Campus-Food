@@ -32,8 +32,12 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-ink font-light;
+    @apply bg-background text-ink font-light antialiased selection:bg-accent-tint selection:text-ink;
     font-family: var(--font-sans);
   }
 
@@ -51,15 +55,15 @@
 
 @layer components {
   .btn {
-    @apply px-6 py-3 rounded-[999px] font-medium transition-all duration-200 inline-flex items-center justify-center;
+    @apply px-6 py-3 rounded-[999px] font-medium transition-all duration-200 inline-flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 disabled:pointer-events-none;
   }
 
   .btn-primary {
-    @apply bg-accent text-white hover:bg-accent-hover hover:-translate-y-0.5 shadow-sm hover:shadow-md;
+    @apply bg-accent text-white hover:bg-accent-hover hover:-translate-y-0.5 shadow-sm hover:shadow-md shadow-accent/15;
   }
 
   .btn-secondary {
-    @apply bg-surface border border-line text-ink hover:border-accent hover:-translate-y-0.5;
+    @apply bg-surface border border-line text-ink hover:border-accent/50 hover:bg-accent-tint/20 hover:-translate-y-0.5 shadow-[0_1px_2px_rgba(16,20,14,0.03)];
   }
 
   /* High-emphasis CTA — sun yellow with dark ink text. */
@@ -68,15 +72,19 @@
   }
 
   .card {
-    @apply bg-white rounded-2xl border border-line shadow-sm;
+    @apply bg-white rounded-2xl border border-line shadow-[0_1px_3px_rgba(16,20,14,0.04),0_8px_20px_-8px_rgba(16,20,14,0.06)];
+  }
+
+  .card-interactive {
+    @apply bg-white rounded-2xl border border-line shadow-[0_1px_3px_rgba(16,20,14,0.04),0_8px_20px_-8px_rgba(16,20,14,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/35 hover:shadow-[0_14px_30px_-12px_rgba(27,122,69,0.16)];
   }
 
   .input {
-    @apply w-full px-4 py-3 rounded-xl border border-line bg-white focus:outline-none focus:border-accent transition-colors;
+    @apply w-full px-4 py-3 rounded-xl border border-line bg-white placeholder:text-muted/60 focus:outline-none focus:border-accent focus:ring-3 focus:ring-accent/12 transition-all duration-150;
   }
 
   .badge {
-    @apply inline-flex items-center px-3 py-1 rounded-[999px] text-sm font-medium;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-[999px] text-sm font-medium;
   }
 
   .badge-accent {
@@ -86,5 +94,85 @@
   /* Explicit display-face helper (headings already default to it). */
   .font-display {
     font-family: var(--font-display);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.22s ease-out both;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(228, 241, 233, 0.55) 25%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(228, 241, 233, 0.55) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
+.bg-dot-grid {
+  background-image: radial-gradient(rgba(27, 122, 69, 0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-scale-in,
+  .skeleton-shimmer {
+    animation: none !important;
   }
 }

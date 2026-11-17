@@ -8,20 +8,18 @@ import { useEffect, useRef, useState, useCallback } from 'react';
  * Automatically unlocks the browser Web Audio Autoplay Policy upon any user interaction on desktop or touch devices.
  */
 export function useAudioAlert(pageTitle = 'CampusFood') {
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    try {
+      const saved = localStorage.getItem('campus_food_kitchen_sound');
+      return saved !== null ? saved === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
   const audioCtxRef = useRef<AudioContext | null>(null);
   const flashTimerRef = useRef<NodeJS.Timeout | null>(null);
   const originalTitleRef = useRef(pageTitle);
-
-  // Read saved sound preference on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('campus_food_kitchen_sound');
-      if (saved !== null) {
-        setSoundEnabled(saved === 'true');
-      }
-    } catch {}
-  }, []);
 
   // Update default page title if changed
   useEffect(() => {

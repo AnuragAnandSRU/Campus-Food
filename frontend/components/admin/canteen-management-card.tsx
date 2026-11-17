@@ -6,6 +6,18 @@ import toast from 'react-hot-toast';
 import { adminApi } from '@/lib/api/admin';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { InviteLinkCard } from '@/components/admin/invite-link-card';
+import {
+  AlertTriangle,
+  Bike,
+  ChefHat,
+  Clock,
+  MapPin,
+  Plus,
+  RefreshCw,
+  Star,
+  User,
+  Users,
+} from 'lucide-react';
 import type { AdminCanteen } from '../../../shared/src/types/canteen.types';
 import type { ProvisionedUser } from '../../../shared/src/types/user.types';
 
@@ -98,16 +110,23 @@ export function CanteenManagementCard({
                 </span>
                 {canteen.rating > 0 && (
                   <span className="badge badge-accent text-xs">
-                    ★ {canteen.rating.toFixed(1)} ({canteen.totalRatings || 0})
+                    <Star className="h-3 w-3 fill-accent text-accent" />
+                    <span>{canteen.rating.toFixed(1)}</span>
+                    <span className="text-muted/80 font-normal">({canteen.totalRatings || 0})</span>
                   </span>
                 )}
               </div>
 
-              <p className="text-xs text-muted flex items-center gap-1.5">
-                <span>📍</span>
-                <span className="truncate">{canteen.location}</span>
+              <p className="text-xs text-muted flex items-center gap-2">
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 text-accent" />
+                  <span className="truncate">{canteen.location}</span>
+                </span>
                 <span>•</span>
-                <span>🕒 {canteen.openingHours.open}–{canteen.openingHours.close}</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3.5 w-3.5 text-accent" />
+                  <span>{canteen.openingHours.open}–{canteen.openingHours.close}</span>
+                </span>
               </p>
 
               {canteen.description && (
@@ -120,30 +139,31 @@ export function CanteenManagementCard({
               <div className="pt-1.5 text-xs">
                 {canteen.ownerId ? (
                   <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="text-ink/80 font-medium">
-                      👤 Owner: <span className="text-ink font-semibold">{canteen.ownerId.name}</span>{' '}
+                    <span className="text-ink/80 font-medium flex items-center gap-1.5">
+                      <User className="h-3.5 w-3.5 text-accent" />
+                      <span>Owner: <strong className="text-ink font-semibold">{canteen.ownerId.name}</strong>{' '}</span>
                       <span className="text-muted font-normal">({canteen.ownerId.email})</span>
                     </span>
                     <button
                       type="button"
                       onClick={() => onAssignOwner(canteen._id)}
-                      className="rounded-lg border border-line bg-surface hover:border-accent hover:text-accent hover:bg-accent-tint/20 px-2 py-0.5 text-xs font-semibold text-ink shadow-2xs transition-colors flex items-center gap-1 cursor-pointer"
+                      className="rounded-lg border border-line bg-surface hover:border-accent hover:text-accent hover:bg-accent-tint/20 px-2.5 py-1 text-xs font-semibold text-ink shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
                       title="Reassign or replace canteen owner"
                     >
-                      <span>🔄</span>
+                      <RefreshCw className="h-3 w-3" />
                       <span>Reassign Owner</span>
                     </button>
                   </div>
                 ) : (
                   <span className="text-danger font-medium flex items-center gap-1.5">
-                    <span>⚠️</span>
+                    <AlertTriangle className="h-3.5 w-3.5" />
                     <span>No Owner Assigned</span>
                     <button
                       type="button"
                       onClick={() => onAssignOwner(canteen._id)}
                       className="ml-2 rounded-lg border border-danger/30 bg-danger/5 hover:bg-danger/10 text-danger px-2.5 py-0.5 text-xs font-semibold cursor-pointer shadow-2xs transition-colors flex items-center gap-1"
                     >
-                      <span>+</span>
+                      <Plus className="h-3 w-3" />
                       <span>Assign Owner</span>
                     </button>
                   </span>
@@ -181,7 +201,7 @@ export function CanteenManagementCard({
                     : 'bg-surface border-line text-ink hover:border-accent/40'
                 }`}
               >
-                <span>👥</span>
+                <Users className="h-3.5 w-3.5" />
                 <span>
                   Team ({team.length})
                 </span>
@@ -256,9 +276,10 @@ export function CanteenManagementCard({
                             {member.staffDuties.map((d) => (
                               <span
                                 key={d}
-                                className="rounded bg-line/40 px-1.5 py-0.2 capitalize text-ink"
+                                className="inline-flex items-center gap-1 rounded bg-line/40 px-1.5 py-0.5 capitalize text-ink text-[11px]"
                               >
-                                {d === 'kitchen' ? '🍳 Kitchen' : '🚴 Delivery'}
+                                {d === 'kitchen' ? <ChefHat className="h-3 w-3" /> : <Bike className="h-3 w-3" />}
+                                <span>{d === 'kitchen' ? 'Kitchen' : 'Delivery'}</span>
                               </span>
                             ))}
                           </div>

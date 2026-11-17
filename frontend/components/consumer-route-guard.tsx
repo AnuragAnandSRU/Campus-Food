@@ -33,11 +33,18 @@ export function ConsumerRouteGuard({ children }: { children: React.ReactNode }) 
     const label =
       nonStudentRole === 'admin' ? 'Admin Console' : 'Partner Dashboard';
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 text-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-        <p className="mt-4 text-sm font-medium text-muted">
-          Redirecting to {label}…
-        </p>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background bg-dot-grid px-6 text-center animate-fade-in">
+        <div className="card max-w-xs w-full p-8 flex flex-col items-center">
+          <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-tint text-accent">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+          </div>
+          <p className="mt-4 font-display text-base font-semibold text-ink">
+            Opening {label}
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            Routing you to your workspace…
+          </p>
+        </div>
       </div>
     );
   }

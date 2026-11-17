@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Star, UtensilsCrossed } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { orderApi } from '@/lib/api/order';
 import { getApiErrorMessage } from '@/lib/api-client';
@@ -14,11 +15,11 @@ interface OrderRatingCardProps {
 }
 
 const RATING_LABELS: Record<number, string> = {
-  1: 'Disappointing 😞',
-  2: 'Could be better 😐',
-  3: 'Good 👍',
-  4: 'Very tasty! 😋',
-  5: 'Exceptional! 🌟',
+  1: 'Disappointing',
+  2: 'Could be better',
+  3: 'Good meal',
+  4: 'Very tasty!',
+  5: 'Exceptional!',
 };
 
 export function OrderRatingCard({ order, canteenName = 'the canteen' }: OrderRatingCardProps) {
@@ -53,7 +54,7 @@ export function OrderRatingCard({ order, canteenName = 'the canteen' }: OrderRat
   // Already rated view: visible to both student and canteen staff/owner
   if (order.rating) {
     return (
-      <div className="card mt-6 p-5 border-accent/20 bg-accent-tint/10">
+      <div className="card mt-6 p-5 border-accent/20 bg-accent-tint/15">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold tracking-wider uppercase text-accent">
@@ -65,9 +66,16 @@ export function OrderRatingCard({ order, canteenName = 'the canteen' }: OrderRat
                 : `Rated ${order.rating} / 5 by student`}
             </p>
           </div>
-          <div className="flex text-lg text-highlight">
+          <div className="flex text-lg text-highlight gap-0.5">
             {[1, 2, 3, 4, 5].map((star) => (
-              <span key={star}>{star <= order.rating! ? '★' : '☆'}</span>
+              <Star
+                key={star}
+                className={`h-4 w-4 ${
+                  star <= order.rating!
+                    ? 'fill-highlight text-highlight'
+                    : 'text-line'
+                }`}
+              />
             ))}
           </div>
         </div>
@@ -88,9 +96,11 @@ export function OrderRatingCard({ order, canteenName = 'the canteen' }: OrderRat
   const activeRating = hoverRating || selectedRating;
 
   return (
-    <div className="card mt-6 p-6 border-accent/30 bg-background shadow-sm">
+    <div className="card mt-6 p-6 border-accent/30 bg-surface shadow-sm">
       <div className="text-center">
-        <span className="inline-block text-2xl mb-1">🍽️</span>
+        <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-tint text-accent">
+          <UtensilsCrossed className="h-6 w-6" />
+        </div>
         <h3 className="font-display text-lg font-semibold text-ink">
           How was your food from {canteenName}?
         </h3>
@@ -99,7 +109,7 @@ export function OrderRatingCard({ order, canteenName = 'the canteen' }: OrderRat
         </p>
 
         {/* 5-Star Interactive Selector */}
-        <div className="mt-4 flex justify-center items-center gap-1.5">
+        <div className="mt-4 flex justify-center items-center gap-2">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
@@ -107,16 +117,16 @@ export function OrderRatingCard({ order, canteenName = 'the canteen' }: OrderRat
               onClick={() => setSelectedRating(star)}
               onMouseEnter={() => setHoverRating(star)}
               onMouseLeave={() => setHoverRating(0)}
-              className="text-3xl transition-transform hover:scale-125 focus:outline-none cursor-pointer"
+              className="p-1 transition-transform hover:scale-125 focus:outline-none cursor-pointer"
               title={`Rate ${star} star${star > 1 ? 's' : ''}`}
             >
-              <span
-                className={`${
-                  star <= activeRating ? 'text-highlight drop-shadow-sm' : 'text-line'
+              <Star
+                className={`h-7 w-7 transition-colors ${
+                  star <= activeRating
+                    ? 'fill-highlight text-highlight drop-shadow-xs'
+                    : 'text-line hover:text-highlight/60'
                 }`}
-              >
-                ★
-              </span>
+              />
             </button>
           ))}
         </div>
@@ -124,7 +134,7 @@ export function OrderRatingCard({ order, canteenName = 'the canteen' }: OrderRat
         {/* Rating description text */}
         <div className="mt-2 h-5">
           {activeRating > 0 && (
-            <span className="text-xs font-medium text-accent animate-fade-in">
+            <span className="text-xs font-semibold text-accent animate-fade-in">
               {RATING_LABELS[activeRating]}
             </span>
           )}
@@ -154,13 +164,13 @@ export function OrderRatingCard({ order, canteenName = 'the canteen' }: OrderRat
           type="button"
           disabled={selectedRating === 0 || rateMutation.isPending}
           onClick={() => rateMutation.mutate()}
-          className="btn btn-primary w-full text-center py-2 text-sm disabled:opacity-50 cursor-pointer"
+          className="btn btn-primary w-full text-center py-2.5 text-sm disabled:opacity-50 cursor-pointer shadow-xs"
         >
           {rateMutation.isPending
             ? 'Submitting rating…'
             : selectedRating === 0
             ? 'Select a star rating above'
-            : `Submit Rating (${selectedRating}★)`}
+            : `Submit Rating (${selectedRating} Stars)`}
         </button>
       </div>
     </div>

@@ -8,6 +8,7 @@ import { getApiErrorMessage } from '@/lib/api-client';
 import { useAuthStore } from '@/store/auth-store';
 import { StatusBadge } from './status-badge';
 import { formatCurrency, formatTime } from '@/lib/utils';
+import { AlertTriangle, Clock, FileText, KeyRound, Phone, User, X } from 'lucide-react';
 
 // The next forward step for each status, with the button label staff see.
 // Mirrors the backend state machine (order.controller FORWARD_TRANSITIONS).
@@ -180,7 +181,7 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
       {student && (
         <div className="mt-2 flex items-center justify-between rounded-lg bg-surface/80 px-2.5 py-1.5 text-xs border border-line/70">
           <span className="text-ink font-medium flex items-center gap-1.5">
-            <span>👤</span>
+            <User className="h-3.5 w-3.5 text-accent" />
             <span>{student.name || 'Student'}</span>
           </span>
           {student.phone ? (
@@ -189,7 +190,7 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
               className="text-accent font-semibold hover:underline flex items-center gap-1"
               title="Call student"
             >
-              <span>📞</span>
+              <Phone className="h-3 w-3" />
               <span>{student.phone}</span>
             </a>
           ) : (
@@ -201,7 +202,7 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
       {/* Special Kitchen Notes */}
       {order.specialInstructions && (
         <div className="mt-2 rounded-lg bg-amber-500/10 border border-amber-500/25 px-3 py-2 text-xs text-amber-950 font-medium flex items-start gap-1.5">
-          <span className="shrink-0 text-sm">📝</span>
+          <FileText className="h-3.5 w-3.5 shrink-0 text-amber-800 mt-0.5" />
           <span>
             <strong className="text-amber-900 font-semibold">Special Note:</strong>{' '}
             {order.specialInstructions}
@@ -212,8 +213,9 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
       {/* Target ETA & Quick Bump Chips for Active Orders */}
       {isActive && order.estimatedDeliveryTime && (
         <div className="mt-2 flex items-center justify-between rounded-md bg-surface/50 px-2.5 py-1.5 text-xs text-muted border border-line/50">
-          <div className="flex items-center gap-1">
-            <span>🕒 Target:</span>
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-3 w-3 text-accent" />
+            <span>Target:</span>
             <span className="font-semibold text-ink">
               {formatTime(order.estimatedDeliveryTime)}
             </span>
@@ -247,15 +249,16 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
         <div className="mt-3 rounded-xl border border-danger/30 bg-danger/5 p-3 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-danger flex items-center gap-1">
-              <span>⚠️</span>
+              <AlertTriangle className="h-3.5 w-3.5" />
               <span>Cancel Order #{order.orderId.slice(-6)}?</span>
             </span>
             <button
               type="button"
               onClick={() => setShowCancelPrompt(false)}
-              className="text-xs text-muted hover:text-ink cursor-pointer"
+              className="text-xs text-muted hover:text-ink cursor-pointer flex items-center gap-1"
             >
-              ✕ Back
+              <X className="h-3 w-3" />
+              <span>Back</span>
             </button>
           </div>
 
@@ -305,7 +308,7 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
         <div className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-3 space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-ink flex items-center gap-1.5">
-              <span>🔐</span>
+              <KeyRound className="h-3.5 w-3.5 text-accent" />
               <span>Enter Student PIN</span>
             </span>
             <button
@@ -314,9 +317,10 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
                 setShowPinPrompt(false);
                 setPin('');
               }}
-              className="text-xs text-muted hover:text-ink cursor-pointer"
+              className="text-xs text-muted hover:text-ink cursor-pointer flex items-center gap-1"
             >
-              ✕ Cancel
+              <X className="h-3 w-3" />
+              <span>Cancel</span>
             </button>
           </div>
 
@@ -378,7 +382,7 @@ export function StaffOrderCard({ order, onChanged }: { order: Order; onChanged: 
                 disabled={busy}
                 className="btn btn-primary flex-1 py-2 text-sm disabled:opacity-60 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                {isDeliveryHandover && <span>🔐</span>}
+                {isDeliveryHandover && <KeyRound className="h-3.5 w-3.5 mr-1" />}
                 <span>{next.label}</span>
               </button>
             )}

@@ -12,6 +12,7 @@ import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { StatusBadge } from '@/components/orders/status-badge';
 import { formatCurrency, formatDateTime, formatTime } from '@/lib/utils';
+import { Clock, KeyRound, RotateCcw, Search, X } from 'lucide-react';
 import type { OrderStatus } from '../../../shared/src/types/order.types';
 
 type TabFilter = 'all' | 'active' | 'completed' | 'cancelled';
@@ -166,20 +167,24 @@ export default function OrdersPage() {
 
             {/* Search Input */}
             <div className="relative">
+              <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-muted">
+                <Search className="h-4 w-4" />
+              </span>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by order ID, dish, or canteen…"
-                className="input text-sm pl-9"
+                className="input text-sm pl-9 pr-10"
               />
-              <span className="absolute left-3 top-2.5 text-muted text-sm">🔍</span>
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-2.5 text-xs text-muted hover:text-ink cursor-pointer"
+                  className="absolute inset-y-0 right-3 flex items-center text-muted hover:text-ink cursor-pointer"
+                  aria-label="Clear search"
                 >
-                  Clear
+                  <X className="h-4 w-4" />
                 </button>
               )}
             </div>
@@ -260,8 +265,8 @@ export default function OrdersPage() {
                         {formatCurrency(order.totalAmount)}
                       </span>
                       {isActive && order.estimatedDeliveryTime && (
-                        <span className="rounded-full bg-accent-tint/60 px-2 py-0.5 text-[11px] font-semibold text-accent ring-1 ring-accent/30 flex items-center gap-1">
-                          <span>🕒</span>
+                        <span className="rounded-full bg-accent-tint/70 px-2.5 py-0.5 text-[11px] font-semibold text-accent ring-1 ring-accent/30 flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
                           <span>ETA: {formatTime(order.estimatedDeliveryTime)}</span>
                         </span>
                       )}
@@ -270,9 +275,10 @@ export default function OrdersPage() {
                     <div className="flex items-center gap-2">
                       {isActive && order.deliveryPin && (
                         <span
-                          className="rounded-lg bg-emerald-50 px-2 py-1 text-xs font-mono font-semibold text-accent ring-1 ring-emerald-200/70"
+                          className="rounded-lg bg-emerald-50 px-2 py-1 text-xs font-mono font-semibold text-accent ring-1 ring-emerald-200/70 flex items-center gap-1"
                           title="Share this PIN with the delivery person"
                         >
+                          <KeyRound className="h-3 w-3" />
                           PIN: {order.deliveryPin}
                         </span>
                       )}
@@ -280,15 +286,15 @@ export default function OrdersPage() {
                         href={`/orders/${order._id}`}
                         className="btn btn-secondary px-3 py-1 text-xs"
                       >
-                        {isActive ? '📍 Track' : 'Details'}
+                        {isActive ? 'Track Live' : 'Details'}
                       </Link>
 
                       <button
                         onClick={() => reorder(order, canteenName)}
-                        className="btn btn-primary px-3 py-1 text-xs flex items-center gap-1 cursor-pointer"
+                        className="btn btn-primary px-3 py-1 text-xs flex items-center gap-1.5 cursor-pointer shadow-xs"
                         title="Add these dishes to your cart and proceed to checkout"
                       >
-                        <span>🔁</span>
+                        <RotateCcw className="h-3.5 w-3.5" />
                         <span>Reorder</span>
                       </button>
                     </div>

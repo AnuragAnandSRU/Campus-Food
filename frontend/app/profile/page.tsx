@@ -12,6 +12,17 @@ import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { formatDateTime } from '@/lib/utils';
 import { usePwaStore } from '@/store/pwa-store';
+import {
+  Building2,
+  CheckCircle2,
+  ChefHat,
+  ClipboardList,
+  Heart,
+  Package,
+  Smartphone,
+  Users,
+  UtensilsCrossed,
+} from 'lucide-react';
 
 function EyeIcon({ show }: { show: boolean }) {
   if (show) {
@@ -69,14 +80,18 @@ export default function ProfilePage() {
   const isAdmin = user?.role === 'admin';
   const isPartner = user?.role === 'owner' || user?.role === 'staff';
 
-  useEffect(() => {
-    if (user) {
-      setName(user.name || '');
-      setPhone(user.phone || '');
-      setHostelBlock(user.hostelBlock || '');
-      setRoomNumber(user.roomNumber || '');
-    }
-  }, [user]);
+  // Sync user profile fields into inputs without cascading effect re-renders
+  const [syncedProfileKey, setSyncedProfileKey] = useState('');
+  const currentProfileKey = user
+    ? `${user._id}:${user.name || ''}:${user.phone || ''}:${user.hostelBlock || ''}:${user.roomNumber || ''}`
+    : '';
+  if (user && syncedProfileKey !== currentProfileKey) {
+    setSyncedProfileKey(currentProfileKey);
+    setName(user.name || '');
+    setPhone(user.phone || '');
+    setHostelBlock(user.hostelBlock || '');
+    setRoomNumber(user.roomNumber || '');
+  }
 
   async function handleUpdateProfile(e: React.FormEvent) {
     e.preventDefault();
@@ -164,12 +179,12 @@ export default function ProfilePage() {
   const initial = user.name ? user.name.charAt(0).toUpperCase() : 'U';
 
   const roleBadge = isAdmin
-    ? '🛡️ Verified Administrator'
+    ? 'Verified Administrator'
     : isPartner
     ? user.role === 'owner'
-      ? '🏪 Canteen Partner (Owner)'
-      : '👨‍🍳 Canteen Staff'
-    : '🎓 Verified Student';
+      ? 'Canteen Partner (Owner)'
+      : 'Canteen Staff'
+    : 'Verified Student';
 
   const memberType = isAdmin ? 'Campus Administrator' : isPartner ? 'Canteen Partner' : 'Campus Student';
 
@@ -204,12 +219,13 @@ export default function ProfilePage() {
                 <p className="text-sm text-muted">{user.email}</p>
                 <div className="mt-1 flex items-center gap-2 text-xs">
                   {user.isVerified ? (
-                    <span className="text-accent font-medium flex items-center gap-1">
-                      <span>✓</span> {roleBadge}
+                    <span className="text-accent font-medium flex items-center gap-1.5">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <span>{roleBadge}</span>
                     </span>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <span className="text-amber-700 font-medium">⚠️ Email Unverified</span>
+                      <span className="text-amber-700 font-medium">Email Unverified</span>
                       <button
                         onClick={handleResendVerification}
                         disabled={resending || cooldown > 0}
@@ -464,8 +480,8 @@ export default function ProfilePage() {
         <div className="card mt-6 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3.5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-xl text-accent">
-                📱
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent">
+                <Smartphone className="h-6 w-6" />
               </div>
               <div>
                 <h2 className="font-display text-base font-semibold text-ink">
@@ -489,23 +505,24 @@ export default function ProfilePage() {
                 onClick={() => promptInstall()}
                 className="btn btn-primary px-4 py-2 text-xs font-semibold self-start sm:self-auto cursor-pointer"
               >
-                📲 Install App
+                <Smartphone className="h-3.5 w-3.5" />
+                <span>Install App</span>
               </button>
             )}
 
             {isInstalled && (
               <span className="badge badge-accent text-xs font-medium self-start sm:self-auto">
-                ✓ Installed
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span>Installed</span>
               </span>
             )}
           </div>
 
           {isIos && !isInstalled && (
             <div className="mt-4 rounded-xl border border-accent/20 bg-accent-tint/10 p-3 text-xs text-ink/80 flex items-start gap-2">
-              <span className="text-sm">💡</span>
               <span>
                 <strong>To install on iOS Safari:</strong> Tap the Share button (
-                <span className="font-mono text-ink">⎋</span>) in Safari, then scroll down and tap <strong>'Add to Home Screen'</strong>.
+                <span className="font-mono text-ink">⎋</span>) in Safari, then scroll down and tap <strong>&apos;Add to Home Screen&apos;</strong>.
               </span>
             </div>
           )}
@@ -515,7 +532,7 @@ export default function ProfilePage() {
         <div className="mt-6 flex flex-wrap gap-3">
           {isAdmin && (
             <Link href="/admin" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
-              <span>🏢</span>
+              <Building2 className="h-4 w-4" />
               <span>Open Admin Console</span>
             </Link>
           )}
@@ -523,16 +540,16 @@ export default function ProfilePage() {
           {isPartner && (
             <>
               <Link href="/dashboard" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
-                <span>🍳</span>
+                <ChefHat className="h-4 w-4" />
                 <span>Live Kitchen Orders</span>
               </Link>
               <Link href="/dashboard/menu" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
-                <span>📋</span>
+                <ClipboardList className="h-4 w-4" />
                 <span>Manage Menu</span>
               </Link>
               {user.role === 'owner' && (
                 <Link href="/dashboard/team" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
-                  <span>👥</span>
+                  <Users className="h-4 w-4" />
                   <span>Team & Staff</span>
                 </Link>
               )}
@@ -542,15 +559,15 @@ export default function ProfilePage() {
           {isStudent && (
             <>
               <Link href="/orders" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
-                <span>📦</span>
+                <Package className="h-4 w-4" />
                 <span>My Past Orders</span>
               </Link>
               <Link href="/favorites" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
-                <span>❤️</span>
+                <Heart className="h-4 w-4" />
                 <span>My Favorites</span>
               </Link>
               <Link href="/canteens" className="btn btn-secondary flex-1 text-center text-xs flex items-center justify-center gap-1.5">
-                <span>🍽️</span>
+                <UtensilsCrossed className="h-4 w-4" />
                 <span>Browse Canteens</span>
               </Link>
             </>

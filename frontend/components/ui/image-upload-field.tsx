@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import { CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { uploadApi } from '@/lib/api/upload';
 import { getApiErrorMessage } from '@/lib/api-client';
@@ -138,8 +139,9 @@ export function ImageUploadField({
             </div>
 
             <div className="flex flex-1 flex-col items-center sm:items-start gap-1">
-              <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full ring-1 ring-emerald-200">
-                ✓ Photo uploaded
+              <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full ring-1 ring-emerald-200 inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span>Photo uploaded</span>
               </span>
               <p className="text-xs text-muted truncate max-w-xs">{value}</p>
               <div className="flex items-center gap-2 mt-1">

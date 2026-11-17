@@ -12,6 +12,7 @@ import { useOrderSocket } from '@/lib/use-order-socket';
 import { SiteHeader } from '@/components/site-header';
 import { StaffOrderCard } from '@/components/orders/staff-order-card';
 import { useAudioAlert } from '@/lib/use-audio-alert';
+import { Bell, BellOff, Bike, ChefHat, Clock, Search, X } from 'lucide-react';
 
 type PrimaryFilter = 'active' | 'all';
 type StationFilter = 'all_active' | 'incoming' | 'cooking' | 'dispatch';
@@ -57,7 +58,7 @@ export default function DashboardPage() {
     onNewOrder: (order) => {
       if (order.canteenId !== canteenId) return;
       notifyNewOrder(order.orderId);
-      toast.success(`🔔 New order received (${order.orderId})`);
+      toast.success(`New order received (#${order.orderId.slice(-6)})`);
       refresh();
     },
     onStatusUpdate: (order) => {
@@ -174,7 +175,11 @@ export default function DashboardPage() {
                   : 'bg-ink/5 border-line text-muted hover:text-ink'
               }`}
             >
-              <span>{soundEnabled ? '🔔' : '🔕'}</span>
+              {soundEnabled ? (
+                <Bell className="h-3.5 w-3.5 text-accent" />
+              ) : (
+                <BellOff className="h-3.5 w-3.5 text-muted" />
+              )}
               <span>{soundEnabled ? 'Chime On' : 'Muted'}</span>
             </button>
             {(user?.role === 'owner' || user?.permissions?.includes('view_analytics')) && (
@@ -222,21 +227,24 @@ export default function DashboardPage() {
         {/* Live Kitchen Search Bar */}
         {rawOrders.length > 0 && (
           <div className="mt-5 relative">
+            <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-muted">
+              <Search className="h-4 w-4" />
+            </span>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search active orders by ID, student name, dish, or room number…"
-              className="input text-xs pl-9 py-2"
+              className="input text-xs pl-9 pr-10 py-2.5"
             />
-            <span className="absolute left-3 top-2.5 text-muted text-xs">🔍</span>
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-2 text-xs text-muted hover:text-ink cursor-pointer"
+                className="absolute inset-y-0 right-3 flex items-center text-muted hover:text-ink cursor-pointer"
+                aria-label="Clear search"
               >
-                Clear
+                <X className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
@@ -267,7 +275,8 @@ export default function DashboardPage() {
                   : 'bg-surface border border-line text-muted hover:text-ink'
               }`}
             >
-              <span>⏳ New / Accept</span>
+              <Clock className="h-3.5 w-3.5" />
+              <span>New / Accept</span>
               <span className="rounded-full bg-surface/20 px-1.5 py-0.2 text-[10px]">
                 {stationCounts.incoming}
               </span>
@@ -280,7 +289,8 @@ export default function DashboardPage() {
                   : 'bg-surface border border-line text-muted hover:text-ink'
               }`}
             >
-              <span>🍳 Cooking</span>
+              <ChefHat className="h-3.5 w-3.5" />
+              <span>Cooking</span>
               <span className="rounded-full bg-surface/20 px-1.5 py-0.2 text-[10px]">
                 {stationCounts.cooking}
               </span>
@@ -293,7 +303,8 @@ export default function DashboardPage() {
                   : 'bg-surface border border-line text-muted hover:text-ink'
               }`}
             >
-              <span>🛵 Ready & Delivery</span>
+              <Bike className="h-3.5 w-3.5" />
+              <span>Ready & Delivery</span>
               <span className="rounded-full bg-surface/20 px-1.5 py-0.2 text-[10px]">
                 {stationCounts.dispatch}
               </span>

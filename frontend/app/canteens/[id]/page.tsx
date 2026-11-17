@@ -1,9 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import {
+  AlertTriangle,
+  ArrowRight,
+  Clock,
+  MapPin,
+  ShoppingBag,
+  Star,
+} from 'lucide-react';
 import { canteenApi } from '@/lib/api/canteen';
 import { menuApi } from '@/lib/api/menu';
 import { SiteHeader } from '@/components/site-header';
@@ -13,6 +21,7 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { useCartStore } from '@/store/cart-store';
 import { useAuthStore } from '@/store/auth-store';
 import { ConsumerRouteGuard } from '@/components/consumer-route-guard';
+import { useIsClient } from '@/lib/use-client-state';
 
 const CATEGORY_ORDER = [
   'Breakfast',
@@ -46,8 +55,7 @@ export default function CanteenMenuPage() {
   const [diet, setDiet] = useState<'all' | 'veg' | 'nonveg'>('all');
   const [category, setCategory] = useState<string>('all');
   const [bannerError, setBannerError] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useIsClient();
 
   const user = useAuthStore((s) => s.user);
   const cartItems = useCartStore((s) => s.items);
@@ -141,7 +149,8 @@ export default function CanteenMenuPage() {
                 </span>
                 {canteen.rating > 0 && (
                   <span className="badge badge-accent text-xs">
-                    ★ {canteen.rating.toFixed(1)}
+                    <Star className="h-3 w-3 fill-accent text-accent" />
+                    <span>{canteen.rating.toFixed(1)}</span>
                     {canteen.totalRatings ? ` (${canteen.totalRatings} reviews)` : ''}
                   </span>
                 )}
@@ -150,16 +159,22 @@ export default function CanteenMenuPage() {
               <p className="mt-2 font-light text-muted">{canteen.description}</p>
 
               <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted">
-                <span>📍 {canteen.location}</span>
-                <span>
-                  🕒 {canteen.openingHours.open}–{canteen.openingHours.close}
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 text-accent" />
+                  <span>{canteen.location}</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 text-accent" />
+                  <span>
+                    {canteen.openingHours.open}–{canteen.openingHours.close}
+                  </span>
                 </span>
               </div>
             </header>
 
             {canteen && !canteen.isActive && (
               <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900 flex items-center gap-3">
-                <span className="text-xl">⚠️</span>
+                <AlertTriangle className="h-5 w-5 text-danger shrink-0" />
                 <div>
                   <p className="font-semibold">This canteen is temporarily offline</p>
                   <p className="text-xs text-red-700 mt-0.5">
@@ -171,7 +186,7 @@ export default function CanteenMenuPage() {
 
             {canteen && canteen.isActive && !open && (
               <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 flex items-center gap-3">
-                <span className="text-xl">🕒</span>
+                <Clock className="h-5 w-5 text-amber-700 shrink-0" />
                 <div>
                   <p className="font-semibold">Canteen is currently closed</p>
                   <p className="text-xs text-amber-700 mt-0.5">
@@ -235,16 +250,16 @@ export default function CanteenMenuPage() {
           aria-label="Cart summary"
           className="fixed bottom-4 left-4 right-4 z-30 mx-auto max-w-2xl animate-fade-in"
         >
-          <div className="flex items-center justify-between rounded-2xl bg-accent px-5 py-3.5 text-white shadow-xl shadow-accent/20 border border-accent-hover/30">
+          <div className="flex items-center justify-between rounded-2xl bg-accent px-5 py-3.5 text-white shadow-xl shadow-accent/25 border border-accent-hover/30">
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-lg">
-                🛍️
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-white">
+                <ShoppingBag className="h-5 w-5" />
               </span>
               <div>
                 <p className="text-xs uppercase font-medium tracking-wider text-accent-tint">
                   {cartItemCount} {cartItemCount === 1 ? 'item' : 'items'} in cart
                 </p>
-                <p className="font-display text-lg font-bold">
+                <p className="font-display text-lg font-bold tabular-nums">
                   {formatCurrency(cartTotal)}
                 </p>
               </div>
@@ -254,7 +269,7 @@ export default function CanteenMenuPage() {
               className="flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-accent shadow-sm hover:bg-surface active:scale-95 transition-all cursor-pointer"
             >
               <span>View Cart</span>
-              <span>→</span>
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </aside>

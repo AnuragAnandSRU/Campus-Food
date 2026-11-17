@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { LoginAudience } from '../../../shared/src/types/user.types';
 import { authApi } from '@/lib/api/auth';
@@ -169,10 +170,11 @@ export function LoginForm({
       {footer && <div className="mt-8 text-sm text-muted">{footer}</div>}
 
       {demoAccounts && demoAccounts.length > 0 && (
-        <div className="mt-6 rounded-xl border border-line bg-surface/60 p-3.5 backdrop-blur-sm">
+        <div className="mt-6 rounded-xl border border-line bg-surface/70 p-3.5 backdrop-blur-sm">
           <div className="mb-2 flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-xs font-semibold text-ink">
-              <span>⚡</span> Quick Demo Logins
+              <Sparkles className="h-3.5 w-3.5 text-accent" />
+              Quick Demo Logins
             </span>
             <span className="text-[11px] text-muted">Click to auto-fill</span>
           </div>

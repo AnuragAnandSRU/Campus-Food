@@ -29,7 +29,9 @@ interface OrderSocketHandlers {
 export function useOrderSocket(handlers: OrderSocketHandlers): void {
   const token = useAuthStore((s) => s.token);
   const ref = useRef(handlers);
-  ref.current = handlers;
+  useEffect(() => {
+    ref.current = handlers;
+  });
 
   useEffect(() => {
     if (!token) return;

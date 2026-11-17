@@ -7,6 +7,7 @@ import { adminApi } from '@/lib/api/admin';
 import { getApiErrorMessage } from '@/lib/api-client';
 import { Field } from '@/components/auth/field';
 import { InviteLinkCard } from '@/components/admin/invite-link-card';
+import { CheckCircle2 } from 'lucide-react';
 import type { AdminCanteen } from '../../../shared/src/types/canteen.types';
 import type { ProvisionResult } from '../../../shared/src/types/user.types';
 
@@ -83,7 +84,10 @@ export function ProvisionOwnerForm({
     return (
       <div className="space-y-5">
         <div className="rounded-xl border border-accent/20 bg-accent-tint/15 p-4 text-xs text-accent">
-          <p className="font-semibold">✓ Canteen Owner Account Provisioned</p>
+          <p className="font-semibold flex items-center gap-1.5">
+            <CheckCircle2 className="h-4 w-4 text-accent" />
+            <span>Canteen Owner Account Provisioned</span>
+          </p>
           <p className="mt-1 text-muted">
             An email with the activation link has been sent to{' '}
             <strong className="text-ink">{result.user.email}</strong>. Once they set their

@@ -1,9 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import {
+  AlertTriangle,
+  Minus,
+  Plus,
+  Trash2,
+  UtensilsCrossed,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCartStore } from '@/store/cart-store';
 import { menuApi } from '@/lib/api/menu';
@@ -11,10 +18,10 @@ import { SiteHeader } from '@/components/site-header';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { formatCurrency } from '@/lib/utils';
 import { ConsumerRouteGuard } from '@/components/consumer-route-guard';
+import { useIsClient } from '@/lib/use-client-state';
 
 export default function CartPage() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useIsClient();
 
   const router = useRouter();
   const items = useCartStore((s) => s.items);
@@ -122,7 +129,7 @@ export default function CartPage() {
 
             {hasUnavailableItems && (
               <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs sm:text-sm text-red-900 flex items-center gap-2.5">
-                <span className="text-lg shrink-0">⚠️</span>
+                <AlertTriangle className="h-4 w-4 text-danger shrink-0" />
                 <span>
                   Some items in your cart are currently sold out. Please remove them to proceed to checkout.
                 </span>
@@ -154,8 +161,8 @@ export default function CartPage() {
                         />
                       </div>
                     ) : (
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-line bg-accent-tint text-accent text-lg font-bold sm:h-16 sm:w-16">
-                        🍽️
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-line bg-accent-tint text-accent sm:h-16 sm:w-16">
+                        <UtensilsCrossed className="h-6 w-6" />
                       </div>
                     )}
 
@@ -171,20 +178,28 @@ export default function CartPage() {
                       <p className="text-sm text-muted">{formatCurrency(item.price)}</p>
                     </div>
 
-                    <div className="inline-flex items-center gap-2.5 rounded-full border border-line px-1">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface p-0.5">
                       <button
-                        onClick={() => updateQuantity(item.menuItemId, item.quantity - 1)}
-                        className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${
+                        onClick={() =>
                           item.quantity === 1 || isSoldOut
-                            ? 'text-xs text-muted hover:text-danger hover:bg-red-50'
-                            : 'text-lg text-accent hover:bg-accent-tint'
+                            ? removeItem(item.menuItemId)
+                            : updateQuantity(item.menuItemId, item.quantity - 1)
+                        }
+                        className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors cursor-pointer ${
+                          item.quantity === 1 || isSoldOut
+                            ? 'text-danger hover:bg-red-50'
+                            : 'text-accent hover:bg-accent-tint'
                         }`}
                         aria-label={item.quantity === 1 ? `Remove ${item.name} from cart` : `Reduce ${item.name}`}
                         title={item.quantity === 1 ? 'Remove from cart' : 'Reduce quantity'}
                       >
-                        {item.quantity === 1 || isSoldOut ? '🗑️' : '−'}
+                        {item.quantity === 1 || isSoldOut ? (
+                          <Trash2 className="h-3.5 w-3.5" />
+                        ) : (
+                          <Minus className="h-3.5 w-3.5" />
+                        )}
                       </button>
-                      <span className="min-w-4 text-center text-sm font-semibold text-ink">
+                      <span className="min-w-4 text-center text-xs sm:text-sm font-semibold text-ink tabular-nums">
                         {item.quantity}
                       </span>
                       <button
@@ -196,10 +211,10 @@ export default function CartPage() {
                           updateQuantity(item.menuItemId, item.quantity + 1);
                         }}
                         disabled={isSoldOut}
-                        className="flex h-7 w-7 items-center justify-center rounded-full text-lg text-accent hover:bg-accent-tint transition-colors disabled:opacity-40"
+                        className="flex h-7 w-7 items-center justify-center rounded-full text-accent hover:bg-accent hover:text-white transition-colors disabled:opacity-40 cursor-pointer"
                         aria-label={`Add another ${item.name}`}
                       >
-                        +
+                        <Plus className="h-3.5 w-3.5" />
                       </button>
                     </div>
 

@@ -5,7 +5,7 @@ import { LoginForm } from '@/components/auth/login-form';
 
 const STUDENT_DEMO_ACCOUNTS = [
   {
-    label: '🎓 Demo Student',
+    label: 'Demo Student',
     email: 'demo.student@college.edu',
     password: 'testpass123',
     toastMessage: 'Filled Student demo credentials',

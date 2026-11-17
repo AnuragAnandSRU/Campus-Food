@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { KeyRound } from 'lucide-react';
 import { ResetPasswordForm } from './reset-form';
 
 // Server component: the reset token arrives as a query param. In Next 16
@@ -18,8 +19,8 @@ export default async function ResetPasswordPage({
   if (!token) {
     return (
       <>
-        <div className="mb-6 grid h-12 w-12 place-items-center rounded-full bg-accent-tint text-2xl">
-          🔗
+        <div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl bg-amber-50 text-amber-700">
+          <KeyRound className="h-6 w-6" />
         </div>
         <h1 className="font-display text-3xl tracking-tight text-ink sm:text-4xl">
           Invalid <em className="not-italic text-accent">link</em>

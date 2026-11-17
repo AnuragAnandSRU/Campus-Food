@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ShieldAlert } from 'lucide-react';
 import { SiteHeader } from '@/components/site-header';
 import { useAuthStore } from '@/store/auth-store';
 import { useLogout } from '@/lib/use-logout';
@@ -27,8 +28,8 @@ export default function UnauthorizedPage() {
       <SiteHeader />
       <main className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="card max-w-md w-full p-8 text-center border-line bg-surface/90 shadow-xl shadow-ink/5">
-          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-danger/10 text-danger text-2xl border border-danger/20">
-            🛡️
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-danger/10 text-danger border border-danger/20">
+            <ShieldAlert className="h-7 w-7" />
           </div>
 
           <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">

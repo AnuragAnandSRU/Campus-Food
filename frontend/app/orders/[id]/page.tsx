@@ -17,6 +17,7 @@ import { StatusBadge } from '@/components/orders/status-badge';
 import { OrderStatusTracker } from '@/components/orders/order-status-tracker';
 import { OrderRatingCard } from '@/components/orders/order-rating-card';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
+import { Bike, Copy, KeyRound, RotateCcw } from 'lucide-react';
 
 export default function OrderDetailPage() {
   const ready = useRequireStudent();
@@ -129,7 +130,7 @@ export default function OrderDetailPage() {
               >
                 {isOutForDelivery && (
                   <div className="mb-3 flex items-center gap-2 rounded-lg bg-emerald-600/10 px-3 py-1.5 text-xs font-semibold text-accent animate-pulse">
-                    <span>🛵</span>
+                    <Bike className="h-4 w-4" />
                     <span>Runner is arriving at your hostel! Show this 4-digit PIN for handover.</span>
                   </div>
                 )}
@@ -137,7 +138,7 @@ export default function OrderDetailPage() {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-white text-xs font-bold">
-                        🔐
+                        <KeyRound className="h-3.5 w-3.5" />
                       </span>
                       <h4 className="font-display font-semibold text-ink text-base">
                         Delivery Handover PIN
@@ -179,7 +180,7 @@ export default function OrderDetailPage() {
                       className="rounded p-1 text-xs text-muted hover:text-ink hover:bg-line/40 transition-colors cursor-pointer"
                       title="Copy order ID"
                     >
-                      📋
+                      <Copy className="h-3.5 w-3.5" />
                     </button>
                   </div>
                   <p className="mt-0.5 text-xs text-muted">{formatDateTime(order.createdAt)}</p>
@@ -253,9 +254,9 @@ export default function OrderDetailPage() {
                   <button
                     type="button"
                     onClick={() => reorder(order, canteenQuery.data?.name)}
-                    className="btn btn-primary flex-1 text-center flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="btn btn-primary flex-1 text-center flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                   >
-                    <span>🔁</span>
+                    <RotateCcw className="h-4 w-4" />
                     <span>Order Again</span>
                   </button>
                 )}

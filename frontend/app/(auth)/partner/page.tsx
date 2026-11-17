@@ -4,7 +4,7 @@ import { LoginForm } from '@/components/auth/login-form';
 
 const PARTNER_DEMO_ACCOUNTS = [
   {
-    label: '🏪 Spice Owner',
+    label: 'Spice Owner',
     email: 'owner.spice@campusfood.local',
     password: 'demo12345',
     toastMessage: 'Filled Spice Junction Owner credentials',
@@ -12,7 +12,7 @@ const PARTNER_DEMO_ACCOUNTS = [
       'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200',
   },
   {
-    label: '🍳 Kitchen Staff',
+    label: 'Kitchen Staff',
     email: 'kitchen.spice@campusfood.local',
     password: 'demo12345',
     toastMessage: 'Filled Spice Kitchen Staff credentials',
@@ -20,7 +20,7 @@ const PARTNER_DEMO_ACCOUNTS = [
       'bg-orange-50 text-orange-800 hover:bg-orange-100 border border-orange-200',
   },
   {
-    label: '🛵 Delivery Runner',
+    label: 'Delivery Runner',
     email: 'delivery.spice@campusfood.local',
     password: 'demo12345',
     toastMessage: 'Filled Spice Delivery Runner credentials',

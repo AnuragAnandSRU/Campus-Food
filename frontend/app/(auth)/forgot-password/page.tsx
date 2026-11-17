@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authApi } from '@/lib/api/auth';
 import { getApiErrorMessage } from '@/lib/api-client';
@@ -56,8 +57,8 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <>
-        <div className="mb-6 grid h-12 w-12 place-items-center rounded-full bg-accent-tint text-2xl">
-          ✉️
+        <div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl bg-accent-tint text-accent">
+          <Mail className="h-6 w-6" />
         </div>
         <h1 className="font-display text-3xl tracking-tight text-ink sm:text-4xl">
           Check your <em className="not-italic text-accent">inbox</em>
