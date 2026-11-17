@@ -154,7 +154,7 @@ export default function CanteensPage() {
             </div>
           )}
 
-          {canteens && canteens.length === 0 && (
+          {!isLoading && !isError && canteens && canteens.length === 0 && (
             <div className="card p-12 text-center max-w-md mx-auto">
               <p className="font-display text-xl text-ink">No canteens open yet</p>
               <p className="mt-1 font-light text-muted text-sm">
@@ -163,7 +163,7 @@ export default function CanteensPage() {
             </div>
           )}
 
-          {filteredCanteens.length === 0 && !isLoading && (
+          {!isLoading && !isError && canteens && canteens.length > 0 && filteredCanteens.length === 0 && (
             <div className="card p-10 text-center max-w-md mx-auto text-muted">
               <p className="font-display text-lg font-semibold text-ink">No matching canteens found</p>
               <p className="text-xs mt-1">Try adjusting your search query or reset filter pills.</p>
@@ -179,7 +179,7 @@ export default function CanteensPage() {
             </div>
           )}
 
-          {filteredCanteens.length > 0 && (
+          {!isLoading && !isError && filteredCanteens.length > 0 && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filteredCanteens.map((canteen) => (
                 <CanteenCard key={canteen._id} canteen={canteen} />

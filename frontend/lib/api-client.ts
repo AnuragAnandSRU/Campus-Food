@@ -7,7 +7,23 @@ import {
   readStoredAuth,
 } from '@/lib/role-routing';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const getBaseApiUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    // In local development, direct to localhost backend
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    }
+    // In browser on deployed environments (e.g. Vercel), use relative '/api'
+    // so requests flow seamlessly through Next.js rewrites. This guarantees
+    // requests bypass campus network firewalls (such as FortiGuard / SonicWALL
+    // which block dynamic DNS services like DuckDNS), eliminates CORS, and preserves auth.
+    return '/api';
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+};
+
+const API_URL = getBaseApiUrl();
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
