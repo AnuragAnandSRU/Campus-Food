@@ -26,3 +26,18 @@ export const provisionUserValidator = [
     .isIn(['manage_menu', 'view_analytics'])
     .withMessage('Unknown permission'),
 ];
+
+/** Updating an existing staff member's duties and permissions. */
+export const updateStaffPowersValidator = [
+  body('staffDuties')
+    .isArray({ min: 1 })
+    .withMessage('Assign at least one duty: kitchen, delivery, or both'),
+  body('staffDuties.*')
+    .isIn(['kitchen', 'delivery'])
+    .withMessage('Duty must be kitchen or delivery'),
+  body('permissions').optional().isArray().withMessage('Permissions must be a list'),
+  body('permissions.*')
+    .optional()
+    .isIn(['manage_menu', 'view_analytics'])
+    .withMessage('Unknown permission'),
+];

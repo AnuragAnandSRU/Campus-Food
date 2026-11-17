@@ -9,6 +9,7 @@ import type {
   ProvisionedUser,
   ProvisionUserDto,
   ProvisionResult,
+  UpdateStaffPowersDto,
 } from '../../../shared/src/types/user.types';
 
 /**
@@ -53,5 +54,10 @@ export const adminApi = {
 
   removeUser: async (id: string): Promise<void> => {
     await apiClient.delete(`/users/${id}`);
+  },
+
+  updateStaffPowers: async (id: string, data: UpdateStaffPowersDto): Promise<ProvisionedUser> => {
+    const res = await apiClient.patch<ApiResponse<ProvisionedUser>>(`/users/${id}/powers`, data);
+    return res.data.data!;
   },
 };

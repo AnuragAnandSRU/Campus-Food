@@ -110,3 +110,9 @@ export interface ChangePasswordDto {
   currentPassword: string;
   newPassword: string;
 }
+
+/** Payload for updating an existing staff member's floor duties and powers. */
+export interface UpdateStaffPowersDto {
+  staffDuties: StaffDuty[];
+  permissions?: StaffPermission[];
+}

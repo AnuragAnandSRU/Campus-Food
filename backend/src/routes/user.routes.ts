@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { protect, restrictTo } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate';
-import { provisionUserValidator } from '../validators/user.validator';
+import { provisionUserValidator, updateStaffPowersValidator } from '../validators/user.validator';
 import {
   provisionUser,
   listProvisionedUsers,
   resendInvite,
   removeUser,
+  updateStaffPowers,
 } from '../controllers/user.controller';
 
 const router = Router();
@@ -18,6 +19,7 @@ router.use(protect);
 // (scoping enforced in each controller).
 router.get('/', restrictTo('admin', 'owner'), listProvisionedUsers);
 router.post('/', restrictTo('admin', 'owner'), provisionUserValidator, validate, provisionUser);
+router.patch('/:id/powers', restrictTo('admin', 'owner'), updateStaffPowersValidator, validate, updateStaffPowers);
 router.post('/:id/resend-invite', restrictTo('admin', 'owner'), resendInvite);
 router.delete('/:id', restrictTo('admin', 'owner'), removeUser);
 

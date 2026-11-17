@@ -251,3 +251,57 @@ export const removeUser = asyncHandler(async (req: Request, res: Response) => {
 
   res.json({ success: true, data: { _id: String(user._id) } });
 });
+
+/**
+ * PATCH /api/users/:id/powers  (admin / owner)
+ * Updates floor duties (kitchen/delivery) and granular powers (manage_menu, view_analytics)
+ * for an existing staff member.
+ * Owners may only update staff belonging to their own canteen; admins can update any staff.
+ */
+export const updateStaffPowers = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { staffDuties, permissions } = req.body;
+
+  if (!mongoose.isValidObjectId(id)) {
+    throw new AppError('User not found', 404);
+  }
+
+  const user = await User.findById(id);
+  if (!user || user.role !== 'staff') {
+    throw new AppError('Staff member not found', 404);
+  }
+
+  const requester = (req as AuthRequest).user!;
+  if (requester.role === 'owner') {
+    const me = await User.findById(requester.userId).select('canteenId');
+    if (
+      !me?.canteenId ||
+      !user.canteenId ||
+      user.canteenId.toString() !== me.canteenId.toString()
+    ) {
+      throw new AppError('You can only manage your own canteen staff', 403);
+    }
+  }
+
+  user.staffDuties = uniq(staffDuties);
+  user.permissions = uniq(permissions);
+  await user.save({ validateBeforeSave: false });
+
+  const canteen = user.canteenId ? await Canteen.findById(user.canteenId).select('name') : null;
+
+  res.json({
+    success: true,
+    data: {
+      _id: String(user._id),
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      phone: user.phone,
+      staffDuties: user.staffDuties,
+      permissions: user.permissions,
+      canteen: canteen ? { _id: String(canteen._id), name: canteen.name } : null,
+      isActive: user.isActive,
+      createdAt: user.createdAt,
+    },
+  });
+});

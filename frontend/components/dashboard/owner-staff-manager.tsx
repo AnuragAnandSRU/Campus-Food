@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Pencil, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { adminApi } from '@/lib/api/admin';
 import { getApiErrorMessage } from '@/lib/api-client';
@@ -92,6 +93,7 @@ export function OwnerStaffManager({ canteenId }: { canteenId: string }) {
 function StaffRow({ user }: { user: ProvisionedUser }) {
   const queryClient = useQueryClient();
   const [link, setLink] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
 
   const resend = useMutation({
     mutationFn: () => adminApi.resendInvite(user._id),
@@ -148,27 +150,184 @@ function StaffRow({ user }: { user: ProvisionedUser }) {
         </div>
       )}
 
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          className="btn btn-secondary px-3 py-1.5 text-xs flex items-center gap-1.5 cursor-pointer"
+        >
+          <Pencil className="h-3.5 w-3.5" />
+          <span>Edit powers</span>
+        </button>
+
         {!user.isActive && !link && (
           <button
             type="button"
             onClick={() => resend.mutate()}
             disabled={resend.isPending}
-            className="btn btn-secondary px-4 py-2 text-sm disabled:opacity-60"
+            className="btn btn-secondary px-3 py-1.5 text-xs disabled:opacity-60 cursor-pointer"
           >
             {resend.isPending ? 'Generating…' : 'Resend invite'}
           </button>
         )}
+
         <button
           type="button"
           onClick={handleRemove}
           disabled={remove.isPending}
-          className="px-3 py-2 text-sm font-medium text-danger transition-colors hover:underline disabled:opacity-50"
+          className="px-3 py-1.5 text-xs font-medium text-danger transition-colors hover:underline disabled:opacity-50 cursor-pointer"
         >
           {remove.isPending ? 'Removing…' : 'Remove'}
         </button>
       </div>
+
+      {editing && (
+        <EditStaffPowersModal user={user} onClose={() => setEditing(false)} />
+      )}
     </li>
+  );
+}
+
+function EditStaffPowersModal({
+  user,
+  onClose,
+}: {
+  user: ProvisionedUser;
+  onClose: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const [duties, setDuties] = useState<StaffDuty[]>(user.staffDuties || []);
+  const [permissions, setPermissions] = useState<StaffPermission[]>(user.permissions || []);
+  const [dutyError, setDutyError] = useState('');
+
+  const toggleDuty = (value: StaffDuty) => {
+    setDutyError('');
+    setDuties((prev) => (prev.includes(value) ? prev.filter((d) => d !== value) : [...prev, value]));
+  };
+
+  const togglePermission = (value: StaffPermission) => {
+    setPermissions((prev) =>
+      prev.includes(value) ? prev.filter((p) => p !== value) : [...prev, value]
+    );
+  };
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      adminApi.updateStaffPowers(user._id, {
+        staffDuties: duties,
+        permissions,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['owner-staff'] });
+      toast.success(`Updated powers for ${user.name}`);
+      onClose();
+    },
+    onError: (err) => toast.error(getApiErrorMessage(err, 'Could not update staff powers.')),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (duties.length === 0) {
+      setDutyError('Assign at least one duty (Kitchen or Delivery).');
+      return;
+    }
+    mutation.mutate();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-xs animate-fade-in">
+      <div className="card w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto shadow-2xl animate-scale-in">
+        <div className="flex items-center justify-between border-b border-line pb-4 mb-4">
+          <div>
+            <h3 className="font-display text-lg font-bold text-ink">Edit Duties & Powers</h3>
+            <p className="text-xs text-muted font-light mt-0.5">
+              {user.name} &middot; <span className="text-ink/80">{user.email}</span>
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-muted hover:bg-line/40 hover:text-ink cursor-pointer"
+            aria-label="Close modal"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Floor Duties */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted">
+              Floor Duties (select at least one)
+            </label>
+            <p className="text-xs text-muted font-light mt-0.5">
+              Determines what station orders this staff member handles on the live dashboard.
+            </p>
+            <div className="mt-2.5 space-y-2">
+              {DUTY_OPTIONS.map((opt) => (
+                <label
+                  key={opt.value}
+                  className="flex items-center gap-3 rounded-xl border border-line bg-surface/50 p-3 text-xs sm:text-sm text-ink cursor-pointer hover:bg-surface transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={duties.includes(opt.value)}
+                    onChange={() => toggleDuty(opt.value)}
+                    className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
+                  />
+                  <span className="font-medium">{opt.label}</span>
+                </label>
+              ))}
+            </div>
+            {dutyError && <p className="mt-1.5 text-xs text-danger font-medium">{dutyError}</p>}
+          </div>
+
+          {/* Granular Powers */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted">
+              Granular Powers (optional)
+            </label>
+            <p className="text-xs text-muted font-light mt-0.5">
+              Elevated privileges normally reserved for the canteen owner.
+            </p>
+            <div className="mt-2.5 space-y-2">
+              {PERMISSION_OPTIONS.map((opt) => (
+                <label
+                  key={opt.value}
+                  className="flex items-center gap-3 rounded-xl border border-line bg-surface/50 p-3 text-xs sm:text-sm text-ink cursor-pointer hover:bg-surface transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={permissions.includes(opt.value)}
+                    onChange={() => togglePermission(opt.value)}
+                    className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
+                  />
+                  <span className="font-medium">{opt.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-line">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={mutation.isPending}
+              className="btn btn-secondary text-xs px-4 py-2 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={mutation.isPending}
+              className="btn btn-primary text-xs px-4 py-2 cursor-pointer"
+            >
+              {mutation.isPending ? 'Saving…' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
 
